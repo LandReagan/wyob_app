@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-
+/// This widget occupies the Upper part of the duties view
 class NextDutyWidget extends StatelessWidget {
 
   @override
