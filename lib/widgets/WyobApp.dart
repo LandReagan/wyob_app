@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
-import 'NextDutyWidget.dart';
 import 'DutiesWidget.dart';
 import '../Duty.dart' show Duty;
 import '../FileManager.dart';
@@ -69,7 +68,7 @@ class WyobAppState extends State<WyobApp> {
 
 class HomeWidget extends StatelessWidget {
 
-  List<Duty> duties;
+  final List<Duty> duties;
 
   HomeWidget(this.duties);
 
@@ -78,7 +77,6 @@ class HomeWidget extends StatelessWidget {
     return new Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        new NextDutyWidget(),
         new DutiesWidget(duties),
       ],
     );
