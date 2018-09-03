@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 
@@ -21,6 +20,7 @@ class IobConnect {
 
     http.Client client = new http.Client();
 
+    // TODO: Don't wait for ever, handle offline situation!
     String landingBodyWithToken = (await client.get(landingUrl)).body;
     String token = tokenRegExp.firstMatch(landingBodyWithToken).group(1);
 

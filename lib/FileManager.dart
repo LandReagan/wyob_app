@@ -1,6 +1,9 @@
-import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 
 class FileManager {
@@ -24,5 +27,10 @@ class FileManager {
 
   static Future<File> _getCurrentDutiesFile() async {
     return new File((await _getRootPath()) + "/currentDuties.json");
+  }
+
+  static Future<Map<String, dynamic>> getUserSettings() async {
+    String jsonString = await rootBundle.loadString('user_data.json');
+    return json.decode(jsonString);
   }
 }
