@@ -1,9 +1,349 @@
 {
-  "nature": "OFF",
-  "code": "ROF",
-  "startPlace": "???",
-  "endPlace": "???",
-  "startTime": "01Jan1970 00:00 +04:00",
-  "endTime": "01Jan1970 23:59 +04:00",
-  "flights": []
+  "0": {
+    "nature": "STDBY",
+    "code": "HS-AM",
+    "startTime": "30Apr2017 06:00 +04:00",
+    "endTime": "30Apr2017 08:15 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "1": {
+    "nature": "FLIGHT",
+    "code": "851-04",
+    "startTime": "30Apr2017 08:15 +04:00",
+    "endTime": "30Apr2017 21:40 +08:00",
+    "startPlace": "MCT",
+    "endPlace": "CAN",
+    "flights": [
+      {
+        "startTime": "30Apr2017 09:45 +04:00",
+        "endTime": "30Apr2017 21:10 +08:00",
+        "startPlace": "MCT",
+        "endPlace": "CAN",
+        "flightNumber": "WY851"
+      }
+    ]
+  },
+  "2": {
+    "nature": "FLIGHT",
+    "code": "",
+    "startTime": "02May2017 07:55 +08:00",
+    "endTime": "02May2017 13:10 +04:00",
+    "startPlace": "CAN",
+    "endPlace": "MCT",
+    "flights": [
+      {
+        "startTime": "02May2017 09:10 +08:00",
+        "endTime": "02May2017 12:40 +04:00",
+        "startPlace": "CAN",
+        "endPlace": "MCT",
+        "flightNumber": "WY852"
+      }
+    ]
+  },
+  "3": {
+    "nature": "OFF",
+    "code": "OFF",
+    "startTime": "03May2017 00:00 +04:00",
+    "endTime": "03May2017 23:59 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "4": {
+    "nature": "STDBY",
+    "code": "HS-PM",
+    "startTime": "04May2017 18:00 +04:00",
+    "endTime": "05May2017 06:00 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "5": {
+    "nature": "OFF",
+    "code": "OFF",
+    "startTime": "06May2017 00:00 +04:00",
+    "endTime": "06May2017 23:59 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "6": {
+    "nature": "OFF",
+    "code": "OFF",
+    "startTime": "07May2017 00:00 +04:00",
+    "endTime": "07May2017 23:59 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "7": {
+    "nature": "FLIGHT",
+    "code": "821-00",
+    "startTime": "08May2017 19:15 +04:00",
+    "endTime": "09May2017 08:25 +08:00",
+    "startPlace": "MCT",
+    "endPlace": "KUL",
+    "flights": [
+      {
+        "startTime": "08May2017 20:45 +04:00",
+        "endTime": "09May2017 07:55 +08:00",
+        "startPlace": "MCT",
+        "endPlace": "KUL",
+        "flightNumber": "WY821"
+      }
+    ]
+  },
+  "8": {
+    "nature": "FLIGHT",
+    "code": "",
+    "startTime": "10May2017 20:05 +08:00",
+    "endTime": "11May2017 00:35 +04:00",
+    "startPlace": "KUL",
+    "endPlace": "MCT",
+    "flights": [
+      {
+        "startTime": "10May2017 21:20 +08:00",
+        "endTime": "11May2017 00:05 +04:00",
+        "startPlace": "KUL",
+        "endPlace": "MCT",
+        "flightNumber": "WY824"
+      }
+    ]
+  },
+  "9": {
+    "nature": "OFF",
+    "code": "OFF",
+    "startTime": "12May2017 00:00 +04:00",
+    "endTime": "12May2017 23:59 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "10": {
+    "nature": "FLIGHT",
+    "code": "105-00",
+    "startTime": "13May2017 12:30 +04:00",
+    "endTime": "13May2017 19:35 +01:00",
+    "startPlace": "MCT",
+    "endPlace": "MAN",
+    "flights": [
+      {
+        "startTime": "13May2017 14:00 +04:00",
+        "endTime": "13May2017 19:05 +01:00",
+        "startPlace": "MCT",
+        "endPlace": "MAN",
+        "flightNumber": "WY105"
+      }
+    ]
+  },
+  "11": {
+    "nature": "FLIGHT",
+    "code": "",
+    "startTime": "14May2017 19:45 +01:00",
+    "endTime": "15May2017 07:50 +04:00",
+    "startPlace": "MAN",
+    "endPlace": "MCT",
+    "flights": [
+      {
+        "startTime": "14May2017 20:45 +01:00",
+        "endTime": "15May2017 07:20 +04:00",
+        "startPlace": "MAN",
+        "endPlace": "MCT",
+        "flightNumber": "WY106"
+      }
+    ]
+  },
+  "12": {
+    "nature": "FLIGHT",
+    "code": "103-00",
+    "startTime": "16May2017 23:50 +04:00",
+    "endTime": "17May2017 07:00 +01:00",
+    "startPlace": "MCT",
+    "endPlace": "LHR",
+    "flights": [
+      {
+        "startTime": "17May2017 01:20 +04:00",
+        "endTime": "17May2017 06:30 +01:00",
+        "startPlace": "MCT",
+        "endPlace": "LHR",
+        "flightNumber": "WY103"
+      }
+    ]
+  },
+  "13": {
+    "nature": "FLIGHT",
+    "code": "",
+    "startTime": "18May2017 07:25 +01:00",
+    "endTime": "18May2017 19:30 +04:00",
+    "startPlace": "LHR",
+    "endPlace": "MCT",
+    "flights": [
+      {
+        "startTime": "18May2017 08:25 +01:00",
+        "endTime": "18May2017 19:00 +04:00",
+        "startPlace": "LHR",
+        "endPlace": "MCT",
+        "flightNumber": "WY104"
+      }
+    ]
+  },
+  "14": {
+    "nature": "OFF",
+    "code": "OFF",
+    "startTime": "19May2017 00:00 +04:00",
+    "endTime": "19May2017 23:59 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "15": {
+    "nature": "OFF",
+    "code": "OFF",
+    "startTime": "20May2017 00:00 +04:00",
+    "endTime": "20May2017 23:59 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "16": {
+    "nature": "FLIGHT",
+    "code": "903-00",
+    "startTime": "21May2017 07:30 +04:00",
+    "endTime": "21May2017 14:10 +04:00",
+    "startPlace": "MCT",
+    "endPlace": "MCT",
+    "flights": [
+      {
+        "startTime": "21May2017 09:00 +04:00",
+        "endTime": "21May2017 10:45 +04:00",
+        "startPlace": "MCT",
+        "endPlace": "SLL",
+        "flightNumber": "WY903"
+      },
+      {
+        "startTime": "21May2017 11:55 +04:00",
+        "endTime": "21May2017 13:40 +04:00",
+        "startPlace": "SLL",
+        "endPlace": "MCT",
+        "flightNumber": "WY904"
+      }
+    ]
+  },
+  "17": {
+    "nature": "FLIGHT",
+    "code": "143-00",
+    "startTime": "22May2017 12:55 +04:00",
+    "endTime": "22May2017 20:05 +02:00",
+    "startPlace": "MCT",
+    "endPlace": "MXP",
+    "flights": [
+      {
+        "startTime": "22May2017 14:25 +04:00",
+        "endTime": "22May2017 19:35 +02:00",
+        "startPlace": "MCT",
+        "endPlace": "MXP",
+        "flightNumber": "WY143"
+      }
+    ]
+  },
+  "18": {
+    "nature": "FLIGHT",
+    "code": "",
+    "startTime": "23May2017 21:00 +02:00",
+    "endTime": "24May2017 07:20 +04:00",
+    "startPlace": "MXP",
+    "endPlace": "MCT",
+    "flights": [
+      {
+        "startTime": "23May2017 22:15 +02:00",
+        "endTime": "24May2017 06:50 +04:00",
+        "startPlace": "MXP",
+        "endPlace": "MCT",
+        "flightNumber": "WY144"
+      }
+    ]
+  },
+  "19": {
+    "nature": "OFF",
+    "code": "OFF",
+    "startTime": "25May2017 00:00 +04:00",
+    "endTime": "25May2017 23:59 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "20": {
+    "nature": "OFF",
+    "code": "OFF",
+    "startTime": "26May2017 00:00 +04:00",
+    "endTime": "26May2017 23:59 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "21": {
+    "nature": "OFF",
+    "code": "OFF",
+    "startTime": "27May2017 00:00 +04:00",
+    "endTime": "27May2017 23:59 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "22": {
+    "nature": null,
+    "code": "SEC",
+    "startTime": "28May2017 08:30 +04:00",
+    "endTime": "28May2017 12:00 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "23": {
+    "nature": null,
+    "code": "DGR",
+    "startTime": "28May2017 12:30 +04:00",
+    "endTime": "28May2017 16:30 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "24": {
+    "nature": null,
+    "code": "CRM",
+    "startTime": "29May2017 08:30 +04:00",
+    "endTime": "29May2017 13:00 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "25": {
+    "nature": null,
+    "code": "SEP330",
+    "startTime": "29May2017 13:30 +04:00",
+    "endTime": "29May2017 16:00 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "26": {
+    "nature": null,
+    "code": "TECREF1",
+    "startTime": "30May2017 08:30 +04:00",
+    "endTime": "30May2017 16:00 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  },
+  "27": {
+    "nature": "OFF",
+    "code": "OFF",
+    "startTime": "31May2017 00:00 +04:00",
+    "endTime": "31May2017 23:59 +04:00",
+    "startPlace": "???",
+    "endPlace": "???",
+    "flights": []
+  }
 }

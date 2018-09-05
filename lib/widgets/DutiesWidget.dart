@@ -28,9 +28,31 @@ class DutyWidget extends StatelessWidget {
 
   Duty duty;
   Widget icon;
+  Text text;
+  Text subText;
 
   DutyWidget(this.duty) {
     icon = WidgetUtils.getIconFromDutyNature(duty.nature);
+
+    // Text building
+    String sText = "";
+    String sSubText = "";
+    sText += duty.startTime.localDayString;
+    sText += " ";
+
+    if (duty.nature == "FLIGHT") {
+      sText += "Reporting: " + duty.startTime.localTimeString;
+      sSubText += duty.startPlace.IATA + ' ';
+      sSubText += duty.flights[0].startTime.localTimeString;
+      sSubText += '  to  ' + duty.endPlace.IATA + ' ' + duty.endTime.localTimeString;;
+    }
+
+    if (duty.nature == "STDBY") {
+      sSubText += duty.startTime.localTimeString + ' to ' + duty.endTime.localTimeString;;
+    }
+
+    text = new Text(sText);
+    subText = new Text(sSubText);
   }
 
   Widget build(BuildContext context) {
@@ -43,12 +65,15 @@ class DutyWidget extends StatelessWidget {
           Text(duty.nature)
         ],
       ),
-      title: new Column(
+      title: text,
+      subtitle: subText,
+      /*new Column(
         children: <Widget>[
           new Text("${duty.startTime.localDayString} ${duty.startPlace.IATA} => ${duty.endPlace.IATA}"),
           new Text('${duty.startTime.localTimeString}'),
         ],
       ),
+      */
     );
   }
 }

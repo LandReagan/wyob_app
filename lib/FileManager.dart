@@ -13,11 +13,14 @@ class FileManager {
   }
 
   static Future<String> readCurrentDuties() async {
+    return await rootBundle.loadString('duties.json');
+    /*
     if ((await _getCurrentDutiesFile()).existsSync()) {
       return (await _getCurrentDutiesFile()).readAsStringSync();
     } else {
       return "";
     }
+    */
   }
 
   static Future<String> _getRootPath() async {
@@ -26,7 +29,8 @@ class FileManager {
   }
 
   static Future<File> _getCurrentDutiesFile() async {
-    return new File((await _getRootPath()) + "/currentDuties.json");
+    print((await _getRootPath()) + "/duties.json");
+    return new File((await _getRootPath()) + "/duties.json");
   }
 
   static Future<Map<String, dynamic>> getUserSettings() async {

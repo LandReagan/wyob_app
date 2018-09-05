@@ -8,9 +8,9 @@ const List<String> DutyNature = [
   'LEAVE',
   'OFF',
   'GROUND',
-  'SIMULATOR',
+  'SIM',
   'FLIGHT',
-  'STANDBY',
+  'STDBY',
 ];
 
 /// Duty class
@@ -67,6 +67,7 @@ class Duty {
     _code = iobMap['Trip'];
 
     /// Nature
+    /// TODO: Refactor using 'iob_duty_codes.json'!
     if (
         code.contains('OFF') ||
         code.contains('ROF')
@@ -85,7 +86,7 @@ class Duty {
         code.contains('HS3') ||
         code.contains('HS4')
       ) {
-      _nature = 'STANDBY';
+      _nature = 'STDBY';
     } else if (flightRegExp.hasMatch(code) || iobMap['Duty'] != '') {
       _nature = 'FLIGHT';
     }

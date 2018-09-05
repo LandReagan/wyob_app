@@ -30,7 +30,7 @@ class WyobAppHomeState extends State<WyobAppHome> {
 
   void initState() {
     super.initState();
-    updateFromIob();
+    //updateFromIob();
     readDutiesFromDatabase();
   }
 
