@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../Duty.dart' show Duty, DutyNature;
 import 'WidgetUtils.dart';
+import 'FlightDutyScreen.dart';
 
 
 class DutiesWidget extends StatelessWidget {
@@ -26,13 +27,17 @@ class DutiesWidget extends StatelessWidget {
 
 class DutyWidget extends StatelessWidget {
 
+  BuildContext _context;
+  
   Duty duty;
   Widget icon;
+  Widget trailing_icon;
   Text text;
   Text subText;
 
   DutyWidget(this.duty) {
     icon = WidgetUtils.getIconFromDutyNature(duty.nature);
+    trailing_icon = null;
 
     // Text building
     String sText = "";
@@ -44,7 +49,13 @@ class DutyWidget extends StatelessWidget {
       sText += "Reporting: " + duty.startTime.localTimeString;
       sSubText += duty.startPlace.IATA + ' ';
       sSubText += duty.flights[0].startTime.localTimeString;
-      sSubText += '  to  ' + duty.endPlace.IATA + ' ' + duty.endTime.localTimeString;;
+      sSubText += '  to  ' + duty.endPlace.IATA + ' ' + duty.endTime.localTimeString;
+      trailing_icon = new IconButton(
+        icon: Icon(Icons.arrow_forward),
+        onPressed: () {
+          goToFlightDutyScreen();
+        },
+      );
     }
 
     if (duty.nature == "STDBY") {
@@ -55,7 +66,17 @@ class DutyWidget extends StatelessWidget {
     subText = new Text(sSubText);
   }
 
+  void goToFlightDutyScreen() {
+    Navigator.push(
+        _context,
+        MaterialPageRoute(
+            builder: (_context) => FlightDutyScreen(duty),
+        ),
+    );
+  }
+
   Widget build(BuildContext context) {
+    _context = context;
     return ListTile(
       contentPadding: EdgeInsets.all(10.0),
       leading: Column(
@@ -74,6 +95,8 @@ class DutyWidget extends StatelessWidget {
         ],
       ),
       */
+      // TODO: put it under condition to be determined.
+      trailing: trailing_icon,
     );
   }
 }

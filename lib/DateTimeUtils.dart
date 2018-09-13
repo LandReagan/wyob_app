@@ -147,6 +147,23 @@ class AwareDT {
     return hour + ":" + minute + " loc";
   }
 
+  String get utcDayString {
+    String day = _utc.day.toString();
+    if (day.length < 2) { day = "0" + day; }
+    String month = months[_utc.month - 1];
+    String year = _utc.year.toString();
+    return day + month + year;
+  }
+
+  String get utcTimeString {
+    String hour = _utc.hour.toString();
+    if (hour.length < 2) { hour = "0" + hour; }
+    String minute = _utc.minute.toString();
+    if (minute.length < 2) { minute = "0" + minute; }
+    return hour + ":" + minute + " utc";
+  }
+
+
   Duration difference (AwareDT before) {
     return _utc.difference(before.utc);
   }
