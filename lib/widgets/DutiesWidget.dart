@@ -53,7 +53,7 @@ class DutyWidget extends StatelessWidget {
       trailing_icon = new IconButton(
         icon: Icon(Icons.arrow_forward),
         onPressed: () {
-          goToFlightDutyScreen();
+          _goToFlightDutyScreen();
         },
       );
     }
@@ -66,7 +66,7 @@ class DutyWidget extends StatelessWidget {
     subText = new Text(sSubText);
   }
 
-  void goToFlightDutyScreen() {
+  void _goToFlightDutyScreen() {
     Navigator.push(
         _context,
         MaterialPageRoute(

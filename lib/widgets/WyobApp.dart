@@ -48,6 +48,9 @@ class WyobAppHomeState extends State<WyobAppHome> {
   }
 
   void updateFromIob() async {
+
+    //TODO: Check for online status first!
+
     String checkinListText = await IobConnect.run('93429', '93429');
     var jsonDuties = new Map<String, dynamic>();
     for (var i = 0; i < duties.length; i++) {

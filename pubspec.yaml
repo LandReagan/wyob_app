@@ -6,6 +6,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  cloud_firestore: any
+
   http: any
 
   html: any

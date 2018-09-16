@@ -136,7 +136,7 @@ class AwareDT {
     if (day.length < 2) { day = "0" + day; }
     String month = months[_loc.month - 1];
     String year = _loc.year.toString();
-    return day + month + year;
+    return day + ' ' + month + ' ' + year;
   }
 
   String get localTimeString {
@@ -152,7 +152,7 @@ class AwareDT {
     if (day.length < 2) { day = "0" + day; }
     String month = months[_utc.month - 1];
     String year = _utc.year.toString();
-    return day + month + year;
+    return day + ' ' + month + ' ' + year;
   }
 
   String get utcTimeString {
