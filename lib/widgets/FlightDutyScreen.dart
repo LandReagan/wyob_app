@@ -20,8 +20,11 @@ class FlightDutyScreen extends StatelessWidget {
 
   List<Widget> getFlightWidgets() {
 
-    Widget reportingWidget = Padding(
+    Widget reportingWidget = Container(
       padding: EdgeInsets.all(10.0),
+      decoration: BoxDecoration(
+        color: Colors.grey,
+      ),
       child: Row(
         children: <Widget>[
           Expanded(
@@ -51,9 +54,17 @@ class FlightDutyScreen extends StatelessWidget {
       },
     );
 
-    flightWidgets.insert(0, reportingWidget);
+    List<Widget> result = [reportingWidget];
 
-    return flightWidgets;
+    for (Widget flightWidget in flightWidgets) {
+      result.add(Divider(
+        height: 5.0,
+        color: Colors.black,
+      ));
+      result.add(flightWidget);
+    }
+
+    return result;
   }
 
   @override
@@ -85,8 +96,8 @@ class FlightDutyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: 30.0),
+    return Container(
+      padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
       child: Row(
         children: <Widget>[
           Container(

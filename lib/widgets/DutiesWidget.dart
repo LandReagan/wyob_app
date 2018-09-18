@@ -46,7 +46,7 @@ class DutyWidget extends StatelessWidget {
     sText += " ";
 
     if (duty.nature == "FLIGHT") {
-      sText += "Reporting: " + duty.startTime.localTimeString;
+      sText += "report " + duty.startTime.localTimeString;
       sSubText += duty.startPlace.IATA + ' ';
       sSubText += duty.flights[0].startTime.localTimeString;
       sSubText += '  to  ' + duty.endPlace.IATA + ' ' + duty.endTime.localTimeString;
