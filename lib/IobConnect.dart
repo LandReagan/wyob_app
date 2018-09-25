@@ -16,12 +16,24 @@ RegExp cookieRegExp = new RegExp(r'(JSESSIONID=\w+);');
 
 class IobConnect {
   
+  /// Returns the check-in list in a String to be parsed (see Parsers.dart)
+  /// In the case of any failure, returns an empty string.
   static Future<String> run(String username, String password) async {
 
     http.Client client = new http.Client();
 
-    // TODO: Don't wait for ever, handle offline situation!
-    String landingBodyWithToken = (await client.get(landingUrl)).body;
+    http.Response iobResponse;
+
+    try {
+      iobResponse = await client.get(landingUrl);
+    } on Exception catch (e) {
+      print('OFFLINE');
+      return "";
+    }
+
+    // TODO: Check response integrity using Status Code or anything!
+
+    String landingBodyWithToken = iobResponse.body;
     String token = tokenRegExp.firstMatch(landingBodyWithToken).group(1);
 
     String loginHeaders = (

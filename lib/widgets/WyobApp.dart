@@ -1,14 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 
 import 'DutiesWidget.dart';
 import 'DirectoryPage.dart';
 import 'UserSettingsPage.dart';
 import '../Duty.dart' show Duty;
-import '../FileManager.dart';
 import '../IobConnect.dart';
 import '../IobDutyFactory.dart';
+import '../Database.dart' show Database;
 
 
 class WyobApp extends StatelessWidget {
@@ -26,24 +24,23 @@ class WyobAppHome extends StatefulWidget {
 
 class WyobAppHomeState extends State<WyobAppHome> {
 
-  List<Duty> duties = [];
+  List<Duty> _duties = [];
+  DateTime _lastUpdate;
 
   void initState() {
     super.initState();
-    //updateFromIob();
     readDutiesFromDatabase();
+    updateFromIob();
   }
 
   void readDutiesFromDatabase() async {
+
     print("Reading from database...");
-    String jsonDuties = await FileManager.readCurrentDuties();
+
+    List<Duty> duties = await Database.getDuties();
+
     setState(() {
-      if (jsonDuties != "") {
-        Map<String, dynamic> dutyObjects = json.decode(jsonDuties);
-        dutyObjects.forEach((index, dutyObject) {
-          duties.add(new Duty.fromMap(dutyObject));
-        });
-      }
+      _duties = duties;
     });
   }
 
@@ -51,15 +48,33 @@ class WyobAppHomeState extends State<WyobAppHome> {
 
     //TODO: Check for online status first!
 
-    String checkinListText = await IobConnect.run('93429', '93429');
-    var jsonDuties = new Map<String, dynamic>();
-    for (var i = 0; i < duties.length; i++) {
-      jsonDuties[i.toString()] = duties[i].toMap();
-    }
-    FileManager.writeCurrentDuties(json.encode(jsonDuties));
+    String checkInListText = await IobConnect.run('93429', '93429');
+
+    // In the case of a failure...
+    if (checkInListText == "")
+      return;
+
+    List<Duty> newDuties = IobDutyFactory.run(checkInListText);
+
+    // In the case of a failure...
+    if (newDuties.isEmpty)
+      return;
+
+    List<Duty> updatedDutyList = await Database.updateDuties(newDuties);
+
     setState(() {
-      duties = IobDutyFactory.run(checkinListText);
+      _duties = updatedDutyList;
+      _lastUpdate = DateTime.now();
     });
+  }
+
+  String getSinceLastUpdate() {
+    if (_lastUpdate != null) {
+      Duration sinceLastUpdate = DateTime.now().difference(_lastUpdate);
+      return sinceLastUpdate.inMinutes.toString();
+    } else {
+      return "0";
+    }
   }
 
 
@@ -111,14 +126,22 @@ class WyobAppHomeState extends State<WyobAppHome> {
         ),
         appBar: new AppBar(
           title: new Text("WYOB v0.1 alpha"),
-          actions: <Widget>[
-            new IconButton(
-                icon: new Icon(Icons.autorenew),
-                onPressed: updateFromIob,
-            )
-          ],
         ),
-        body: new HomeWidget(duties),
+        body: new HomeWidget(_duties),
+        bottomNavigationBar: BottomAppBar(
+          color: Colors.orange,
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Text("Last updated " + getSinceLastUpdate() +  " minutes ago!", textAlign: TextAlign.center,),
+              ),
+              IconButton(
+                icon: Icon(Icons.system_update),
+                onPressed: updateFromIob,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

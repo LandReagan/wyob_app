@@ -6,6 +6,7 @@ import 'ContactScreen.dart';
 
 class DirectoryPage extends StatelessWidget {
 
+
   Widget _buildContactItem(BuildContext context, DocumentSnapshot document) {
 
     Map<String, dynamic> contactDetails = document.data;

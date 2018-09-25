@@ -6,6 +6,7 @@ import 'Duty.dart' show Duty;
 import 'Parsers.dart' show parseCheckinList;
 
 /// Creates duties and flights objects out of 'checkin' list string
+/// TODO: Error handling! It should return an empty List.
 class IobDutyFactory {
 
   static List<Duty> run(String checkinTxt) {
