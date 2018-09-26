@@ -20,6 +20,8 @@ class IobConnect {
   /// In the case of any failure, returns an empty string.
   static Future<String> run(String username, String password) async {
 
+    print("Connectiong to IOB...");
+
     http.Client client = new http.Client();
 
     http.Response iobResponse;
@@ -27,9 +29,11 @@ class IobConnect {
     try {
       iobResponse = await client.get(landingUrl);
     } on Exception catch (e) {
-      print('OFFLINE');
+      print('OFFLINE! Exception: ' + e.toString());
       return "";
     }
+
+    print("Connected with status code: " + iobResponse.statusCode.toString());
 
     // TODO: Check response integrity using Status Code or anything!
 

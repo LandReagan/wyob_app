@@ -11,6 +11,8 @@ class Database {
   /// problem (offline, data fetching failed, etc.)
   static Future<List<Duty>> getDuties() async {
 
+    print("Reading duties from database...");
+
     List<Duty> duties = [];
     String dutiesJSON = await FileManager.readDutiesFile();
 
@@ -20,10 +22,15 @@ class Database {
         duties.add(new Duty.fromMap(dutyObject));
       });
     }
+
+    print("Reading duties from database DONE!");
+
     return duties;
   }
 
   static Future<List<Duty>> updateDuties(List<Duty> newDuties) async {
+
+    print("Updating duties in Database...");
 
     List<Duty> duties = await getDuties();
 
@@ -49,6 +56,8 @@ class Database {
       dutiesJSON[i.toString()] = duties[i].toMap();
     }
     FileManager.writeCurrentDuties(json.encode(dutiesJSON));
+
+    print("Updating duties in Database DONE!");
 
     return duties;
   }

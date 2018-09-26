@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'DutiesWidget.dart';
@@ -29,13 +31,15 @@ class WyobAppHomeState extends State<WyobAppHome> {
 
   void initState() {
     super.initState();
-    readDutiesFromDatabase();
-    updateFromIob();
+    initialization();
   }
 
-  void readDutiesFromDatabase() async {
+  void initialization() async {
+    await readDutiesFromDatabase();
+    await updateFromIob();
+  }
 
-    print("Reading from database...");
+  Future<void> readDutiesFromDatabase() async {
 
     List<Duty> duties = await Database.getDuties();
 
@@ -44,7 +48,7 @@ class WyobAppHomeState extends State<WyobAppHome> {
     });
   }
 
-  void updateFromIob() async {
+  Future<void> updateFromIob() async {
 
     //TODO: Check for online status first!
 

@@ -89,6 +89,8 @@ class Duty {
       _nature = 'STDBY';
     } else if (flightRegExp.hasMatch(code) || iobMap['Duty'] != '') {
       _nature = 'FLIGHT';
+    } else {
+      _nature = 'UNKNOWN';
     }
 
     /// Start and end times

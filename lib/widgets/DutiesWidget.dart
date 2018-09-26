@@ -16,6 +16,9 @@ class DutiesWidget extends StatelessWidget {
     return new Expanded(
       flex: 7,
       child: duties == null ? new Container() : new ListView.builder(
+        controller: ScrollController(
+          initialScrollOffset: 0.0,
+        ),
         itemCount: duties.length,
         itemBuilder: (context, index) {
           return DutyWidget(duties[index]);
@@ -29,28 +32,28 @@ class DutyWidget extends StatelessWidget {
 
   BuildContext _context;
   
-  Duty duty;
-  Widget icon;
-  Widget trailing_icon;
-  Text text;
-  Text subText;
+  Duty _duty;
+  Widget _icon;
+  Widget _trailingIcon;
+  Text _text;
+  Text _subText;
 
-  DutyWidget(this.duty) {
-    icon = WidgetUtils.getIconFromDutyNature(duty.nature);
-    trailing_icon = null;
+  DutyWidget(this._duty) {
+    _icon = WidgetUtils.getIconFromDutyNature(_duty.nature);
+    _trailingIcon = null;
 
     // Text building
     String sText = "";
     String sSubText = "";
-    sText += duty.startTime.localDayString;
+    sText += _duty.startTime.localDayString;
     sText += " ";
 
-    if (duty.nature == "FLIGHT") {
-      sText += "report " + duty.startTime.localTimeString;
-      sSubText += duty.startPlace.IATA + ' ';
-      sSubText += duty.flights[0].startTime.localTimeString;
-      sSubText += '  to  ' + duty.endPlace.IATA + ' ' + duty.endTime.localTimeString;
-      trailing_icon = new IconButton(
+    if (_duty.nature == "FLIGHT") {
+      sText += "report " + _duty.startTime.localTimeString;
+      sSubText += _duty.startPlace.IATA + ' ';
+      sSubText += _duty.flights[0].startTime.localTimeString;
+      sSubText += '  to  ' + _duty.endPlace.IATA + ' ' + _duty.endTime.localTimeString;
+      _trailingIcon = new IconButton(
         icon: Icon(Icons.arrow_forward),
         onPressed: () {
           _goToFlightDutyScreen();
@@ -58,19 +61,20 @@ class DutyWidget extends StatelessWidget {
       );
     }
 
-    if (duty.nature == "STDBY") {
-      sSubText += duty.startTime.localTimeString + ' to ' + duty.endTime.localTimeString;;
+    if (_duty.nature == "STDBY") {
+      sSubText += _duty.startTime.localTimeString
+      + ' to ' + _duty.endTime.localTimeString;
     }
 
-    text = new Text(sText);
-    subText = new Text(sSubText);
+    _text = new Text(sText);
+    _subText = new Text(sSubText);
   }
 
   void _goToFlightDutyScreen() {
     Navigator.push(
         _context,
         MaterialPageRoute(
-            builder: (_context) => FlightDutyScreen(duty),
+            builder: (_context) => FlightDutyScreen(_duty),
         ),
     );
   }
@@ -82,21 +86,14 @@ class DutyWidget extends StatelessWidget {
       leading: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          icon,
-          Text(duty.nature)
+          _icon,
+          Text(_duty.nature)
         ],
       ),
-      title: text,
-      subtitle: subText,
-      /*new Column(
-        children: <Widget>[
-          new Text("${duty.startTime.localDayString} ${duty.startPlace.IATA} => ${duty.endPlace.IATA}"),
-          new Text('${duty.startTime.localTimeString}'),
-        ],
-      ),
-      */
-      // TODO: put it under condition to be determined.
-      trailing: trailing_icon,
+      title: _text,
+      subtitle: _subText,
+      // TODO: put it under condition to be determined?
+      trailing: _trailingIcon,
     );
   }
 }

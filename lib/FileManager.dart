@@ -32,7 +32,6 @@ class FileManager {
   }
 
   static Future<File> _getCurrentDutiesFile() async {
-    print((await _getRootPath()) + "/duties.json");
     return new File((await _getRootPath()) + "/duties.json");
   }
 
