@@ -11,6 +11,7 @@ const List<String> DutyNature = [
   'SIM',
   'FLIGHT',
   'STDBY',
+  'NOPS',
 ];
 
 /// Duty class
@@ -89,6 +90,8 @@ class Duty {
       _nature = 'STDBY';
     } else if (flightRegExp.hasMatch(code) || iobMap['Duty'] != '') {
       _nature = 'FLIGHT';
+    } else if (code.contains('NOPS')) {
+      _nature = 'NOPS';
     } else {
       _nature = 'UNKNOWN';
     }

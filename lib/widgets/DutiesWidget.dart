@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../Duty.dart' show Duty, DutyNature;
+import '../Duty.dart' show Duty;
 import 'WidgetUtils.dart';
 import 'FlightDutyScreen.dart';
 
 
 class DutiesWidget extends StatelessWidget {
 
-  List<Duty> duties;
+  final List<Duty> duties;
 
   DutiesWidget(this.duties);
 
@@ -16,9 +16,6 @@ class DutiesWidget extends StatelessWidget {
     return new Expanded(
       flex: 7,
       child: duties == null ? new Container() : new ListView.builder(
-        controller: ScrollController(
-          initialScrollOffset: 0.0,
-        ),
         itemCount: duties.length,
         itemBuilder: (context, index) {
           return DutyWidget(duties[index]);

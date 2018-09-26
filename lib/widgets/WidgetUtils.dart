@@ -22,6 +22,9 @@ class WidgetUtils {
         return Image.asset('graphics/icons/OffIcon-50.png');
         break;
 
+      case 'NOPS':
+        return Image.asset('graphics/icons/nops-50.png');
+
       default:
         return new Icon(Icons.schedule);
     }
