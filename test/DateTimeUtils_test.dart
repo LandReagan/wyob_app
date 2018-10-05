@@ -1,5 +1,5 @@
 import "package:test/test.dart";
-import "../lib/DateTimeUtils.dart";
+import "package:wyob/utils/DateTimeUtils.dart";
 
 void main() {
 
@@ -72,6 +72,25 @@ void main() {
       AwareDT awareDT = new AwareDT.fromString(txt);
       print(awareDT.toString());
       expect(awareDT.utc, equals(StringToDateTime("15Nov1978 02:40")));
+    });
+
+    test('Comparison operators', () {
+      AwareDT awareDt1 = new AwareDT.fromDateTimes(
+          new DateTime(1978, 11, 15, 03, 40),
+          new DateTime(1978, 11, 15, 02, 40)
+      );
+      AwareDT awareDt2 = new AwareDT.fromDateTimes(
+          new DateTime(1978, 11, 15, 05, 40),
+          new DateTime(1978, 11, 15, 04, 40)
+      );
+      expect(awareDt1 < awareDt2, true);
+      expect(awareDt2 > awareDt1, true);
+      expect(awareDt1 > awareDt2, false);
+      expect(awareDt2 < awareDt1, false);
+      expect(awareDt2 > awareDt2, false);
+      expect(awareDt2 < awareDt2, false);
+      expect(awareDt2 >= awareDt2, true);
+      expect(awareDt2 <= awareDt2, true);
     });
   });
 }

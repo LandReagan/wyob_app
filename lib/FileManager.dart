@@ -22,7 +22,8 @@ class FileManager {
     } else {
       /// TODO: This is for testing purpose only! Replace by 'return "";' for
       /// deployment...
-      return await rootBundle.loadString('duties.json');
+      //return await rootBundle.loadString('duties.json');
+      return "";
     }
   }
 

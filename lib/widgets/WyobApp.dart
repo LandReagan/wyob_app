@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'DutiesWidget.dart';
 import 'DirectoryPage.dart';
 import 'UserSettingsPage.dart';
-import '../Duty.dart' show Duty;
+import 'package:wyob/objects/Duty.dart' show Duty;
+import 'package:wyob/objects/DutyData.dart' show DutyData;
 import '../IobConnect.dart';
 import '../IobDutyFactory.dart';
 import '../Database.dart' show Database;
+import '../utils/DateTimeUtils.dart' show AwareDT;
 
 
 class WyobApp extends StatelessWidget {
@@ -28,6 +30,7 @@ class WyobAppHomeState extends State<WyobAppHome> {
 
   List<Duty> _duties = [];
   DateTime _lastUpdate;
+  Timer _timer;
 
   void initState() {
     super.initState();
@@ -41,7 +44,7 @@ class WyobAppHomeState extends State<WyobAppHome> {
 
   Future<void> readDutiesFromDatabase() async {
 
-    List<Duty> duties = await Database.getDuties();
+    List<Duty> duties = (await Database.getDuties()).duties;
 
     setState(() {
       _duties = duties;
@@ -64,20 +67,25 @@ class WyobAppHomeState extends State<WyobAppHome> {
     if (newDuties.isEmpty)
       return;
 
-    List<Duty> updatedDutyList = await Database.updateDuties(newDuties);
+    // TODO: Get UTC difference from system
+    AwareDT now = AwareDT.fromDateTimes(DateTime.now(), DateTime.now().toUtc());
+
+    await Database.updateDuties(now, newDuties);
+    DutyData dutyData = await Database.getDutiesReduced();
 
     setState(() {
-      _duties = updatedDutyList;
-      _lastUpdate = DateTime.now();
+      _duties = dutyData.duties;
+      _lastUpdate = dutyData.lastUpdate.loc;
     });
   }
 
-  String getSinceLastUpdate() {
+  String getSinceLastUpdateMessage() {
     if (_lastUpdate != null) {
       Duration sinceLastUpdate = DateTime.now().difference(_lastUpdate);
-      return sinceLastUpdate.inMinutes.toString();
+      //return sinceLastUpdate.inMinutes.toString();
+      return "LAST UPDATE: " + _lastUpdate.toString().substring(0, 16);
     } else {
-      return "0";
+      return "?";
     }
   }
 
@@ -137,7 +145,7 @@ class WyobAppHomeState extends State<WyobAppHome> {
           child: Row(
             children: <Widget>[
               Expanded(
-                child: Text("Last updated " + getSinceLastUpdate() +  " minutes ago!", textAlign: TextAlign.center,),
+                child: Text(getSinceLastUpdateMessage(), textAlign: TextAlign.center,),
               ),
               IconButton(
                 icon: Icon(Icons.system_update),

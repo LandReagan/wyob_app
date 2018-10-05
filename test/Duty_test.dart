@@ -2,7 +2,7 @@ import 'dart:io' show File;
 import 'dart:convert' show json;
 
 import 'package:test/test.dart';
-import '../lib/Duty.dart';
+import 'package:wyob/objects/Duty.dart';
 import '../lib/Parsers.dart' show parseCheckinList;
 
 
@@ -29,6 +29,7 @@ void main() {
 
     });
     
+    // TODO: find out why it fails
     test("Duty.toJson() method test", () {
       Duty duty = new Duty.fromJson(jsonDutyStringExample);
       print(duty);

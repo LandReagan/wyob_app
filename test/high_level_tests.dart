@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 import 'package:wyob/IobConnect.dart' show IobConnect;
 import 'package:wyob/IobDutyFactory.dart' show IobDutyFactory;
-import 'package:wyob/Duty.dart';
+import 'package:wyob/objects/Duty.dart';
 
 
 File checkinAsTextFile = new File("./test/checkin_list_as_txt.txt");

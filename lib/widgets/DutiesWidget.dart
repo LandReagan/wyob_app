@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../Duty.dart' show Duty;
+import 'package:wyob/objects/Duty.dart' show Duty;
 import 'WidgetUtils.dart';
 import 'FlightDutyScreen.dart';
 
@@ -78,19 +78,24 @@ class DutyWidget extends StatelessWidget {
 
   Widget build(BuildContext context) {
     _context = context;
-    return ListTile(
-      contentPadding: EdgeInsets.all(10.0),
-      leading: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          _icon,
-          Text(_duty.nature)
-        ],
+    return Container(
+      decoration: BoxDecoration(
+        color: _duty.endTime.loc.difference(DateTime.now()).inMinutes < 0 ? Colors.grey : Colors.white,
       ),
-      title: _text,
-      subtitle: _subText,
-      // TODO: put it under condition to be determined?
-      trailing: _trailingIcon,
+      child: ListTile(
+        contentPadding: EdgeInsets.all(10.0),
+        leading: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            _icon,
+            Text(_duty.nature)
+          ],
+        ),
+        title: _text,
+        subtitle: _subText,
+        // TODO: put it under condition to be determined?
+        trailing: _trailingIcon,
+      ),
     );
   }
 }

@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'Flight.dart' show Flight;
-import 'Duty.dart' show Duty;
+import 'package:wyob/objects/Flight.dart' show Flight;
+import 'package:wyob/objects/Duty.dart' show Duty;
 import 'Parsers.dart' show parseCheckinList;
 
 /// Creates duties and flights objects out of 'checkin' list string

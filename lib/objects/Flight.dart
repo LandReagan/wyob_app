@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'Airport.dart' show Airport;
-import 'DateTimeUtils.dart' show AwareDT, DurationToString;
+import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT, DurationToString;
 
 /// This class represents a flight
 class Flight {

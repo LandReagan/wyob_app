@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../Duty.dart';
-import '../Flight.dart';
+import 'package:wyob/objects/Duty.dart';
+import 'package:wyob/objects/Flight.dart';
 
 
 class FlightDutyScreen extends StatelessWidget {

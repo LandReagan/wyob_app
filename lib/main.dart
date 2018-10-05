@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import './widgets/WyobApp.dart';
+import 'package:wyob/widgets/WyobApp.dart';
 
 
 void main() {

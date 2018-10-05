@@ -1,8 +1,10 @@
 import 'dart:convert' show json;
 
-import 'Airport.dart' show Airport;
-import 'Flight.dart' show Flight;
-import 'DateTimeUtils.dart';
+import 'package:wyob/objects/Airport.dart' show Airport;
+import 'package:wyob/objects/Flight.dart' show Flight;
+import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT, DurationToString;
+import 'package:wyob/objects/Rest.dart' show Rest;
+
 
 const List<String> DutyNature = [
   'LEAVE',
@@ -13,6 +15,7 @@ const List<String> DutyNature = [
   'STDBY',
   'NOPS',
 ];
+
 
 /// Duty class
 /// Representing a duty.
@@ -25,6 +28,7 @@ class Duty {
   Airport _startPlace;
   Airport _endPlace;
   List<Flight> _flights = [];
+  Rest _rest;
 
   Duty();
 
@@ -44,6 +48,8 @@ class Duty {
     for (Map<String, String> jsonFlight in jsonFlights) {
       _flights.add(new Flight.fromJson(json.encode(jsonFlight)));
     }
+
+    _rest = Rest.fromDuty(this);
   }
 
   Duty.fromMap(Map<String, dynamic> map) {
@@ -58,6 +64,8 @@ class Duty {
     for (var flightMap in map['flights']) {
       flights.add(new Flight.fromMap(flightMap));
     }
+
+    _rest = Rest.fromDuty(this);
   }
 
   Duty.fromIobMap(Map<String, String> iobMap) {
@@ -103,6 +111,8 @@ class Duty {
     /// Start and end places
     startPlace = new Airport.fromIata(iobMap['From']);
     endPlace = new Airport.fromIata(iobMap['To']);
+
+    _rest = Rest.fromDuty(this);
   }
 
   String get nature => _nature;
@@ -116,6 +126,7 @@ class Duty {
     return _endTime.difference(_startTime);
   }
   List<Flight> get flights => _flights;
+  Rest get rest => _rest;
 
   //TODO: Add convenient setters with other types if needed.
   set nature (String nature) {

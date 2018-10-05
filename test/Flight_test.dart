@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 
-import 'package:wyob/Flight.dart' show Flight;
+import 'package:wyob/objects/Flight.dart' show Flight;
 
 void main() {
   group("Json stuff", () {

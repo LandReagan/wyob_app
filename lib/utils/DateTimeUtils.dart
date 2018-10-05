@@ -69,7 +69,7 @@ Duration StringToDuration(String txt) {
   return duration;
 }
 
-class AwareDT {
+class AwareDT extends Object{
 
   DateTime _utc;
   DateTime _loc;
@@ -166,6 +166,23 @@ class AwareDT {
 
   Duration difference (AwareDT before) {
     return _utc.difference(before.utc);
+  }
+
+  // Operators
+  bool operator >=(AwareDT other) {
+    return this.utc.difference(other.utc) >= Duration.zero;
+  }
+
+  bool operator <=(AwareDT other) {
+    return this.utc.difference(other.utc) <= Duration.zero;
+  }
+
+  bool operator >(AwareDT other) {
+    return this.utc.difference(other.utc) > Duration.zero;
+  }
+
+  bool operator <(AwareDT other) {
+    return this.utc.difference(other.utc) < Duration.zero;
   }
 
   /// toString to reflect our format: DDMmmYYYY HH:MM +HH:MM
