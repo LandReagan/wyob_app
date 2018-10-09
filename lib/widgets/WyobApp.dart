@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'DutiesWidget.dart';
-import 'DirectoryPage.dart';
-import 'UserSettingsPage.dart';
+import 'package:wyob/pages/DirectoryPage.dart';
+import 'package:wyob/pages/UserSettingsPage.dart';
 import 'package:wyob/pages/LoginPage.dart' show LoginPage;
 import 'package:wyob/objects/Duty.dart' show Duty;
 import 'package:wyob/objects/DutyData.dart' show DutyData;

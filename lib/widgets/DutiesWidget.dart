@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:wyob/objects/Duty.dart' show Duty;
 import 'WidgetUtils.dart';
-import 'FlightDutyScreen.dart';
+import 'package:wyob/pages/FlightDutyScreen.dart';
 
 
 class DutiesWidget extends StatelessWidget {
