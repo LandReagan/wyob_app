@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'DutiesWidget.dart';
 import 'DirectoryPage.dart';
 import 'UserSettingsPage.dart';
+import 'package:wyob/pages/LoginPage.dart' show LoginPage;
 import 'package:wyob/objects/Duty.dart' show Duty;
 import 'package:wyob/objects/DutyData.dart' show DutyData;
 import '../IobConnect.dart';
@@ -44,10 +45,11 @@ class WyobAppHomeState extends State<WyobAppHome> {
 
   Future<void> readDutiesFromDatabase() async {
 
-    List<Duty> duties = (await Database.getDuties()).duties;
+    DutyData dutyData = await Database.getDutiesReduced();
 
     setState(() {
-      _duties = duties;
+      _duties = dutyData.duties;
+      _lastUpdate = dutyData.lastUpdate.loc;
     });
   }
 
@@ -129,6 +131,21 @@ class WyobAppHomeState extends State<WyobAppHome> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => DirectoryPage(),
+                    )
+                  );
+                },
+              ),
+              new GestureDetector(
+                child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    leading: Icon(Icons.lock_outline),
+                    title: Text("Login")
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginPage(),
                     )
                   );
                 },
