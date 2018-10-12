@@ -3,7 +3,7 @@ import 'dart:convert' show json;
 
 import 'package:test/test.dart';
 import 'package:wyob/objects/Duty.dart';
-import '../lib/Parsers.dart' show parseCheckinList;
+import 'package:wyob/utils/Parsers.dart' show parseCheckinList;
 
 
 void main() {

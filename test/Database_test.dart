@@ -1,1 +1,1 @@
-import '../lib/Database.dart';
+import 'package:wyob/data/Database.dart';

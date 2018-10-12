@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'FileManager.dart';
+import 'package:wyob/data/FileManager.dart';
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/DutyData.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';

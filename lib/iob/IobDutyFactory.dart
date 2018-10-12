@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:wyob/objects/Flight.dart' show Flight;
 import 'package:wyob/objects/Duty.dart' show Duty;
-import 'Parsers.dart' show parseCheckinList;
+import 'package:wyob/utils/Parsers.dart' show parseCheckinList;
 
 /// Creates duties and flights objects out of 'checkin' list string
 /// TODO: Error handling! It should return an empty List.

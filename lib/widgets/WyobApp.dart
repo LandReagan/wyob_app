@@ -8,9 +8,9 @@ import 'package:wyob/pages/UserSettingsPage.dart';
 import 'package:wyob/pages/LoginPage.dart' show LoginPage;
 import 'package:wyob/objects/Duty.dart' show Duty;
 import 'package:wyob/objects/DutyData.dart' show DutyData;
-import '../IobConnect.dart';
-import '../IobDutyFactory.dart';
-import '../Database.dart' show Database;
+import 'package:wyob/iob/IobConnect.dart';
+import 'package:wyob/iob/IobDutyFactory.dart';
+import 'package:wyob/data/Database.dart' show Database;
 import '../utils/DateTimeUtils.dart' show AwareDT;
 
 

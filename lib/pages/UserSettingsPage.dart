@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../FileManager.dart';
+import 'package:wyob/data/FileManager.dart';
 
 
 class UserSettingsPage extends StatefulWidget {

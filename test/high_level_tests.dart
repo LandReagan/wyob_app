@@ -3,8 +3,8 @@ import 'dart:convert';
 
 import 'package:test/test.dart';
 
-import 'package:wyob/IobConnect.dart' show IobConnect;
-import 'package:wyob/IobDutyFactory.dart' show IobDutyFactory;
+import 'package:wyob/iob/IobConnect.dart' show IobConnect;
+import 'package:wyob/iob/IobDutyFactory.dart' show IobDutyFactory;
 import 'package:wyob/objects/Duty.dart';
 
 
