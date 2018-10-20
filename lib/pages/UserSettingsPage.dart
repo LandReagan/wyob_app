@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:wyob/data/FileManager.dart';
 
@@ -15,12 +17,13 @@ class UserSettingsPageState extends State<UserSettingsPage> {
   }
 
   void loadUserData() async {
-    Map<String, dynamic> data = await FileManager.getUserSettings();
+    Map<String, dynamic> data = json.decode(await FileManager.readUserData());
     setState(() {
       userData = data;
     });
   }
 
+  // TODO Define what data is needed
   // TODO implement a method to change data
 
   Widget build(BuildContext context) {

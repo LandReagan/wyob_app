@@ -25,6 +25,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+# Overrides dependency of firestore
+dependency_overrides:
+  cloud_firestore:
+    path: plugins/plugins-master/packages/cloud_firestore
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
@@ -43,7 +48,6 @@ flutter:
   #  - images/a_dot_ham.jpeg
   assets:
   - graphics/icons/
-  - user_data.json
   - duties.json
 
   # An image asset can refer to one or more resolution-specific "variants", see

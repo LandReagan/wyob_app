@@ -8,6 +8,7 @@ import 'package:flutter/services.dart' show rootBundle;
 
 class FileManager {
 
+  // Duties file management
   static void writeCurrentDuties(String encodedDuties) async {
 
     print("Writing current duties!");
@@ -16,6 +17,26 @@ class FileManager {
   }
 
   static Future<String> readDutiesFile() async {
+
+    if ((await _getCurrentDutiesFile()).existsSync()) {
+      return (await _getCurrentDutiesFile()).readAsStringSync();
+    } else {
+      /// TODO: This is for testing purpose only! Replace by 'return "";' for
+      /// deployment...
+      //return await rootBundle.loadString('duties.json');
+      return "";
+    }
+  }
+
+  // User data file management
+  static void writeUserData(String encodedUserData) async {
+
+    print("Writing user data!");
+
+    (await _getUserDataFile()).writeAsStringSync(encodedUserData);
+  }
+
+  static Future<String> readUserData() async {
 
     if ((await _getCurrentDutiesFile()).existsSync()) {
       return (await _getCurrentDutiesFile()).readAsStringSync();
@@ -36,9 +57,7 @@ class FileManager {
     return new File((await _getRootPath()) + "/duties.json");
   }
 
-  // TODO: Send that to Firestore?
-  static Future<Map<String, dynamic>> getUserSettings() async {
-    String jsonString = await rootBundle.loadString('user_data.json');
-    return json.decode(jsonString);
+  static Future<File> _getUserDataFile() async {
+    return File((await _getRootPath()) + "/user.json");
   }
 }

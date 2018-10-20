@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+
+import 'package:wyob/data/FileManager.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -21,9 +25,11 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _submitCredentials() {
+  void _submitCredentials() async {
     if (_staffNumber != null && _password != null) {
-      // TODO: set the data in the user's data...
+      Map<String, dynamic> userData = json.decode((await FileManager.readUserData()));
+      userData['staff_number'] = _staffNumber.toString();
+      userData['password'] = _password.toString();
     }
 
   }
