@@ -40,6 +40,8 @@ class IobConnect {
     String landingBodyWithToken = iobResponse.body;
     String token = tokenRegExp.firstMatch(landingBodyWithToken).group(1);
 
+    print('Token: ' + token);
+
     String loginHeaders = (
         await client.post(
             loginFormUrl,
@@ -47,6 +49,8 @@ class IobConnect {
         )
     ).headers.toString();
     String cookie = cookieRegExp.firstMatch(loginHeaders).group(1);
+
+    print('Cookie: ' + cookie);
 
     String checkinList = (
         await client.get(checkinListUrl, headers: {"Cookie": cookie})

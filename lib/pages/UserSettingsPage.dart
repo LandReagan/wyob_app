@@ -43,10 +43,13 @@ class UserSettingsPageState extends State<UserSettingsPage> {
           return Row(
             children: <Widget>[
               Container(
-                child: Text(userData.keys.elementAt(index)),
+                child: Text(userData.keys.elementAt(index) + ' : '),
               ),
               Expanded(
-                child: Text(userData.values.elementAt(index)),
+                child: Text(
+                  userData.keys.elementAt(index) == 'password' ? '***' :
+                      userData.values.elementAt(index)
+                ),
               )
             ],
           );

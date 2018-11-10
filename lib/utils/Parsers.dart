@@ -7,6 +7,8 @@ List<Map<String, String>> parseCheckinList(String txt) {
 
   // 1. Get the headers
 
+  print(txt.length);
+
   List<String> headers = new List();
   RegExp headerRegExp = new RegExp(
   r'<th>(\S*)</th>'
@@ -16,6 +18,8 @@ List<Map<String, String>> parseCheckinList(String txt) {
   for (var match in matches) {
     headers.add(match.group(1));
   }
+
+  print(headers);
 
   // 2. Get table rows
 

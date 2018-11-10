@@ -12,24 +12,16 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
 
-  TextEditingController _usernameController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-
   String _staffNumber;
   String _password;
-
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
 
   void _submitCredentials() async {
     if (_staffNumber != null && _password != null) {
       Map<String, dynamic> userData = json.decode((await FileManager.readUserData()));
-      userData['staff_number'] = _staffNumber.toString();
+      userData['username'] = _staffNumber.toString();
       userData['password'] = _password.toString();
+      await FileManager.writeUserData(userData);
+
     }
 
   }
@@ -63,29 +55,6 @@ class _LoginPageState extends State<LoginPage> {
               _submitCredentials();
             },
           ),
-          /*
-          Row(
-            children: <Widget>[
-              Text("User name:"),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: '(Staff number)',
-                ),
-              )
-            ],
-          ),
-          Row(
-            children: <Widget>[
-              Text('Password:'),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: '(Staff number)',
-                ),
-              )
-            ],
-          )
-          */
         ],
       ),
     );

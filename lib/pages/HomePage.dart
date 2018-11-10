@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 // High level packages
 import 'package:wyob/data/Database.dart';
+import 'package:wyob/data/FileManager.dart';
 import 'package:wyob/iob/IobConnect.dart';
 import 'package:wyob/iob/IobDutyFactory.dart';
 
@@ -38,6 +41,16 @@ class HomePageState extends State<HomePage> {
   }
 
   void initialization() async {
+    // 1. Check for user credentials:
+    Map<String, dynamic> userData = json.decode(
+        await FileManager.readUserData());
+    if (!userData.containsKey('username') || userData['username'] == '') {
+      Navigator.push(context,
+        MaterialPageRoute(
+            builder: (context) => LoginPage()
+        )
+      );
+    }
     await readDutiesFromDatabase();
     await updateFromIob();
   }
@@ -48,15 +61,16 @@ class HomePageState extends State<HomePage> {
 
     setState(() {
       _duties = dutyData.duties;
-      _lastUpdate = dutyData.lastUpdate.loc;
+      _lastUpdate = dutyData.lastUpdate?.loc;
     });
   }
 
   Future<void> updateFromIob() async {
 
     //TODO: Check for online status first!
-
-    String checkInListText = await IobConnect.run('93429', '93429');
+    Map<String, dynamic> userData = json.decode(await FileManager.readUserData());
+    String checkInListText = await IobConnect.run(
+        userData['username'], userData['password']);
 
     // In the case of a failure...
     if (checkInListText == "")

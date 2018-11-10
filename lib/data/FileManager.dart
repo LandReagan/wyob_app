@@ -29,22 +29,26 @@ class FileManager {
   }
 
   // User data file management
-  static void writeUserData(String encodedUserData) async {
+  static Future<void> writeUserData(Map<String, dynamic> userData) async {
 
     print("Writing user data!");
 
-    (await _getUserDataFile()).writeAsStringSync(encodedUserData);
+    (await _getUserDataFile()).writeAsStringSync(json.encode(userData));
   }
 
   static Future<String> readUserData() async {
 
-    if ((await _getCurrentDutiesFile()).existsSync()) {
-      return (await _getCurrentDutiesFile()).readAsStringSync();
+    if ((await _getUserDataFile()).existsSync()) {
+      return (await _getUserDataFile()).readAsStringSync();
     } else {
-      /// TODO: This is for testing purpose only! Replace by 'return "";' for
-      /// deployment...
-      //return await rootBundle.loadString('duties.json');
-      return "";
+      // create a new and empty user data file:
+      (await _getUserDataFile()).writeAsStringSync(
+        json.encode({
+          "username": "",
+          "password": ""
+        })
+      );
+      return (await _getUserDataFile()).readAsStringSync();
     }
   }
 
