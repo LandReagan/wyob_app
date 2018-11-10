@@ -17,7 +17,7 @@ void main() {
   test("Get current own duties with no errors", () async {
 
     // 1. Get checkin list as text
-    String checkinListAsText = await IobConnect.run('93429', '93429');
+    String checkinListAsText = await IobConnect.run('93429', '93429iob');
     checkinAsTextFile.writeAsStringSync(checkinListAsText);
 
     // 2. Get duties list out of the text

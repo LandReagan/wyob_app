@@ -76,11 +76,19 @@ class DutyWidget extends StatelessWidget {
     );
   }
 
+  Color _getDutyColor() {
+    if (_duty.endTime.loc.difference(DateTime.now()).inMinutes < 0) {
+      return Colors.grey;
+    } // TODO: color for "acknowledge" duties
+
+    return Colors.white;
+  }
+
   Widget build(BuildContext context) {
     _context = context;
     return Container(
       decoration: BoxDecoration(
-        color: _duty.endTime.loc.difference(DateTime.now()).inMinutes < 0 ? Colors.grey : Colors.white,
+        color: _getDutyColor(),
       ),
       child: ListTile(
         contentPadding: EdgeInsets.all(10.0),

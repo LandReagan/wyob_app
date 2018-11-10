@@ -28,7 +28,9 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
 
   List<Duty> _duties = [];
+
   DateTime _lastUpdate;
+  
 
   void initState() {
     super.initState();
