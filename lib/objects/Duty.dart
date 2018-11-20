@@ -70,7 +70,9 @@ class Duty {
 
   Duty.fromIobMap(Map<String, String> iobMap) {
 
-    RegExp flightRegExp = new RegExp(r'\d{3}-\d{2}');
+    RegExp flightRegExp = RegExp(r'\d{3}-\d{2}');
+    // TODO: check with other codes and other fleets
+    RegExp simRegExp = RegExp(r'\d+SD');
 
     /// Code
     _code = iobMap['Trip'];
@@ -100,6 +102,8 @@ class Duty {
       _nature = 'FLIGHT';
     } else if (code.contains('NOPS')) {
       _nature = 'NOPS';
+    } else if (simRegExp.hasMatch(code)) {
+      _nature = 'SIM';
     } else {
       _nature = 'UNKNOWN';
     }

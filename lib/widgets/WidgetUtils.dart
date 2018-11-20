@@ -10,6 +10,10 @@ class WidgetUtils {
         return Image.asset('graphics/icons/plane-50.png');
         break;
 
+      case 'SIM':
+        return Image.asset('graphics/icons/SimIcon-50.png');
+        break;
+
       case 'LEAVE':
         return Image.asset('graphics/icons/Coconut-50.png');
         break;
