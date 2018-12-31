@@ -86,12 +86,8 @@ class HomePageState extends State<HomePage> {
     AwareDT now = AwareDT.fromDateTimes(DateTime.now(), DateTime.now().toUtc());
 
     await Database.updateDuties(now, newDuties);
-    DutyData dutyData = await Database.getDutiesReduced();
 
-    setState(() {
-      _duties = dutyData.duties;
-      _lastUpdate = dutyData.lastUpdate.loc;
-    });
+    readDutiesFromDatabase();
   }
 
   String getSinceLastUpdateMessage() {
@@ -133,6 +129,7 @@ class HomePageState extends State<HomePage> {
                     );
                   },
                 ),
+                /* Directory
                 new GestureDetector(
                   child: ListTile(
                       contentPadding: EdgeInsets.all(10.0),
@@ -148,6 +145,7 @@ class HomePageState extends State<HomePage> {
                     );
                   },
                 ),
+                */
                 new GestureDetector(
                   child: ListTile(
                       contentPadding: EdgeInsets.all(10.0),

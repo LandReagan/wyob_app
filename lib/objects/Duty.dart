@@ -102,9 +102,10 @@ class Duty {
       _nature = 'FLIGHT';
     } else if (code.contains('NOPS')) {
       _nature = 'NOPS';
-    } else if (simRegExp.hasMatch(code)) {
+    } else if (code.contains('330SD') || code.contains('330SC')) {
       _nature = 'SIM';
     } else {
+      print('Unknown code: $code');
       _nature = 'UNKNOWN';
     }
 

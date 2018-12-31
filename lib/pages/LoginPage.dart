@@ -21,7 +21,6 @@ class _LoginPageState extends State<LoginPage> {
       userData['username'] = _staffNumber.toString();
       userData['password'] = _password.toString();
       await FileManager.writeUserData(userData);
-
     }
 
   }
