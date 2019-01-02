@@ -4,7 +4,10 @@ import 'package:wyob/objects/Duty.dart' show Duty;
 import 'WidgetUtils.dart';
 import 'package:wyob/pages/FlightDutyScreen.dart';
 
-
+/// Widget containing the ListView of DutyWidgets, built from a List of
+/// Duties
+///
+///
 class DutiesWidget extends StatelessWidget {
 
   final List<Duty> duties;
@@ -32,10 +35,55 @@ class DutyWidget extends StatelessWidget {
   Duty _duty;
   Widget _icon;
   Widget _trailingIcon;
-  Text _text;
-  Text _subText;
+
+  Text _localDayText;
+  Text _sectorsText;
+  Widget _upperRowWidget;
+  Widget _centralWidget;
 
   DutyWidget(this._duty) {
+
+    _localDayText = Text(_duty.startTime.localDayString, textScaleFactor: 0.9);
+
+    if (_duty.nature == 'FLIGHT') {
+
+      String stringSectors = _duty.flights[0].startPlace.IATA;
+      for (int i = 0; i < _duty.flights.length; i++) {
+        stringSectors += ' - ' + _duty.flights[i].endPlace.IATA;
+      }
+      _sectorsText = Text(stringSectors, textScaleFactor: 1.2,);
+
+      _upperRowWidget = Row(
+        children: <Widget>[
+          _localDayText,
+          Spacer(),
+          ReportingTimeWidget(_duty.startTime.localTimeString),
+        ],
+      );
+
+    } else if (_duty.nature == 'STDBY') {
+      _sectorsText = Text(_duty.code, textScaleFactor: 1.2,);
+    }
+
+    if (_upperRowWidget != null) {
+      _centralWidget = Column(
+        children: <Widget>[
+          _upperRowWidget,
+          Center(
+            child: _sectorsText,
+          )
+        ],
+      );
+    } else {
+      _centralWidget = Column(
+        children: <Widget>[
+          Center(
+            child: _sectorsText,
+          )
+        ],
+      );
+    }
+
     _icon = WidgetUtils.getIconFromDutyNature(_duty.nature);
     _trailingIcon = null;
 
@@ -62,9 +110,6 @@ class DutyWidget extends StatelessWidget {
       sSubText += _duty.startTime.localTimeString
       + ' to ' + _duty.endTime.localTimeString;
     }
-
-    _text = new Text(sText);
-    _subText = new Text(sSubText);
   }
 
   void _goToFlightDutyScreen() {
@@ -99,11 +144,33 @@ class DutyWidget extends StatelessWidget {
             Text(_duty.nature)
           ],
         ),
+        /*
         title: _text,
         subtitle: _subText,
-        // TODO: put it under condition to be determined?
+        */
+        title: _centralWidget,
         trailing: _trailingIcon,
       ),
+    );
+  }
+}
+
+class ReportingTimeWidget extends StatelessWidget {
+
+  final String reportingTimeString;
+
+  ReportingTimeWidget(this.reportingTimeString);
+
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Icon(Icons.timer, color: Colors.redAccent,),
+        Text(
+          reportingTimeString,
+          style: TextStyle(color: Colors.redAccent),
+          textScaleFactor: 0.9,
+        )
+      ],
     );
   }
 }
