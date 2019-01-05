@@ -24,7 +24,7 @@ void main() {
     expect(rest1.duration == Duration(hours: 10), true);
 
     AwareDT restStartTime = AwareDT.fromDateTimes(
-        DateTime(1978, 11, 15, 9, 05), DateTime(1978, 11, 15, 5, 05));
+        DateTime(1978, 11, 15, 9, 05), DateTime(1978, 11, 15, 4, 35));
     expect(rest1.startTime.utc == restStartTime.utc, true);
 
   });

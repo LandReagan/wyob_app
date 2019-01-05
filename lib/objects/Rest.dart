@@ -9,12 +9,8 @@ class Rest {
 
   Rest.fromDuty(Duty duty) {
 
-    // Start time is 30 minutes after duty end time
-    Duration restStart = Duration(minutes: 30);
-    startTime = AwareDT.fromDateTimes(
-      duty.endTime.loc.add(restStart),
-      duty.endTime.utc.add(restStart)
-    );
+    // Start time is duty end time (30 minutes after blocks on time)
+    startTime = AwareDT.fromDateTimes(duty.endTime.loc, duty.endTime.utc);
 
     // Rest time is either 11 hours at MCT or 10 hours outstation,
     // or total duty time whichever is longer.

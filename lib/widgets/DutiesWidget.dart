@@ -32,18 +32,11 @@ class DutyWidget extends StatelessWidget {
 
   BuildContext _context;
   
-  Duty _duty;
-  Widget _icon;
-  Widget _trailingIcon;
+  final Duty _duty;
 
-  Text _localDayText;
   Text _sectorsText;
-  Widget _upperRowWidget;
-  Widget _centralWidget;
 
   DutyWidget(this._duty) {
-
-    _localDayText = Text(_duty.startTime.localDayString, textScaleFactor: 0.9);
 
     if (_duty.nature == 'FLIGHT') {
 
@@ -52,40 +45,9 @@ class DutyWidget extends StatelessWidget {
         stringSectors += ' - ' + _duty.flights[i].endPlace.IATA;
       }
       _sectorsText = Text(stringSectors, textScaleFactor: 1.2,);
-
-      _upperRowWidget = Row(
-        children: <Widget>[
-          _localDayText,
-          Spacer(),
-          ReportingTimeWidget(_duty.startTime.localTimeString),
-        ],
-      );
-
     } else if (_duty.nature == 'STDBY') {
       _sectorsText = Text(_duty.code, textScaleFactor: 1.2,);
     }
-
-    if (_upperRowWidget != null) {
-      _centralWidget = Column(
-        children: <Widget>[
-          _upperRowWidget,
-          Center(
-            child: _sectorsText,
-          )
-        ],
-      );
-    } else {
-      _centralWidget = Column(
-        children: <Widget>[
-          Center(
-            child: _sectorsText,
-          )
-        ],
-      );
-    }
-
-    _icon = WidgetUtils.getIconFromDutyNature(_duty.nature);
-    _trailingIcon = null;
 
     // Text building
     String sText = "";
@@ -98,17 +60,80 @@ class DutyWidget extends StatelessWidget {
       sSubText += _duty.startPlace.IATA + ' ';
       sSubText += _duty.flights[0].startTime.localTimeString;
       sSubText += '  to  ' + _duty.endPlace.IATA + ' ' + _duty.endTime.localTimeString;
-      _trailingIcon = new IconButton(
-        icon: Icon(Icons.arrow_forward),
-        onPressed: () {
-          _goToFlightDutyScreen();
-        },
-      );
     }
 
     if (_duty.nature == "STDBY") {
       sSubText += _duty.startTime.localTimeString
       + ' to ' + _duty.endTime.localTimeString;
+    }
+  }
+
+  Widget getTrailingIcon() {
+    if (_duty.nature == "FLIGHT") {
+      return IconButton(
+        icon: Icon(Icons.arrow_forward_ios),
+        onPressed: () {
+          _goToFlightDutyScreen();
+        },
+      );
+    } else {
+      return null;
+    }
+  }
+
+  Widget getLocalDayText() {
+    return Text(_duty.startTime.localDayString, textScaleFactor: 0.9);
+  }
+
+  Widget getUpperRow() {
+    // If reporting time is relevant
+    if (_duty.nature == 'FLIGHT') {
+      return Row(
+        children: <Widget>[
+          getLocalDayText(),
+          Spacer(),
+          ReportingTimeWidget(_duty.startTime.localTimeString),
+        ],
+      );
+    } else if (_duty.nature == 'STDBY') {
+      return Row(
+        children: <Widget>[
+          getLocalDayText(),
+          Spacer(),
+          StandbyTimesWidget(
+            _duty.startTime.localTimeString,
+            _duty.endTime.localTimeString
+          ),
+        ],
+      );
+    } else {
+      return Row(
+        children: <Widget>[
+          getLocalDayText(),
+          Spacer(),
+        ],
+      );
+    }
+  }
+
+  Widget getCentralWidget() {
+    if (getUpperRow() != null) {
+      return Column(
+        children: <Widget>[
+          getUpperRow(),
+          Center(
+            child: _sectorsText,
+          )
+        ],
+      );
+    } else {
+      return Column(
+        children: <Widget>[
+          Center(
+            child: _sectorsText,
+          )
+        ],
+      );
     }
   }
 
@@ -140,16 +165,12 @@ class DutyWidget extends StatelessWidget {
         leading: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            _icon,
+            WidgetUtils.getIconFromDutyNature(_duty.nature),
             Text(_duty.nature)
           ],
         ),
-        /*
-        title: _text,
-        subtitle: _subText,
-        */
-        title: _centralWidget,
-        trailing: _trailingIcon,
+        title: getCentralWidget(),
+        trailing: getTrailingIcon(),
       ),
     );
   }
@@ -171,6 +192,23 @@ class ReportingTimeWidget extends StatelessWidget {
           textScaleFactor: 0.9,
         )
       ],
+    );
+  }
+}
+
+class StandbyTimesWidget extends StatelessWidget {
+
+  final String startTime;
+  final String endTime;
+
+  StandbyTimesWidget(this.startTime, this.endTime);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'from ' + startTime + ' to ' + endTime,
+      textScaleFactor: 0.9,
+      style: TextStyle(color: Colors.redAccent),
     );
   }
 }

@@ -2,20 +2,24 @@ import 'package:flutter/material.dart';
 
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Flight.dart';
+import 'package:wyob/objects/Rest.dart';
 
 
 class FlightDutyScreen extends StatelessWidget {
 
   final Duty flightDuty;
-  String title;
+  final Rest rest;
 
-  FlightDutyScreen(this.flightDuty){
+  FlightDutyScreen(this.flightDuty) : rest = Rest.fromDuty(flightDuty);
 
-    flightDuty.flights.length > 1 ? title = 'Flights: ' : title = 'Flight: ';
+  String getTitle() {
+    String returnValue = '';
+    flightDuty.flights.length > 1 ? returnValue = 'Flights: ' : returnValue = 'Flight: ';
 
     flightDuty.flights.forEach((flight) {
-      title += flight.flightNumber + ' ';
+      returnValue += flight.flightNumber + ' ';
     });
+    return returnValue;
   }
 
   List<Widget> getFlightWidgets() {
@@ -64,6 +68,8 @@ class FlightDutyScreen extends StatelessWidget {
       result.add(flightWidget);
     }
 
+    result.add(RestWidget(rest));
+
     return result;
   }
 
@@ -71,7 +77,7 @@ class FlightDutyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(getTitle()),
       ),
       body: DefaultTextStyle(
         style: TextStyle(
@@ -87,6 +93,50 @@ class FlightDutyScreen extends StatelessWidget {
   }
 }
 
+class RestWidget extends StatelessWidget {
+
+  final Rest _rest;
+
+  RestWidget(this._rest);
+
+  String getMinimumRestDuration() {
+    int hours = _rest.duration.inHours;
+    int minutes = _rest.duration.inMinutes - hours * 60;
+    return hours.toString() + ' hours ' + minutes.toString() + ' minutes';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTextStyle(
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: 20.0,
+        fontWeight: FontWeight.normal
+      ),
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Icon(Icons.hotel, size: 40.0,),
+          ),
+          Expanded(
+              child: Column(
+                children: <Widget>[
+                  Text('Minimum rest:', textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold),),
+                  Text(getMinimumRestDuration()),
+                  Text('ends: ' + _rest.endTime.localDayString + ' ' +
+                      _rest.endTime.localTimeString,
+                    style: TextStyle(color: Colors.redAccent),
+                  )
+                ],
+              )
+          )
+        ],
+      ),
+    );
+  }
+}
 
 class FlightDutyWidget extends StatelessWidget {
 
