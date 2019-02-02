@@ -86,7 +86,8 @@ class Duty {
       _nature = 'OFF';
     } else if (
         code.contains('A/L') ||
-        code.contains('PH LVE')
+        code.contains('PH LVE') ||
+        code.contains('L/B')
         ) {
       _nature = 'LEAVE';
     } else if (
@@ -105,7 +106,7 @@ class Duty {
     } else if (code.contains('330SD') || code.contains('330SC')) {
       _nature = 'SIM';
     } else {
-      print('Unknown code: $code');
+      print('[WARNING]: Unknown code [$code]');
       _nature = 'UNKNOWN';
     }
 

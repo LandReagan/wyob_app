@@ -12,11 +12,10 @@ class Rest {
     // Start time is duty end time (30 minutes after blocks on time)
     startTime = AwareDT.fromDateTimes(duty.endTime.loc, duty.endTime.utc);
 
-    // Rest time is either 11 hours at MCT or 10 hours outstation,
-    // or total duty time whichever is longer.
+    // Rest time is either 11 hours or total duty time whichever is longer.
     Duration dutyDuration = duty.endTime.utc.difference(duty.startTime.utc);
-    Duration stdRestDuration =
-      duty.endPlace.IATA == 'MCT' ? Duration(hours: 11) : Duration(hours: 10);
+    Duration stdRestDuration = Duration(hours: 11);
+      //duty.endPlace.IATA == 'MCT' ? Duration(hours: 11) : Duration(hours: 10);
     Duration restDuration =
       dutyDuration > stdRestDuration ? dutyDuration : stdRestDuration;
 

@@ -44,5 +44,4 @@ void main() {
     jsonDuties[i.toString()] = duties[i].toMap();
   }
   outFile.writeAsStringSync(json.encode(jsonDuties));
-
 }

@@ -142,6 +142,31 @@ class FlightDutyWidget extends StatelessWidget {
 
   final Flight _flight;
 
+  final TextStyle bigBoldStyle = TextStyle(
+    color: Colors.black,
+    fontSize: 20.0,
+    fontWeight: FontWeight.bold,
+  );
+
+  final TextStyle bigNormalStyle = TextStyle(
+    color: Colors.black,
+    fontSize: 20.0,
+    fontWeight: FontWeight.normal,
+  );
+
+  final TextStyle bigBlueItalicStyle = TextStyle(
+    color: Colors.blue,
+    fontSize: 20.0,
+    fontWeight: FontWeight.normal,
+    fontStyle: FontStyle.italic
+  );
+
+  final TextStyle smallNormalStyle = TextStyle(
+    color: Colors.black,
+    fontSize: 15.0,
+    fontWeight: FontWeight.normal,
+  );
+
   FlightDutyWidget(this._flight);
 
   @override
@@ -150,69 +175,66 @@ class FlightDutyWidget extends StatelessWidget {
       padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
       child: Row(
         children: <Widget>[
+          // Flight number box on the left
           Container(
             padding: EdgeInsets.all(5.0),
-            child: Text(_flight.flightNumber, textAlign: TextAlign.center,),
+            child: Text(_flight.flightNumber,
+                textAlign: TextAlign.center, style: bigBoldStyle,),
           ),
+          // Departure place and timings
           Expanded(
             child: Column(
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(_flight.startPlace.IATA, textAlign: TextAlign.center,),
-                    ),
-                    Expanded(
-                      child: Text(_flight.endPlace.IATA, textAlign: TextAlign.center,),
-                    )
-                  ]
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Column(
-                        children: <Widget>[
-                          Text(_flight.startTime.localDayString),
-                          Text(_flight.startTime.localTimeString),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        children: <Widget>[
-                          Text(_flight.endTime.localDayString),
-                          Text(_flight.endTime.localTimeString),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                // UTC Row
-                DefaultTextStyle(
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontStyle: FontStyle.italic,
-                    color: Colors.black,
-                    fontSize: 16.0,
-                  ),
-                  child: Row(
+                Text(_flight.startPlace.IATA, style: bigBoldStyle,),
+                Container(
+                  padding: EdgeInsets.all(5.0),
+                  child: Column(
                     children: <Widget>[
-                      Expanded(
-                        child: Column(
-                          children: <Widget>[
-                            Text(_flight.startTime.utcDayString),
-                            Text(_flight.startTime.utcTimeString),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          children: <Widget>[
-                            Text(_flight.endTime.utcDayString),
-                            Text(_flight.endTime.utcTimeString),
-                          ],
-                        ),
-                      ),
+                      Text(_flight.startTime.localDayString,
+                          style: bigNormalStyle,),
+                      Text(_flight.startTime.localTimeString,
+                          style: bigNormalStyle,),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(5.0),
+                  child: Column(
+                    children: <Widget>[
+                      Text(_flight.startTime.utcDayString,
+                          style: bigBlueItalicStyle,),
+                      Text(_flight.startTime.utcTimeString,
+                          style: bigBlueItalicStyle,),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Arrival place and timings
+          Expanded(
+            child: Column(
+              children: <Widget>[
+                Text(_flight.endPlace.IATA, style: bigBoldStyle,),
+                Container(
+                  padding: EdgeInsets.all(5.0),
+                  child: Column(
+                    children: <Widget>[
+                      Text(_flight.endTime.localDayString,
+                        style: bigNormalStyle,),
+                      Text(_flight.endTime.localTimeString,
+                        style: bigNormalStyle,),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(5.0),
+                  child: Column(
+                    children: <Widget>[
+                      Text(_flight.endTime.utcDayString,
+                        style: bigBlueItalicStyle,),
+                      Text(_flight.endTime.utcTimeString,
+                        style: bigBlueItalicStyle,),
                     ],
                   ),
                 ),
