@@ -61,11 +61,11 @@ class FlightDutyScreen extends StatelessWidget {
     List<Widget> result = [reportingWidget];
 
     for (Widget flightWidget in flightWidgets) {
+      result.add(flightWidget);
       result.add(Divider(
         height: 5.0,
         color: Colors.black,
       ));
-      result.add(flightWidget);
     }
 
     result.add(RestWidget(rest));
@@ -175,13 +175,19 @@ class FlightDutyWidget extends StatelessWidget {
       padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
       child: Row(
         children: <Widget>[
-          // Flight number box on the left
-          Container(
-            padding: EdgeInsets.all(5.0),
-            child: Text(_flight.flightNumber,
-                textAlign: TextAlign.center, style: bigBoldStyle,),
+          Column(
+            children: <Widget>[
+              Text(_flight.flightNumber, textAlign: TextAlign.center,
+                  style: bigBoldStyle,),
+              Padding(
+                padding: EdgeInsets.all(5.0),
+                child: Text(_flight.startTime.localDayString, style: bigNormalStyle,),
+              ),
+              Padding(padding: EdgeInsets.all(5.0),
+                child: Text(_flight.startTime.utcDayString, style: bigBlueItalicStyle,),
+              ),
+            ],
           ),
-          // Departure place and timings
           Expanded(
             child: Column(
               children: <Widget>[
@@ -190,8 +196,6 @@ class FlightDutyWidget extends StatelessWidget {
                   padding: EdgeInsets.all(5.0),
                   child: Column(
                     children: <Widget>[
-                      Text(_flight.startTime.localDayString,
-                          style: bigNormalStyle,),
                       Text(_flight.startTime.localTimeString,
                           style: bigNormalStyle,),
                     ],
@@ -201,8 +205,6 @@ class FlightDutyWidget extends StatelessWidget {
                   padding: EdgeInsets.all(5.0),
                   child: Column(
                     children: <Widget>[
-                      Text(_flight.startTime.utcDayString,
-                          style: bigBlueItalicStyle,),
                       Text(_flight.startTime.utcTimeString,
                           style: bigBlueItalicStyle,),
                     ],
@@ -220,8 +222,6 @@ class FlightDutyWidget extends StatelessWidget {
                   padding: EdgeInsets.all(5.0),
                   child: Column(
                     children: <Widget>[
-                      Text(_flight.endTime.localDayString,
-                        style: bigNormalStyle,),
                       Text(_flight.endTime.localTimeString,
                         style: bigNormalStyle,),
                     ],
@@ -231,8 +231,6 @@ class FlightDutyWidget extends StatelessWidget {
                   padding: EdgeInsets.all(5.0),
                   child: Column(
                     children: <Widget>[
-                      Text(_flight.endTime.utcDayString,
-                        style: bigBlueItalicStyle,),
                       Text(_flight.endTime.utcTimeString,
                         style: bigBlueItalicStyle,),
                     ],
