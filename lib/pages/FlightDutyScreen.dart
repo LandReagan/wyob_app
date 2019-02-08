@@ -102,7 +102,8 @@ class RestWidget extends StatelessWidget {
   String getMinimumRestDuration() {
     int hours = _rest.duration.inHours;
     int minutes = _rest.duration.inMinutes - hours * 60;
-    return hours.toString() + ' hours ' + minutes.toString() + ' minutes';
+    return hours.toString() + ' hours ' +
+        (minutes.toString() == '0' ? '' : minutes.toString() + ' minutes');
   }
 
   @override
@@ -175,6 +176,8 @@ class FlightDutyWidget extends StatelessWidget {
       padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
       child: Row(
         children: <Widget>[
+
+          // First column, Flight number - Local date - UTC date if different
           Column(
             children: <Widget>[
               Text(_flight.flightNumber, textAlign: TextAlign.center,
@@ -184,10 +187,14 @@ class FlightDutyWidget extends StatelessWidget {
                 child: Text(_flight.startTime.localDayString, style: bigNormalStyle,),
               ),
               Padding(padding: EdgeInsets.all(5.0),
-                child: Text(_flight.startTime.utcDayString, style: bigBlueItalicStyle,),
+                child: Text(
+                  _flight.startTime.utcDayString == _flight.startTime.localDayString ? '' : _flight.startTime.utcDayString,
+                  style: bigBlueItalicStyle,),
               ),
             ],
           ),
+
+          // Second column, IATA Departure - DEP time loc - DEP time UTC
           Expanded(
             child: Column(
               children: <Widget>[
@@ -213,7 +220,8 @@ class FlightDutyWidget extends StatelessWidget {
               ],
             ),
           ),
-          // Arrival place and timings
+
+          // Third column IATA DEST - ARR time local - ARR time UTC
           Expanded(
             child: Column(
               children: <Widget>[
