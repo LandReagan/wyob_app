@@ -67,9 +67,11 @@ class HomePageState extends State<HomePage> {
 
   Future<void> updateFromIob() async {
 
+    IobConnector connector = IobConnector();
+
     //TODO: Check for online status first!
     Map<String, dynamic> userData = json.decode(await FileManager.readUserData());
-    String checkInListText = await IobConnect.run(
+    String checkInListText = await connector.run(
         userData['username'], userData['password']);
 
     // In the case of a failure...

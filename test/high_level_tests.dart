@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:test/test.dart';
 
-import 'package:wyob/iob/IobConnect.dart' show IobConnect;
+import 'package:wyob/iob/IobConnect.dart' show IobConnector;
 import 'package:wyob/iob/IobDutyFactory.dart' show IobDutyFactory;
 import 'package:wyob/objects/Duty.dart';
 
@@ -17,7 +17,8 @@ void main() {
   test("Get current own duties with no errors", () async {
 
     // 1. Get checkin list as text
-    String checkinListAsText = await IobConnect.run('93429', '93429iob');
+    IobConnector connector = IobConnector();
+    String checkinListAsText = await connector.run('93429', '93429iob');
     checkinAsTextFile.writeAsStringSync(checkinListAsText);
 
     // 2. Get duties list out of the text

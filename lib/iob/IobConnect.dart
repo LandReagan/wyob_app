@@ -14,11 +14,14 @@ RegExp tokenRegExp = new RegExp(
 RegExp cookieRegExp = new RegExp(r'(JSESSIONID=\w+);');
 
 
-class IobConnect {
+class IobConnector {
+
+  String token;
+  String cookie;
   
   /// Returns the check-in list in a String to be parsed (see Parsers.dart)
   /// In the case of any failure, returns an empty string.
-  static Future<String> run(String username, String password) async {
+  Future<String> run(String username, String password) async {
 
     print("Connectiong to IOB...");
 
@@ -38,7 +41,7 @@ class IobConnect {
     // TODO: Check response integrity using Status Code or anything!
 
     String landingBodyWithToken = iobResponse.body;
-    String token = tokenRegExp.firstMatch(landingBodyWithToken).group(1);
+    this.token = tokenRegExp.firstMatch(landingBodyWithToken).group(1);
 
     print('Token: ' + token);
 
@@ -48,7 +51,7 @@ class IobConnect {
             body: {"username": username, "password": password, "token": token}
         )
     ).headers.toString();
-    String cookie = cookieRegExp.firstMatch(loginHeaders).group(1);
+    cookie = cookieRegExp.firstMatch(loginHeaders).group(1);
 
     print('Cookie: ' + cookie);
 
