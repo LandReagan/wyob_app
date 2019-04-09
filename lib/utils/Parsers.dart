@@ -50,6 +50,14 @@ List<Map<String, String>> parseCheckinList(String txt) {
   return checkinList;
 }
 
+List<Map<String, String>> parseGanttMainTable(String text) {
+  /// In a GANTT main table, looks for the persAllocId
+  List<Map<String, String>> data = [];
+  RegExp boxRE = RegExp(r'<g id="\S+?\.bar[\S|\s]+?personId=(\d+)[\S|\s]+?persAllocId=(\d+)[\S|\s]+?<text[\S|\s]+?>([\S|\s]+?)<');
+  List<Match> boxMatches = boxRE.allMatches(text);
+  return data;
+}
+
 void main() {
 
   File outFile = new File("checkin.json");

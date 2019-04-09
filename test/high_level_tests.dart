@@ -1,5 +1,7 @@
 import 'dart:io' show File;
 import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 
 import 'package:test/test.dart';
 
@@ -44,5 +46,14 @@ void main() {
       duties.add(new Duty.fromMap(dutyObject));
     });
     duties.forEach((duty) => print('$duty'));
+  });
+
+  test('Gantt stuff', () async {
+
+    IobConnector connector = IobConnector();
+
+    await connector.run('93429', '93429iob');
+
+    await connector.getGanttMainTable();
   });
 }
