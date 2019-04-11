@@ -49,7 +49,7 @@ class Database {
     AwareDT lastUpdate = dutyData.lastUpdate;
 
     allDuties.removeWhere((duty) {
-      return DateTime.now().difference(duty.endTime.loc).inDays > 3 ;
+      return DateTime.now().difference(duty.endTime.loc).inDays > 4;
     });
 
     return DutyData(lastUpdate, allDuties);

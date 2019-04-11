@@ -134,6 +134,14 @@ class Duty {
   List<Flight> get flights => _flights;
   Rest get rest => _rest;
 
+  bool get isOffOrLeave {
+    if (this.nature == 'FLIGHT' || this.nature == 'SIM'
+        || this.nature == 'GROUND') {
+      return false;
+    }
+    return true;
+  }
+
   //TODO: Add convenient setters with other types if needed.
   set nature (String nature) {
     DutyNature.contains(nature) ? _nature = nature : _nature = "UNKNOWN";
