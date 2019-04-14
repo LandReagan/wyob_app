@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:http/http.dart' as http;
 
 
@@ -15,6 +16,7 @@ String ganttDutyUrl  =
     "personId=REPLACEPERSONID"
     "&persAllocId=REPLACEPERSALLOCID"
     "&tan=DatedTripAlloc&utcLocal=Utc";
+String fromToGanttUrl = "https://fltops.omanair.com/mlt/crewganttpreaction.do?";
 
 /// RegExp's
 RegExp tokenRegExp = new RegExp(
@@ -151,7 +153,23 @@ class IobConnector {
 
     http.Response response = await client.get(
         url, headers: {"Cookie": cookie + ";" + bigCookie});
+  }
 
+  Future<String> getFromToGanttDuties(String personId, DateTime from, DateTime to) async {
 
+    String fromdtm = DateFormat('dMMMy').format(from);
+    String todtm = DateFormat('dMMMy').format(to);
+
+    String url = fromToGanttUrl + 'fromdtm=' + fromdtm + '&todtm=' + todtm +
+        '&persons=' + personId + ',&mlt.baseStation=MCT&mlt.utcLocal=Utc';
+
+    //String urlTest = "https://fltops.omanair.com/mlt/crewganttpreaction.do?oldfromdtm=01Apr2019&oldtodtm=30Apr2019&persons=17729%2C&mlt.baseStation=MCT&mlt.utcLocal=Local&crwSelectToDate=14Apr2019&crwFltToDate=14Apr2019&crwStnToDate=14Apr2019&crwStnToTime=23%3A59&fromdtm=08Apr2019&todtm=10Apr2019&command=Go";
+    http.Response response = await client.get(
+        url, headers: {"Cookie": cookie + ";" + bigCookie});
+
+    response = await client.get(
+        ganttUrl, headers: {"Cookie": cookie + ";" + bigCookie, "referer": url});
+
+    print(response.body);
   }
 }
