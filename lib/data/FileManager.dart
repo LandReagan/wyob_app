@@ -3,10 +3,16 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter/services.dart' show rootBundle;
-
 
 class FileManager {
+
+  static Future<Map<String, dynamic>> getLocalData() async {
+    return await json.decode(await _getLocalDatabase());
+  }
+
+  static Future<String> _getLocalDatabase() async {
+    return (await _getLocalDatabaseFile()).readAsString();
+  }
 
   // Duties file management
   static void writeCurrentDuties(String encodedDuties) async {
@@ -55,6 +61,10 @@ class FileManager {
   static Future<String> _getRootPath() async {
     return getApplicationDocumentsDirectory()
         .then((directory) => directory.path);
+  }
+
+  static Future<File> _getLocalDatabaseFile() async {
+    return new File((await _getRootPath()) + "/database.json");
   }
 
   static Future<File> _getCurrentDutiesFile() async {
