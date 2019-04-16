@@ -26,8 +26,8 @@ RegExp cookieRegExp = new RegExp(r'(JSESSIONID=\w+);');
 
 class IobConnector {
 
-  String username;
-  String password;
+  final String username;
+  final String password;
   String token;
   String cookie;
   String bigCookie;
@@ -70,16 +70,15 @@ class IobConnector {
     "utcLocal": "Local",
     "hidActivity": "",
   };
+
+  IobConnector(this.username, this.password);
   
   /// Used for initial connection, set token and cookie for the session.
   /// Returns the check-in list in a String to be parsed (see Parsers.dart)
   /// In the case of any failure, returns an empty string.
-  Future<String> run(String username, String password) async {
+  Future<String> run() async {
 
     print("Connectiong to IOB...");
-
-    this.username = username;
-    this.password = password;
 
     client = new http.Client();
 
@@ -107,13 +106,15 @@ class IobConnector {
             body: {"username": username, "password": password, "token": token}
         )
     ).headers.toString();
-    cookie = cookieRegExp.firstMatch(loginHeaders).group(1);
+    this.cookie = cookieRegExp.firstMatch(loginHeaders).group(1);
 
-    print('Cookie: ' + cookie);
+    print('Cookie: ' + this.cookie);
 
     http.Response checkinListResponse =
       await client.get(checkinListUrl, headers: {"Cookie": cookie});
     this.bigCookie = checkinListResponse.headers["set-cookie"];
+
+    print('Big Cookie: ' + this.bigCookie);
 
     String checkinList = checkinListResponse.body;
 
@@ -153,9 +154,19 @@ class IobConnector {
 
     http.Response response = await client.get(
         url, headers: {"Cookie": cookie + ";" + bigCookie});
+
+    return response.body;
   }
 
-  Future<String> getFromToGanttDuties(String personId, DateTime from, DateTime to) async {
+  Future<String> getFromToGanttDuties(DateTime from, DateTime to) async {
+
+    if (this.cookie == null || this.bigCookie == null) {
+      await this.run();
+    }
+
+    if (this.personId == null) {
+      await this.getGanttMainTable();
+    }
 
     String fromdtm = DateFormat('dMMMy').format(from);
     String todtm = DateFormat('dMMMy').format(to);
@@ -170,6 +181,6 @@ class IobConnector {
     response = await client.get(
         ganttUrl, headers: {"Cookie": cookie + ";" + bigCookie, "referer": url});
 
-    print(response.body);
+    return response.body;
   }
 }

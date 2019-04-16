@@ -19,8 +19,8 @@ void main() {
   test("Get current own duties with no errors", () async {
 
     // 1. Get checkin list as text
-    IobConnector connector = IobConnector();
-    String checkinListAsText = await connector.run('93429', '93429iob');
+    IobConnector connector = IobConnector('93429', '93429iob');
+    String checkinListAsText = await connector.run();
     checkinAsTextFile.writeAsStringSync(checkinListAsText);
 
     // 2. Get duties list out of the text
@@ -50,9 +50,9 @@ void main() {
 
   test('Gantt stuff', () async {
 
-    IobConnector connector = IobConnector();
+    IobConnector connector = IobConnector('93429', '93429iob');
 
-    await connector.run('93429', '93429iob');
+    await connector.run();
 
     await connector.getGanttMainTable();
   });
