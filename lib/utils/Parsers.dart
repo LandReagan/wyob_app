@@ -160,7 +160,6 @@ List<Map<String, dynamic>> parseGanttDuty(String text) {
         break;
     }
   }
-
   return data;
 }
 
