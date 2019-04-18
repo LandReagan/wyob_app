@@ -24,7 +24,7 @@ void main() {
   });
 
   test("GANTT rotation page", () {
-    File input = File("test/HTML files/duty_gantt_example.html");
+    File input = File("test/HTML files/duty_gantt_example_Local.html");
     String content = input.readAsStringSync();
 
     expect(parseGanttDuty(content) is List<Map<String, dynamic>>, true);
