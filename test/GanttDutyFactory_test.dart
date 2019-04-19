@@ -68,4 +68,16 @@ void main() {
     expect(duties[0].flights[0].endTime.toString(), '10Apr2019 07:45 +08:00');
     expect(duties[0].flights[0].duration.inMinutes, 395);
   });
+
+  File file3Local = File('test/HTML files/duty_gantt_example_HSPM_Local.html');
+  File file3Utc = File('test/HTML files/duty_gantt_example_HSPM_Utc.html');
+  String file3LocalText = file3Local.readAsStringSync();
+  String file3UtcText = file3Utc.readAsStringSync();
+  List<Map<String, dynamic>> file3LocalData = parseGanttDuty(file3LocalText);
+  List<Map<String, dynamic>> file3UtcData = parseGanttDuty(file3UtcText);
+  duties = GanttDutyFactory.run(file3LocalData, file3UtcData);
+
+  test('HS-PM example should return 1 duty', () {
+    expect(duties.length, 1);
+  });
 }
