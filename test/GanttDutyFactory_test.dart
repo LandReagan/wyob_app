@@ -1,6 +1,7 @@
 import 'dart:io' show File;
 import 'dart:math';
 import 'package:test/test.dart';
+import 'package:test/test.dart' as prefix0;
 
 import 'package:wyob/iob/GanttDutyFactory.dart' show GanttDutyFactory;
 import 'package:wyob/objects/Duty.dart';
@@ -27,6 +28,8 @@ void main() {
   });
 
   test('example1 duties times should be correct', () {
+    print(file1LocalData);
+    print(file1UtcData);
     expect(
         GanttDutyFactory.run(file1LocalData, file1UtcData)[0].startTime.toString(),
         '05Apr2019 00:30 +04:00');
@@ -46,10 +49,23 @@ void main() {
     expect(flight.endPlace.IATA, 'MCT');
   });
 
-  test('duty_gantt_example', () {
-    File file = File('test/HTML files/duty_gantt_example_Local.html');
-    String fileText = file.readAsStringSync();
-    List<Map<String, dynamic>> data = parseGanttDuty(fileText);
-    print(data);
+  File file2Local = File('test/HTML files/duty_gantt_example2_Local.html');
+  File file2Utc = File('test/HTML files/duty_gantt_example2_Utc.html');
+  String file2LocalText = file2Local.readAsStringSync();
+  String file2UtcText = file2Utc.readAsStringSync();
+  List<Map<String, dynamic>> file2LocalData = parseGanttDuty(file2LocalText);
+  List<Map<String, dynamic>> file2UtcData = parseGanttDuty(file2UtcText);
+  List<Duty> duties = GanttDutyFactory.run(file2LocalData, file2UtcData);
+
+  test('example2 should return 2 duties', () {
+    expect(duties.length, 2);
+  });
+
+  test('example 2 should get correct duties', () {
+    expect(duties[1].duration.inMinutes, 535);
+    expect(duties[0].flights[0].flightNumber, 'WY821');
+    expect(duties[0].flights[0].endPlace.IATA, 'KUL');
+    expect(duties[0].flights[0].endTime.toString(), '10Apr2019 07:45 +08:00');
+    expect(duties[0].flights[0].duration.inMinutes, 395);
   });
 }

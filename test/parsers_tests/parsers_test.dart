@@ -38,4 +38,20 @@ void main() {
     expect(result[0]['flights'][0]['flight_number'], "WY141");
     expect(result[1]['flights'][0]['end'], "19:05");
   });
+
+  test("GANTT rotation page", () {
+    File input = File("test/HTML files/duty_gantt_example_Utc.html");
+    String content = input.readAsStringSync();
+
+    expect(parseGanttDuty(content) is List<Map<String, dynamic>>, true);
+
+    List<Map<String, dynamic>> result = parseGanttDuty(content);
+
+    expect(result.length, 2);
+    expect(result[0].keys.contains("date"), true);
+    expect(result[0]['date'], '04Apr2019');
+    expect(result[0]['flights'].length, 1);
+    expect(result[0]['flights'][0]['flight_number'], "WY141");
+    expect(result[1]['flights'][0]['end'], "15:05");
+  });
 }
