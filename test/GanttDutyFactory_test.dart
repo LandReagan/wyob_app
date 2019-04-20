@@ -1,7 +1,5 @@
 import 'dart:io' show File;
-import 'dart:math';
 import 'package:test/test.dart';
-import 'package:test/test.dart' as prefix0;
 
 import 'package:wyob/iob/GanttDutyFactory.dart' show GanttDutyFactory;
 import 'package:wyob/objects/Duty.dart';
@@ -28,8 +26,6 @@ void main() {
   });
 
   test('example1 duties times should be correct', () {
-    print(file1LocalData);
-    print(file1UtcData);
     expect(
         GanttDutyFactory.run(file1LocalData, file1UtcData)[0].startTime.toString(),
         '05Apr2019 00:30 +04:00');
@@ -79,5 +75,30 @@ void main() {
 
   test('HS-PM example should return 1 duty', () {
     expect(duties.length, 1);
+  });
+
+  test('HS-PM example should return a duty nature STDBY', () {
+    expect(duties[0].nature, 'STDBY');
+  });
+
+  group("Duty example NOPS", () {
+
+    File fileLocal = File('test/HTML files/duty_gantt_example_NOPS_Local.html');
+    File fileUtc = File('test/HTML files/duty_gantt_example_NOPS_Utc.html');
+    String fileLocalText = fileLocal.readAsStringSync();
+    String fileUtcText = fileUtc.readAsStringSync();
+    List<Map<String, dynamic>> fileLocalData = parseGanttDuty(fileLocalText);
+    List<Map<String, dynamic>> fileUtcData = parseGanttDuty(fileUtcText);
+    duties = GanttDutyFactory.run(fileLocalData, fileUtcData);
+
+    test("Should return a correct NOPS duty", () {
+      expect(duties.length, 1);
+      expect(duties[0].nature, 'NOPS');
+      expect(duties[0].code, 'NOPS');
+      expect(duties[0].startTime.toString(), '04Apr2019 00:00 +04:00');
+      expect(duties[0].endTime.toString(), '04Apr2019 23:59 +04:00');
+      expect(duties[0].duration.inMinutes, 1439);
+    });
+
   });
 }

@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Flight.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
+import 'package:wyob/iob/IobCodes.dart' show IOB_CODES;
 
 class GanttDutyFactory {
 
@@ -79,8 +80,24 @@ class GanttDutyFactory {
         }
       } else if (dataLocal[i]['type'] != null) { // Stand by's, OFF, NOPS, etc...
 
+        String dutyCode = dataLocal[i]['type'];
+        duty.code = dutyCode;
+        if (IOB_CODES.containsKey(dutyCode)) {
+          duty.nature = IOB_CODES[dutyCode];
+        }
+
+        DateTime startTimeLocal = DateFormat('dMMMy H:m').parse(dataLocal[i]['start']);
+        DateTime startTimeUtc = DateFormat('dMMMy H:m').parse(dataUtc[i]['start']);
+        DateTime endTimeLocal = DateFormat('dMMMy H:m').parse(dataLocal[i]['end']);
+        DateTime endTimeUtc = DateFormat('dMMMy H:m').parse(dataUtc[i]['end']);
+
+        AwareDT startTime = AwareDT.fromDateTimes(startTimeLocal, startTimeUtc);
+        AwareDT endTime = AwareDT.fromDateTimes(endTimeLocal, endTimeUtc);
+
+        duty.startTime = startTime;
+        duty.endTime = endTime;
+        print(duty);
       }
-      //print(duty);
 
       duties.add(duty);
     }

@@ -1,0 +1,116 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+
+
+
+
+
+
+
+<html lang="en">
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="./css/iob_style.css" rel="stylesheet" type="text/css">
+<title>Dated Activity Details</title>
+<script language='JavaScript' src='./js/rwf_common.js'></script>
+<script language="javascript">
+
+</script>
+
+
+</head>
+
+<body class="create" onLoad="javascript:window.history.forward(1);window.focus();">
+<form name="crewAcyTripDetailsForm" method="POST" action="/mlt/crewacytripdetails.do"><input type="hidden" name="org.apache.struts.taglib.html.TOKEN" value="996b737a67463da33d5a6a3992689c">
+
+<table width="100%"  class="create">
+        <tr>
+                <td class="heading">Dated Activity Details</td>
+        </tr>
+        <tr>
+                <td>
+                <table width="100%"  class="createsub" align="center">
+                        <tr>
+                                <td colspan="4">&nbsp;</td>
+                         </tr>
+                        <tr>
+                                <td width="25%">Staff Name</td>
+                                <td width="25%" class="txt">
+                                <input type="text" name="staffName" value="LANDRY GAGNE" readonly="readonly" class="txt150">
+                                </td>
+                                <td width="25%">Staff Number</td>
+                                <td width="25%" class="txt"><input type="text" name="staffNumber" value="93429" readonly="readonly" class="txt100">
+                                </td>
+                        </tr>
+                        <tr><td colspan="4"><hr size="1"></td></tr>
+                        <tr>
+                                <td>Activity Type</td>
+                                <td class="txt"><input type="text" name="acyType" value="HS-PM" readonly="readonly" class="txt100">
+                                <td>Activity Description</td>
+                                <td class="txt"><input type="text" name="acyDesc" value="HOME STANDBY-P.M." readonly="readonly" class="txt100"></td>
+                        </tr>
+                        <tr>
+                                <td>Activity Group</td>
+                                <td class="txt"><input type="text" name="acyGroup" value="HSBY" readonly="readonly" class="txt100">
+                                <td>Special Duty Code</td>
+                                <td class="txt" rowspan="3">
+                                <textarea name="specialDutyCode" readonly="readonly" style="width=75;height=65"></textarea>
+                                </td></tr>
+                                <tr><td>Location</td>
+                                <td class="txt"><input type="text" name="location" value="MCT" readonly="readonly" class="txt100">
+                                </tr><tr>
+                                <td>Credit</td>
+                                <td class="txt"><input type="text" name="credit" value="00:00" readonly="readonly" class="txt100"></td>
+                                </tr>
+                        
+                        <tr>
+                                
+                                
+                                
+                                        <td>Start Date Time (UTC)</td>
+                                        <td class="txt"><input type="text" name="startDateTimeLocal" value="12Apr2019 14:00" readonly="readonly" class="txt100">
+                                        <td>End Date Time (UTC)</td>
+                                        <td class="txt"><input type="text" name="endDateTimeLocal" value="13Apr2019 02:00" readonly="readonly" class="txt100">
+                                 
+                                
+                                
+                        </tr>
+
+                         <tr>
+                                    <td>Block Day No</td>
+                                    <td class="txt"><input type="text" name="blockDayNum" value="1" readonly="readonly" class="txt100">
+                                    <td>Block Day Length</td>
+                                    <td class="txt"><input type="text" name="blockDayLen" value="1" readonly="readonly" class="txt100"></td>
+                         </tr>
+
+                         <tr>
+                                 <td>Comment</td>
+                                 <td class="txt"><input type="text" name="comment" size="50" value="" readonly="readonly" class="txt150"></td>
+                                 <td></td><td></td>
+                         </tr>
+
+                         <tr>
+                                <td colspan="4">&nbsp;</td>
+                         </tr>
+                    </table>
+</td>
+            </tr>
+            <tr>
+                    <td><table width="100%"  class="createButtons">
+                            <tr>
+                                    <td width="10%"><button type="button" name="cancel" accesskey="C" onClick="javascript:window.close()"><u>C</u>lose</button></td>
+                                    <td width="90%" align="right">ACY08</td>
+                            </tr>
+                    </table></td>
+            </tr>
+</table>
+<input type="hidden" name="tan" value="DatedAcyAlloc">
+<input type="hidden" name="mode" value="">
+<div class="msg"></div>
+<div class="error_msg"></div>
+</form>
+</body>
+</html>
