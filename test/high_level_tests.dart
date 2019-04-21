@@ -4,10 +4,12 @@ import 'package:http/http.dart' as http;
 
 
 import 'package:test/test.dart';
+import 'package:wyob/iob/GanttDutyFactory.dart';
 
 import 'package:wyob/iob/IobConnect.dart' show IobConnector;
 import 'package:wyob/iob/IobDutyFactory.dart' show IobDutyFactory;
 import 'package:wyob/objects/Duty.dart';
+import 'package:wyob/utils/Parsers.dart';
 
 
 File checkinAsTextFile = new File("./test/checkin_list_as_txt.txt");
@@ -52,8 +54,32 @@ void main() {
 
     IobConnector connector = IobConnector('93429', '93429iob');
 
-    await connector.run();
+    // Get the references...
+    String referencesString = await connector.getFromToGanttDuties(
+        DateTime.now().subtract(Duration(days: 10)),
+        DateTime.now().add(Duration(days: 10))
+    );
 
-    await connector.getGanttMainTable();
+    List<Map<String, dynamic>> references = parseGanttMainTable(referencesString);
+
+    List<Duty> duties = [];
+    for (var reference in references) {
+      String rotationStringLocal =
+        reference['type'] == 'Trip' ?
+          await connector.getGanttDutyTripLocal(reference['personId'], reference['persAllocId']) :
+          await connector.getGanttDutyAcyLocal(reference['personId'], reference['persAllocId']);
+
+      String rotationStringUtc =
+        reference['type'] == 'Trip' ?
+          await connector.getGanttDutyTripUtc(reference['personId'], reference['persAllocId']) :
+          await connector.getGanttDutyAcyUtc(reference['personId'], reference['persAllocId']);
+
+      List<Map<String, dynamic>> rotationDutiesDataLocal = parseGanttDuty(rotationStringLocal);
+      List<Map<String, dynamic>> rotationDutiesDataUtc = parseGanttDuty(rotationStringUtc);
+
+      List<Duty> rotationDuties = GanttDutyFactory.run(rotationDutiesDataLocal, rotationDutiesDataUtc);
+      duties.addAll(rotationDuties);
+    }
+    duties.forEach((duty) => print(duty));
   });
 }

@@ -11,11 +11,16 @@ String checkinListUrl = 'https://fltops.omanair.com/mlt/checkinlist.jsp';
 String crewSelectUrl = "https://fltops.omanair.com/mlt/crewselectpostaction.do";
 String crewGanttUrl = "https://fltops.omanair.com/mlt/crewganttnavigator.jsp?persons=";
 String ganttUrl = "https://fltops.omanair.com/mlt/ganttsvg.jsp";
-String ganttDutyUrl  = 
+String ganttDutyTripUrl  =
     "https://fltops.omanair.com/mlt/crewacytripdetails.do?"
     "personId=REPLACEPERSONID"
     "&persAllocId=REPLACEPERSALLOCID"
-    "&tan=DatedTripAlloc&utcLocal=Utc";
+    "&tan=DatedTripAlloc&utcLocal=";
+String ganttDutyAcyUrl  =
+    "https://fltops.omanair.com/mlt/crewacytripdetails.do?"
+    "personId=REPLACEPERSONID"
+    "&persAllocId=REPLACEPERSALLOCID"
+    "&tan=DatedAcyAlloc&utcLocal=";
 String fromToGanttUrl = "https://fltops.omanair.com/mlt/crewganttpreaction.do?";
 
 /// RegExp's
@@ -23,6 +28,15 @@ RegExp tokenRegExp = new RegExp(
     r'<input type="hidden" name="token" value="(\S+)">');
 RegExp cookieRegExp = new RegExp(r'(JSESSIONID=\w+);');
 
+enum TIME_ZONE {
+  Local,
+  Utc
+}
+
+enum DUTY_TYPE {
+  Trip,
+  Acy
+}
 
 class IobConnector {
 
@@ -48,7 +62,7 @@ class IobConnector {
     "rankCode": "",
     "fleetCode": "",
     "crewBaseStation": "",
-    "crewId": "93429",
+    "crewId": "",
     "crewName": "",
     "addcrewonly": "Add",
     "tripRefNumber": "",
@@ -78,7 +92,7 @@ class IobConnector {
   /// In the case of any failure, returns an empty string.
   Future<String> run() async {
 
-    print("Connectiong to IOB...");
+    print("Connecting to IOB...");
 
     client = new http.Client();
 
@@ -123,10 +137,10 @@ class IobConnector {
 
   Future<String> getGanttMainTable() async {
     /// gets the GANTT  main table data and change it into a String to be parsed.
-    // todo: add 2 datetimes as parameters to define the time frame.
 
     crewSelectForm['org.apache.struts.taglib.html.TOKEN'] = this.token;
     crewSelectForm['action'] = 'fastcrewonly';
+    crewSelectForm['crewId'] = this.username;
 
     http.Response response = await client.post(
         crewSelectUrl,
@@ -146,17 +160,6 @@ class IobConnector {
 
     return response.body;
   }
-  
-  Future<String> getGanttDuty(String personId, String persAllocId) async {
-
-    String url = ganttDutyUrl.replaceAll("REPLACEPERSONID", personId);
-    url = url.replaceAll("REPLACEPERSALLOCID", persAllocId);
-
-    http.Response response = await client.get(
-        url, headers: {"Cookie": cookie + ";" + bigCookie});
-
-    return response.body;
-  }
 
   Future<String> getFromToGanttDuties(DateTime from, DateTime to) async {
 
@@ -168,18 +171,65 @@ class IobConnector {
       await this.getGanttMainTable();
     }
 
+    String today = DateFormat('dMMMy').format(DateTime.now());
     String fromdtm = DateFormat('dMMMy').format(from);
     String todtm = DateFormat('dMMMy').format(to);
 
-    String url = fromToGanttUrl + 'fromdtm=' + fromdtm + '&todtm=' + todtm +
+    String url = "https://fltops.omanair.com/mlt/crewganttpreaction.do?" +
+      "oldfromdtm=" + fromdtm +
+      "&oldtodtm=" + todtm +
+      "&persons=" + personId + ","
+      "&mlt.baseStation=MCT"
+      "&mlt.utcLocal=Utc"
+      "&crwSelectToDate=" + today +
+      "&crwFltToDate=" + today +
+      "&crwStnToDate=" + today +
+      "&crwStnToTime=23:59"
+      "&fromdtm=" + fromdtm +
+      "&todtm=" + todtm +
+      "&command=Go";
+
+    print(url);
+
+    String oldurl = fromToGanttUrl + 'fromdtm=' + fromdtm + '&todtm=' + todtm +
         '&persons=' + personId + ',&mlt.baseStation=MCT&mlt.utcLocal=Utc';
 
-    //String urlTest = "https://fltops.omanair.com/mlt/crewganttpreaction.do?oldfromdtm=01Apr2019&oldtodtm=30Apr2019&persons=17729%2C&mlt.baseStation=MCT&mlt.utcLocal=Local&crwSelectToDate=14Apr2019&crwFltToDate=14Apr2019&crwStnToDate=14Apr2019&crwStnToTime=23%3A59&fromdtm=08Apr2019&todtm=10Apr2019&command=Go";
     http.Response response = await client.get(
         url, headers: {"Cookie": cookie + ";" + bigCookie});
 
     response = await client.get(
         ganttUrl, headers: {"Cookie": cookie + ";" + bigCookie, "referer": url});
+
+    return response.body;
+  }
+
+  Future<String> getGanttDutyTripLocal(String personId, String persAllocId) {
+    return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Trip);
+  }
+
+  Future<String> getGanttDutyTripUtc(String personId, String persAllocId) {
+    return _getGanttDuty(personId, persAllocId, TIME_ZONE.Utc, DUTY_TYPE.Trip);
+  }
+
+  Future<String> getGanttDutyAcyLocal(String personId, String persAllocId) {
+    return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Acy);
+  }
+
+  Future<String> getGanttDutyAcyUtc(String personId, String persAllocId) {
+    return _getGanttDuty(personId, persAllocId, TIME_ZONE.Utc, DUTY_TYPE.Acy);
+  }
+
+  Future<String> _getGanttDuty(String personId, String persAllocId,
+      TIME_ZONE tz, DUTY_TYPE dt) async {
+
+    String url = (dt == DUTY_TYPE.Trip ? ganttDutyTripUrl : ganttDutyAcyUrl)
+        .replaceAll("REPLACEPERSONID", personId)
+        .replaceAll("REPLACEPERSALLOCID", persAllocId);
+
+    url += (tz == TIME_ZONE.Local ? 'Local' : 'Utc');
+
+    http.Response response = await client.get(
+        url, headers: {"Cookie": cookie + ";" + bigCookie});
 
     return response.body;
   }

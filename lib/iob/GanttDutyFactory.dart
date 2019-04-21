@@ -78,7 +78,7 @@ class GanttDutyFactory {
           };
           duty.addFlight(Flight.fromMap(iobMap));
         }
-      } else if (dataLocal[i]['type'] != null) { // Stand by's, OFF, NOPS, etc...
+      } else { // Stand by's, OFF, NOPS, etc...
 
         String dutyCode = dataLocal[i]['type'];
         duty.code = dutyCode;
@@ -96,12 +96,9 @@ class GanttDutyFactory {
 
         duty.startTime = startTime;
         duty.endTime = endTime;
-        print(duty);
       }
-
       duties.add(duty);
     }
-
     return duties;
   }
 }

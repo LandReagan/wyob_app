@@ -53,12 +53,13 @@ List<Map<String, String>> parseCheckinList(String txt) {
 List<Map<String, String>> parseGanttMainTable(String text) {
   /// In a GANTT main table, looks for the persAllocId
   List<Map<String, String>> data = [];
-  RegExp boxRE = RegExp(r'<g id="\S+?\.bar[\S|\s]+?personId=(\d+)[\S|\s]+?persAllocId=(\d+)[\S|\s]+?<text[\S|\s]+?>([\S|\s]+?)<');
+  RegExp boxRE = RegExp(r'<g id="\S+?\.bar[\S|\s]+?personId=(\d+)[\S|\s]+?persAllocId=(\d+)[\S|\s]+?_over\("(\S+?):[\S|\s]+?<text[\S|\s]+?>([\S|\s]+?)<');
   List<Match> boxMatches = boxRE.allMatches(text).toList();
   for (var match in boxMatches) {
     data.add({
       'personId': match[1],
       'persAllocId': match[2],
+      'type': match[3] == 'Pairing' ? 'Trip' : 'Acy'
     });
   }
   return data;
@@ -124,7 +125,7 @@ List<Map<String, dynamic>> parseGanttDuty(String text) {
       switch (i % 13) {
         case 0:
           index = int.parse(value) - 1;
-          data[index]['flights'] = [];
+          if (data[index]['flights'] == null) data[index]['flights']  = [];
           break;
         case 1:
           flightIndex = int.parse(value) - 1;

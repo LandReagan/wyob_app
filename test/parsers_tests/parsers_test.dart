@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:test/test.dart';
 import 'dart:io';
 
@@ -53,5 +55,15 @@ void main() {
     expect(result[0]['flights'].length, 1);
     expect(result[0]['flights'][0]['flight_number'], "WY141");
     expect(result[1]['flights'][0]['end'], "15:05");
+  });
+
+  group("should parse 20190229 MCT MUC MCT correctly", () {
+    File input = File("test/HTML files/20190429 MCT MUC MCT.html");
+    String content = input.readAsStringSync();
+    List<Map<String, dynamic>> result = parseGanttDuty(content);
+
+    test("should parse date", () {
+      expect(result[0]['date'], '26Apr2019');
+    });
   });
 }
