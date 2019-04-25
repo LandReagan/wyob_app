@@ -31,16 +31,15 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
 
   List<Duty> _duties = [];
-
   DateTime _lastUpdate;
-  
+  bool updating = false;
 
   void initState() {
     super.initState();
-    initialization();
+    this._initialization();
   }
 
-  void initialization() async {
+  void _initialization() async {
     // 1. Check for user credentials:
     Map<String, dynamic> userData = json.decode(
         await FileManager.readUserData());
@@ -67,6 +66,10 @@ class HomePageState extends State<HomePage> {
 
   Future<void> updateFromIob() async {
 
+    setState(() {
+      updating = true;
+    });
+
     //TODO: Check for online status first!
     Map<String, dynamic> userData = json.decode(await FileManager.readUserData());
     IobConnector connector = IobConnector(userData['username'], userData['password']);
@@ -88,6 +91,10 @@ class HomePageState extends State<HomePage> {
     await Database.updateDuties(now, newDuties);
 
     readDutiesFromDatabase();
+
+    setState(() {
+      updating = false;
+    });
   }
 
   String getSinceLastUpdateMessage() {
@@ -176,7 +183,7 @@ class HomePageState extends State<HomePage> {
                 child: Text(getSinceLastUpdateMessage(), textAlign: TextAlign.center,),
               ),
               IconButton(
-                icon: Icon(Icons.system_update),
+                icon: updating ? CircularProgressIndicator() : Icon(Icons.system_update),
                 onPressed: updateFromIob,
               ),
             ],

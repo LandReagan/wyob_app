@@ -56,8 +56,8 @@ void main() {
 
     // Get the references...
     String referencesString = await connector.getFromToGanttDuties(
-        DateTime.now().subtract(Duration(days: 10)),
-        DateTime.now().add(Duration(days: 10))
+        DateTime.now().subtract(Duration(days: 100)),
+        DateTime.now().subtract(Duration(days: 69))
     );
 
     List<Map<String, dynamic>> references = parseGanttMainTable(referencesString);

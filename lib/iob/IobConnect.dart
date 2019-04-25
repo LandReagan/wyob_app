@@ -162,7 +162,8 @@ class IobConnector {
   }
 
   Future<String> getFromToGanttDuties(DateTime from, DateTime to) async {
-
+    // Gets the Gantt duties references between [from] and [to],
+    // MAX 30 DAYS !!!
     if (this.cookie == null || this.bigCookie == null) {
       await this.run();
     }

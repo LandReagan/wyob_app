@@ -97,6 +97,16 @@ class GanttDutyFactory {
         duty.startTime = startTime;
         duty.endTime = endTime;
       }
+
+      DateTime utcNow = DateTime.now().toUtc();
+      if (duty.startTime.utc.isAfter(utcNow)) {
+        duty.status = DUTY_STATUS.PLANNED;
+      } else if (duty.endTime.utc.isBefore(utcNow)) {
+        duty.status = DUTY_STATUS.DONE;
+      } else {
+        duty.status = DUTY_STATUS.ON_GOING;
+      }
+
       duties.add(duty);
     }
     return duties;

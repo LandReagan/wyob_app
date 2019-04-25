@@ -16,6 +16,12 @@ const List<String> DutyNature = [
   'NOPS',
 ];
 
+enum DUTY_STATUS {
+  PLANNED,
+  ON_GOING,
+  DONE
+}
+
 
 /// Duty class
 /// Representing a duty.
@@ -27,6 +33,7 @@ class Duty {
   AwareDT _endTime;
   Airport _startPlace;
   Airport _endPlace;
+  DUTY_STATUS _status;
   List<Flight> _flights = [];
   Rest _rest;
 
@@ -60,6 +67,7 @@ class Duty {
     endTime = new AwareDT.fromString(map['endTime']);
     startPlace = new Airport.fromIata(map['startPlace']);
     endPlace = new Airport.fromIata(map['endPlace']);
+    statusFromString = map['status'];
 
     for (var flightMap in map['flights']) {
       flights.add(new Flight.fromMap(flightMap));
@@ -131,6 +139,13 @@ class Duty {
     if (_endTime == null || _startTime == null) { return new Duration(); }
     return _endTime.difference(_startTime);
   }
+  DUTY_STATUS get status => _status;
+  String get statusAsString {
+    if (_status == DUTY_STATUS.PLANNED) return 'PLANNED';
+    if (_status == DUTY_STATUS.ON_GOING) return 'ON_GOING';
+    if (_status == DUTY_STATUS.DONE) return 'DONE';
+    return 'UNKNOWN';
+  }
   List<Flight> get flights => _flights;
   Rest get rest => _rest;
 
@@ -151,6 +166,12 @@ class Duty {
   set endTime (AwareDT time) => _endTime = time;
   set startPlace (Airport airport) => _startPlace = airport;
   set endPlace (Airport airport) => _endPlace = airport;
+  set status (DUTY_STATUS status) => _status = status;
+  set statusFromString (String text) {
+    if (text == 'PLANNED') _status = DUTY_STATUS.PLANNED;
+    if (text == 'ON_GOING') _status = DUTY_STATUS.ON_GOING;
+    if (text == 'DONE') _status = DUTY_STATUS.DONE;
+  }
 
   addFlight(Flight flight) {
     if (_flights.length == 0) _startPlace = flight.startPlace;
@@ -171,6 +192,7 @@ class Duty {
     endTime == null ?
       result += 'DDMMMYYYY HH:MM|' : result += endTime.toString() + '|';
     result += DurationToString(duration) + '|';
+    result += statusAsString + '|';
 
     for (Flight flight in _flights) {
       result += '\n' + flight.toString();
@@ -196,6 +218,7 @@ class Duty {
       'endTime': _endTime.toString(),
       'startPlace': _startPlace.IATA,
       'endPlace': _endPlace.IATA,
+      'status': statusAsString,
       'flights': flightMaps,
     };
 
