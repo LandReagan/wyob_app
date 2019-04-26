@@ -4,9 +4,10 @@ import 'package:http/http.dart' as http;
 
 
 import 'package:test/test.dart';
+import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/iob/GanttDutyFactory.dart';
 
-import 'package:wyob/iob/IobConnect.dart' show IobConnector;
+import 'package:wyob/iob/IobConnector.dart' show IobConnector;
 import 'package:wyob/iob/IobDutyFactory.dart' show IobDutyFactory;
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/utils/Parsers.dart';
@@ -22,7 +23,7 @@ void main() {
 
     // 1. Get checkin list as text
     IobConnector connector = IobConnector('93429', '93429iob');
-    String checkinListAsText = await connector.run();
+    String checkinListAsText = await connector.init();
     checkinAsTextFile.writeAsStringSync(checkinListAsText);
 
     // 2. Get duties list out of the text
@@ -81,5 +82,12 @@ void main() {
       duties.addAll(rotationDuties);
     }
     duties.forEach((duty) => print(duty));
+  });
+
+  test('Get the duties from nothing (first connection)', () async {
+    IobConnector connector = IobConnector('93429', '93429iob');
+    LocalDatabase database = LocalDatabase();
+    await database.connect();
+    database.getDuties(DateTime.now(), DateTime.now().add(Duration(days: 5)));
   });
 }

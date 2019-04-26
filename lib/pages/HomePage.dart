@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 // High level packages
 import 'package:wyob/data/Database.dart';
 import 'package:wyob/data/FileManager.dart';
-import 'package:wyob/iob/IobConnect.dart';
+import 'package:wyob/iob/IobConnector.dart';
 import 'package:wyob/iob/IobDutyFactory.dart';
 
 // Pages
@@ -32,6 +32,7 @@ class HomePageState extends State<HomePage> {
 
   List<Duty> _duties = [];
   DateTime _lastUpdate;
+
   bool updating = false;
 
   void initState() {
@@ -73,7 +74,7 @@ class HomePageState extends State<HomePage> {
     //TODO: Check for online status first!
     Map<String, dynamic> userData = json.decode(await FileManager.readUserData());
     IobConnector connector = IobConnector(userData['username'], userData['password']);
-    String checkInListText = await connector.run();
+    String checkInListText = await connector.init();
 
     // In the case of a failure...
     if (checkInListText == "")

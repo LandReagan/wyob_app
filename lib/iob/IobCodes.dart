@@ -147,7 +147,7 @@ const Map<String, dynamic> IOB_CODES = {
   "IOE": null,
   "IOS": null,
   "IPT TRG": null,
-  "L/B": null,
+  "L/B": 'LEAVE',
   "L/REST": null,
   "LAY": null,
   "LB/BM": null,

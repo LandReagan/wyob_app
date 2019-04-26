@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:http/http.dart' as http;
+import 'package:wyob/WyobException.dart';
 
 
 /// URLs
@@ -89,38 +90,40 @@ class IobConnector {
   
   /// Used for initial connection, set token and cookie for the session.
   /// Returns the check-in list in a String to be parsed (see Parsers.dart)
-  /// In the case of any failure, returns an empty string.
-  Future<String> run() async {
-
+  /// In the case of any failure, throws a WyobException subclass.
+  Future<String> init() async {
     print("Connecting to IOB...");
-
     client = new http.Client();
-
     http.Response iobResponse;
+
+    if (username == '' || password == '')
+      throw WyobExceptionCredentials('Credentials not set in IobConnector');
 
     try {
       iobResponse = await client.get(landingUrl);
     } on Exception catch (e) {
-      print('OFFLINE! Exception: ' + e.toString());
-      return "";
+      throw WyobExceptionOffline(
+          'OFFLINE mode. For info, error: ' + e.toString());
     }
 
     print("Connected with status code: " + iobResponse.statusCode.toString());
-
-    // TODO: Check response integrity using Status Code or anything!
-
     String landingBodyWithToken = iobResponse.body;
     this.token = tokenRegExp.firstMatch(landingBodyWithToken).group(1);
-
     print('Token: ' + token);
 
-    String loginHeaders = (
+
+    String loginHeaders;
+    try {
+      loginHeaders = (
         await client.post(
-            loginFormUrl,
-            body: {"username": username, "password": password, "token": token}
+          loginFormUrl,
+          body: {"username": username, "password": password, "token": token}
         )
-    ).headers.toString();
-    this.cookie = cookieRegExp.firstMatch(loginHeaders).group(1);
+      ).headers.toString();
+      this.cookie = cookieRegExp.firstMatch(loginHeaders).group(1);
+    } on Exception catch (e) {
+      throw WyobExceptionLogIn('IobConnector failed to log in');
+    }
 
     print('Cookie: ' + this.cookie);
 
@@ -165,7 +168,7 @@ class IobConnector {
     // Gets the Gantt duties references between [from] and [to],
     // MAX 30 DAYS !!!
     if (this.cookie == null || this.bigCookie == null) {
-      await this.run();
+      await this.init();
     }
 
     if (this.personId == null) {

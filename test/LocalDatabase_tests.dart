@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 
@@ -38,4 +36,16 @@ void main() {
 
   });
 
+  group('updateFromGantt tests', () {
+    LocalDatabase database = LocalDatabase();
+    database.connect();
+
+    test('should connect', () {
+      expect(database.ready, true);
+    });
+
+    test('empty parameters test', () async {
+      await database.updateFromGantt();
+    });
+  });
 }

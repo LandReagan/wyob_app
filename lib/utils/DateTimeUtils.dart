@@ -79,6 +79,11 @@ class AwareDT extends Object{
     _loc = locDT;
   }
 
+  AwareDT.now() {
+    _loc = DateTime.now();
+    _utc = DateTime.now().toUtc();
+  }
+
   /// fromString from our format: DDmmmYYYY HH:MM +HH:MM
   AwareDT.fromString(String txt) {
 
