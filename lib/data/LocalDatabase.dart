@@ -1,5 +1,6 @@
 import 'dart:io' show File;
 import 'dart:convert' show json;
+import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:wyob/WyobException.dart';
@@ -26,6 +27,8 @@ class LocalDatabase {
 
   Map<String, dynamic> get rootData => _root;
   bool get ready => _ready;
+  DateTime get updateTimeLoc => _updateTime.loc;
+  DateTime get updateTimeUtc => _updateTime.utc;
 
   Future<void> connect() async {
     _root = await _getLocalData();
@@ -35,7 +38,8 @@ class LocalDatabase {
   }
 
   /// LocalDatabase inner method to update duties from the IOB system. Takes 2
-  /// DateTimes [fromParameter] and [toParameter] as time interval.
+  /// DateTimes [fromParameter] and [toParameter] as time interval. It updates
+  /// the [_updateTime] field as well
   ///
   /// The system limitation impose a 30 days maximum interval, this method will
   /// use a 20 days interval repeated until the full interval has been covered.
@@ -99,25 +103,49 @@ class LocalDatabase {
 
       from = from.add(Duration(days: INTERVAL_DAYS));
     }
+    _updateTime = AwareDT.now();
+    _writeData();
   }
 
+  /// It set a batch of new or updated duties in the database by overwriting
+  /// existing duties using times: any overlapping duty will be erased by the
+  /// new one. The list of duties is then sorted on ascending start time...
   void setDuties(List<Duty> newDuties) {
-    // todo!
-    newDuties.forEach((duty) => print(duty));
-  }
+    List<Duty> allDuties = getDutiesAll();
+    newDuties.forEach((newDuty) {
+      allDuties.removeWhere((oldDuty) {
+        return (newDuty.startTime.utc.compareTo(oldDuty.startTime.utc) >= 0
+              && newDuty.startTime.utc.compareTo(oldDuty.endTime.utc) < 0)
+            || (newDuty.endTime.utc.compareTo(oldDuty.startTime.utc) > 0
+              && newDuty.endTime.utc.compareTo(oldDuty.endTime.utc) <= 0);
+      });
+      allDuties.add(newDuty);
+    });
 
-  List<Duty> getDuties(DateTime from, DateTime to) {
+    allDuties.sort((duty1, duty2) => duty1.startTime.utc.compareTo(duty2.startTime.utc));
+
+    List<Map<String, dynamic>> newRawDuties = allDuties.map((duty) => duty.toMap()).toList();
+
+    _root['duties'] = newRawDuties;
+  }
+  
+  List<Duty> getDutiesAll() {
     if (_root['duties'].length > 0) {
       List<Map<String, dynamic>> allRawDuties = _root['duties'];
       List<Duty> allDuties = allRawDuties.map((rawDuty) {
         return Duty.fromMap(rawDuty);
       }).toList();
-      allDuties.removeWhere((duty) {
-        return duty.startTime.loc.isAfter(to) || duty.endTime.loc.isBefore(from);
-      });
       return allDuties;
     }
     return [];
+  }
+
+  List<Duty> getDuties(DateTime from, DateTime to) {
+    List<Duty> allDuties = getDutiesAll();
+    allDuties.removeWhere((duty) {
+      return duty.startTime.loc.isAfter(to) || duty.endTime.loc.isBefore(from);
+    });
+    return allDuties;
   }
 
   Future<Map<String, dynamic>> _getLocalData() async {
@@ -125,6 +153,14 @@ class LocalDatabase {
     String databasePath = rootPath + '/' + _fileName;
     String rawData = await _readDatabaseFile(databasePath);
     return json.decode(rawData);
+  }
+
+  Future<void> _writeLocalData() async {
+    _ready = false;
+    String rootPath = await _getRootPath();
+    String databasePath = rootPath + '/' + _fileName;
+    String encodedData = json.encode(_root);
+    await File(databasePath).writeAsString(encodedData, mode: FileMode.write);
   }
 
   Future<String> _readDatabaseFile(String filePath) async {
