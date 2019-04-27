@@ -96,7 +96,7 @@ class IobConnector {
     client = new http.Client();
     http.Response iobResponse;
 
-    if (username == '' || password == '')
+    if (username == '' || password == '' || username == null || password == null)
       throw WyobExceptionCredentials('Credentials not set in IobConnector');
 
     try {
@@ -192,8 +192,6 @@ class IobConnector {
       "&fromdtm=" + fromdtm +
       "&todtm=" + todtm +
       "&command=Go";
-
-    print(url);
 
     String oldurl = fromToGanttUrl + 'fromdtm=' + fromdtm + '&todtm=' + todtm +
         '&persons=' + personId + ',&mlt.baseStation=MCT&mlt.utcLocal=Utc';

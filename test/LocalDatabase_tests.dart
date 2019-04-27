@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:wyob/WyobException.dart';
 
 import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/objects/Duty.dart';
@@ -45,6 +46,12 @@ void main() {
     });
 
     test('empty parameters test', () async {
+      expect(database.updateFromGantt(), throwsA(const TypeMatcher<WyobExceptionCredentials>()));
+    });
+
+    test('General test', () async {
+      database = LocalDatabase(filepath: 'database_example1.json');
+      await database.connect();
       await database.updateFromGantt();
     });
   });

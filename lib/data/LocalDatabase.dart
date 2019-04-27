@@ -30,6 +30,7 @@ class LocalDatabase {
   Future<void> connect() async {
     _root = await _getLocalData();
     _updateTime = _root['last_update'] != '' ? AwareDT.fromString(_root['last_update']) : null;
+    _checkIntegrity();
     _ready = true;
   }
 
@@ -151,13 +152,32 @@ class LocalDatabase {
           'with database not ready!');
     }
 
-    if (_root['username'] == '' || _root['password'] == '') {
+    Map<String, dynamic> userData = _root['user_data'];
+
+    if (userData['username'] == '' || userData['password'] == '') {
       throw WyobExceptionCredentials('Credentials empty in the database!');
     }
 
     return {
-      'username': _root['username'],
-      'password': _root['password']
+      'username': userData['username'],
+      'password': userData['password']
     };
+  }
+
+  /// Checks database integrity in terms of available fields, lists, sets...
+  /// Throws [WyobExceptionDatabaseIntegrity] in case of any error found.
+  void _checkIntegrity() {
+    if (_root == null) {
+      throw WyobExceptionDatabaseIntegrity('Database Root is empty!');
+    }
+
+    if (_root['user_data'] == null) {
+      throw WyobExceptionDatabaseIntegrity('Database User Data ("user_data") not found!');
+    }
+
+    if (_root['user_data']['username'] == null || _root['user_data']['password'] == null) {
+      throw WyobExceptionDatabaseIntegrity(
+          'Database User Data ("user_data") incorrect, with username or password set to null!');
+    }
   }
 }

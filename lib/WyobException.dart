@@ -25,3 +25,7 @@ class WyobExceptionOffline extends WyobException {
 class WyobExceptionLogIn extends WyobException {
   const WyobExceptionLogIn([String msg]) : super(msg);
 }
+
+class WyobExceptionDatabaseIntegrity extends WyobException {
+  const WyobExceptionDatabaseIntegrity([String msg]) : super(msg);
+}
