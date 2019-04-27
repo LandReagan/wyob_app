@@ -104,7 +104,7 @@ class LocalDatabase {
       from = from.add(Duration(days: INTERVAL_DAYS));
     }
     _updateTime = AwareDT.now();
-    _writeData();
+    _writeLocalData();
   }
 
   /// It set a batch of new or updated duties in the database by overwriting
