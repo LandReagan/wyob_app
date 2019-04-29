@@ -173,13 +173,15 @@ List<Map<String, dynamic>> parseGanttDuty(String text) {
 
   // Other duties
   RegExp otherDutiesRE = RegExp(
-      r'<td>Activity Type</td>\s+<td[\S|\s]+?value="(\S+)"[\S|\s]+?<td>Start Date Time \(\S+?\)[\S|\s]+?value="([\S|\s]+?)"[\S|\s]+?value="([\S|\s]+?)"');
+      r'<td>Activity Type</td>\s+<td[\S|\s]+?value="(\S+)"[\S|\s]+?<td>Location</td>\s+<td[\S|\s]+?value="(\S+)"[\S|\s]+?<td>Start Date Time \(\S+?\)[\S|\s]+?value="([\S|\s]+?)"[\S|\s]+?value="([\S|\s]+?)"');
   Match otherDutiesM = otherDutiesRE.firstMatch(text);
   if (otherDutiesM != null) {
     data.add({
       'type': otherDutiesM[1],
-      'start': otherDutiesM[2],
-      'end': otherDutiesM[3]
+      'from': otherDutiesM[2],
+      'to': otherDutiesM[2],
+      'start': otherDutiesM[3],
+      'end': otherDutiesM[4]
     });
   }
 

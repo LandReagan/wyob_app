@@ -12,28 +12,64 @@ import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT;
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
 
-
+/// Singleton class for our database.
 class LocalDatabase {
 
   Map<String, dynamic> _root;
   bool _ready;
   AwareDT _updateTime;
-  final String _fileName;
+  String _fileName = DEFAULT_FILE_NAME;
+
 
   static const String DEFAULT_FILE_NAME = 'database.json';
 
-  LocalDatabase({filepath: DEFAULT_FILE_NAME}) :
-        _root = null, _ready = false, _fileName = filepath;
+  static const Map<String, dynamic> EMPTY_DATABASE_STRUCTURE = {
+    "user_data": {
+      "username": null,
+      "password": null
+    },
+    "app_settings": {},
+    "last_update": null,
+    "duties": []
+  };
+
+  static final LocalDatabase _instance = LocalDatabase._private();
+  factory LocalDatabase() {
+    return _instance;
+  }
+  LocalDatabase._private();
 
   Map<String, dynamic> get rootData => _root;
   bool get ready => _ready;
-  DateTime get updateTimeLoc => _updateTime.loc;
-  DateTime get updateTimeUtc => _updateTime.utc;
+  DateTime get updateTimeLoc => _updateTime?.loc;
+  DateTime get updateTimeUtc => _updateTime?.utc;
 
   Future<void> connect() async {
-    _root = await _getLocalData();
-    _updateTime = _root['last_update'] != '' ? AwareDT.fromString(_root['last_update']) : null;
-    _checkIntegrity();
+    _root = await _readLocalData();
+    _updateTime = _root['last_update'] != null ? AwareDT.fromString(_root['last_update']) : null;
+    try {
+      _checkIntegrity();
+    } on WyobExceptionCredentials catch (e) {
+      print('No credentials...');
+      _ready = true;
+      throw e;
+    } on WyobExceptionDatabaseIntegrity catch (e) {
+      // todo: Handle file system problems... How???
+    }
+    _ready = true;
+  }
+
+  Future<void> setCredentials(String username, String password) async {
+    _ready = false;
+    try {
+      _root = await _readLocalData();
+      _root['user_data']['username'] = username;
+      _root['user_data']['password'] = password;
+      await _writeLocalData();
+    } on Exception catch (e) {
+      _ready = true;
+      throw WyobException('File system problem, most likely...');
+    }
     _ready = true;
   }
 
@@ -148,7 +184,7 @@ class LocalDatabase {
     return allDuties;
   }
 
-  Future<Map<String, dynamic>> _getLocalData() async {
+  Future<Map<String, dynamic>> _readLocalData() async {
     String rootPath = await _getRootPath();
     String databasePath = rootPath + '/' + _fileName;
     String rawData = await _readDatabaseFile(databasePath);
@@ -164,7 +200,15 @@ class LocalDatabase {
   }
 
   Future<String> _readDatabaseFile(String filePath) async {
-    return await File(filePath).readAsString();
+    String data;
+    try {
+      data = await File(filePath).readAsString();
+    } on FileSystemException catch (e) {
+      // File is not existing, create it...
+      data = json.encode(EMPTY_DATABASE_STRUCTURE);
+      await File(filePath).writeAsString(data);
+    }
+    return data;
   }
 
   static Future<String> _getRootPath() async {
@@ -212,7 +256,7 @@ class LocalDatabase {
     }
 
     if (_root['user_data']['username'] == null || _root['user_data']['password'] == null) {
-      throw WyobExceptionDatabaseIntegrity(
+      throw WyobExceptionCredentials(
           'Database User Data ("user_data") incorrect, with username or password set to null!');
     }
   }

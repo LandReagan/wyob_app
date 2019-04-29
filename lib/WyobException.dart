@@ -29,3 +29,7 @@ class WyobExceptionLogIn extends WyobException {
 class WyobExceptionDatabaseIntegrity extends WyobException {
   const WyobExceptionDatabaseIntegrity([String msg]) : super(msg);
 }
+
+class WyobExceptionFtlIncomplete extends WyobException {
+  const WyobExceptionFtlIncomplete([String msg]) : super(msg);
+}

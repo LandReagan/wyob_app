@@ -1,9 +1,5 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-
-import 'package:wyob/data/FileManager.dart';
-
 
 class LoginPage extends StatefulWidget {
 
@@ -16,13 +12,7 @@ class _LoginPageState extends State<LoginPage> {
   String _password;
 
   void _submitCredentials() async {
-    if (_staffNumber != null && _password != null) {
-      Map<String, dynamic> userData = json.decode((await FileManager.readUserData()));
-      userData['username'] = _staffNumber.toString();
-      userData['password'] = _password.toString();
-      await FileManager.writeUserData(userData);
-    }
-
+    // todo: link with database and set in.
   }
 
   Widget build(BuildContext context) {

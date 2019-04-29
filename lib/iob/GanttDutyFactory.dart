@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:wyob/objects/Airport.dart';
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Flight.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
@@ -96,6 +97,9 @@ class GanttDutyFactory {
 
         duty.startTime = startTime;
         duty.endTime = endTime;
+
+        duty.startPlace = Airport.fromIata(dataLocal[i]['from']);
+        duty.endPlace = Airport.fromIata(dataLocal[i]['to']);
       }
 
       DateTime utcNow = DateTime.now().toUtc();
