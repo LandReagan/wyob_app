@@ -17,10 +17,8 @@ class LocalDatabase {
 
   Map<String, dynamic> _root;
   bool _ready;
-  AwareDT _updateTime;
   String _fileName = DEFAULT_FILE_NAME;
-
-
+  
   static const String DEFAULT_FILE_NAME = 'database.json';
 
   static const Map<String, dynamic> EMPTY_DATABASE_STRUCTURE = {
@@ -41,12 +39,11 @@ class LocalDatabase {
 
   Map<String, dynamic> get rootData => _root;
   bool get ready => _ready;
-  DateTime get updateTimeLoc => _updateTime?.loc;
-  DateTime get updateTimeUtc => _updateTime?.utc;
+  DateTime get updateTimeLoc => _getUpdateTime()?.loc;
+  DateTime get updateTimeUtc => _getUpdateTime()?.utc;
 
   Future<void> connect() async {
     _root = await _readLocalData();
-    _updateTime = _root['last_update'] != null ? AwareDT.fromString(_root['last_update']) : null;
     try {
       _checkIntegrity();
     } on WyobExceptionCredentials catch (e) {
@@ -72,7 +69,7 @@ class LocalDatabase {
     }
     _ready = true;
   }
-
+  
   /// LocalDatabase inner method to update duties from the IOB system. Takes 2
   /// DateTimes [fromParameter] and [toParameter] as time interval. It updates
   /// the [_updateTime] field as well
@@ -139,8 +136,7 @@ class LocalDatabase {
 
       from = from.add(Duration(days: INTERVAL_DAYS));
     }
-    _updateTime = AwareDT.now();
-    _writeLocalData();
+    await _setUpdateTime(AwareDT.now());
   }
 
   /// It set a batch of new or updated duties in the database by overwriting
@@ -163,11 +159,13 @@ class LocalDatabase {
     List<Map<String, dynamic>> newRawDuties = allDuties.map((duty) => duty.toMap()).toList();
 
     _root['duties'] = newRawDuties;
+    _writeLocalData();
   }
   
   List<Duty> getDutiesAll() {
     if (_root['duties'].length > 0) {
-      List<Map<String, dynamic>> allRawDuties = _root['duties'];
+      List<Map<String, dynamic>> allRawDuties = 
+          List<Map<String, dynamic>>.from(_root['duties']);
       List<Duty> allDuties = allRawDuties.map((rawDuty) {
         return Duty.fromMap(rawDuty);
       }).toList();
@@ -182,6 +180,16 @@ class LocalDatabase {
       return duty.startTime.loc.isAfter(to) || duty.endTime.loc.isBefore(from);
     });
     return allDuties;
+  }
+  
+  Future<void> _setUpdateTime(AwareDT time) async {
+    _root['last_update'] = time.toString();
+    await _writeLocalData();
+  }
+  
+  AwareDT _getUpdateTime() {
+    if (_root['last_update'] == null || _root['last_update'] == '') return null;
+    return AwareDT.fromString(_root['last_update']);
   }
 
   Future<Map<String, dynamic>> _readLocalData() async {

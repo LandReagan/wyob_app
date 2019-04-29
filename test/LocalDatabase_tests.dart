@@ -50,7 +50,7 @@ void main() {
     });
 
     test('General test', () async {
-      database = LocalDatabase(filepath: 'database_example1.json');
+      database = LocalDatabase();
       await database.connect();
       await database.updateFromGantt();
     });

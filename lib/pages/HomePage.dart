@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wyob/WyobException.dart';
@@ -36,12 +36,14 @@ class HomePageState extends State<HomePage> {
 
   List<Duty> _duties = [];
   DateTime _lastUpdate;
+  Timer _timer;
 
   bool updating = false;
 
   void initState() {
     super.initState();
     this._initialization();
+    _timer = Timer.periodic(Duration(seconds: 1), resetPage);
   }
 
   void _initialization() async {
@@ -101,6 +103,11 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  void resetPage(Timer timer) {
+    setState(() {
+
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
