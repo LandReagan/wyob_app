@@ -20,7 +20,7 @@ void main() {
 
     test("Empty Duty toString()", () {
       var duty = new Duty();
-      expect(duty.toString(), '|UNKNOWN  |UNKNOWN  |XXX|DDMMMYYYY HH:MM|XXX|DDMMMYYYY HH:MM|+00:00|');
+      expect(duty.toString(), '|UNKNOWN  |UNKNOWN  |XXX|DDMMMYYYY HH:MM|XXX|DDMMMYYYY HH:MM|+00:00|UNKNOWN|');
     });
   });
 

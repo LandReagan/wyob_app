@@ -9,6 +9,11 @@ class Rest {
 
   Rest.fromDuty(Duty duty) {
 
+    if (duty.isOffOrLeave) {
+      startTime = duty.endTime;
+      endTime = duty.endTime;
+    }
+
     // Start time is duty end time (30 minutes after blocks on time)
     startTime = AwareDT.fromDateTimes(duty.endTime.loc, duty.endTime.utc);
 

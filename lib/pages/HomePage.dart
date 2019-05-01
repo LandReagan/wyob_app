@@ -1,105 +1,113 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:wyob/WyobException.dart';
+import 'package:wyob/data/LocalDatabase.dart';
 
 // High level packages
-import 'package:wyob/data/Database.dart';
-import 'package:wyob/data/FileManager.dart';
-import 'package:wyob/iob/IobConnect.dart';
+import 'package:wyob/iob/IobConnector.dart';
 import 'package:wyob/iob/IobDutyFactory.dart';
 
 // Pages
 import 'package:wyob/pages/UserSettingsPage.dart';
 import 'package:wyob/pages/DirectoryPage.dart';
 import 'package:wyob/pages/LoginPage.dart';
+import 'package:wyob/pages/FtlMainPage.dart';
 
 // Widgets
 import 'package:wyob/widgets/DutiesWidget.dart';
+import 'package:wyob/widgets/LoginPopUp.dart';
 
 // Objects
 import 'package:wyob/objects/Duty.dart';
-import 'package:wyob/objects/DutyData.dart';
 
 // Utils
 import 'package:wyob/utils/DateTimeUtils.dart';
 
 
 class HomePage extends StatefulWidget {
+
+  final LocalDatabase database = LocalDatabase();
+
   HomePageState createState() => new HomePageState();
 }
 
 class HomePageState extends State<HomePage> {
 
   List<Duty> _duties = [];
-
   DateTime _lastUpdate;
-  
+  Timer _timer;
+
+  bool updating = false;
 
   void initState() {
     super.initState();
-    initialization();
+    this._initialization();
+    _timer = Timer.periodic(Duration(seconds: 1), resetPage);
   }
 
-  void initialization() async {
-    // 1. Check for user credentials:
-    Map<String, dynamic> userData = json.decode(
-        await FileManager.readUserData());
-    if (!userData.containsKey('username') || userData['username'] == '') {
-      Navigator.push(context,
-        MaterialPageRoute(
-            builder: (context) => LoginPage()
-        )
-      );
+  void _initialization() async {
+    try {
+      await this.widget.database.connect();
+    } on WyobExceptionCredentials catch (e) {
+      showDialog(context: context, builder: (context) => LoginPopUp(context));
     }
-    await readDutiesFromDatabase();
+    readDutiesFromDatabase();
     await updateFromIob();
   }
 
-  Future<void> readDutiesFromDatabase() async {
-
-    DutyData dutyData = await Database.getDutiesReduced();
+  void readDutiesFromDatabase() {
 
     setState(() {
-      _duties = dutyData.duties;
-      _lastUpdate = dutyData.lastUpdate?.loc;
+      _duties = widget.database.getDuties(
+          DateTime.now().subtract(Duration(days: 5)),
+          DateTime.now().add(Duration(days: 30))
+      );
+      _lastUpdate = widget.database.updateTimeLoc;
     });
   }
 
   Future<void> updateFromIob() async {
 
-    //TODO: Check for online status first!
-    Map<String, dynamic> userData = json.decode(await FileManager.readUserData());
-    String checkInListText = await IobConnect.run(
-        userData['username'], userData['password']);
+    setState(() {
+      updating = true;
+    });
 
-    // In the case of a failure...
-    if (checkInListText == "")
-      return;
-
-    List<Duty> newDuties = IobDutyFactory.run(checkInListText);
-
-    // In the case of a failure...
-    if (newDuties.isEmpty)
-      return;
-
-    // TODO: Get UTC difference from system
-    AwareDT now = AwareDT.fromDateTimes(DateTime.now(), DateTime.now().toUtc());
-
-    await Database.updateDuties(now, newDuties);
+    try {
+      await widget.database.updateFromGantt();
+    } on WyobExceptionCredentials catch (e) {
+      print('Credentials not in database');
+    } on WyobExceptionOffline catch (e) {
+      print('OFFLINE MODE.');
+    } on Exception catch (e) {
+      print('Unhandled exception caught: ' + e.toString());
+    }
 
     readDutiesFromDatabase();
+
+    setState(() {
+      updating = false;
+    });
   }
 
   String getSinceLastUpdateMessage() {
     if (_lastUpdate != null) {
       Duration sinceLastUpdate = DateTime.now().difference(_lastUpdate);
-      //return sinceLastUpdate.inMinutes.toString();
-      return "LAST UPDATE: " + _lastUpdate.toString().substring(0, 16);
+      int hours = sinceLastUpdate.inHours;
+      sinceLastUpdate -= Duration(hours: sinceLastUpdate.inHours);
+      int minutes = sinceLastUpdate.inMinutes;
+      return "LAST UPDATE: " + _lastUpdate.toString().substring(0, 16) + '\n' +
+        hours.toString() + ' hours and ' + minutes.toString() + ' minutes ago';
     } else {
       return "---";
     }
   }
 
+  void resetPage(Timer timer) {
+    setState(() {
+
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -150,13 +158,28 @@ class HomePageState extends State<HomePage> {
                   child: ListTile(
                       contentPadding: EdgeInsets.all(10.0),
                       leading: Icon(Icons.lock_outline),
-                      title: Text("Login")
+                      title: Text("Login credentials")
+                  ),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return LoginPopUp(context);
+                      }
+                    );
+                  },
+                ),
+                new GestureDetector(
+                  child: ListTile(
+                      contentPadding: EdgeInsets.all(10.0),
+                      leading: Icon(Icons.access_time),
+                      title: Text("FTL Calculator")
                   ),
                   onTap: () {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LoginPage(),
+                          builder: (context) => FtlMainPage(),
                         )
                     );
                   },
@@ -175,8 +198,8 @@ class HomePageState extends State<HomePage> {
               Expanded(
                 child: Text(getSinceLastUpdateMessage(), textAlign: TextAlign.center,),
               ),
-              IconButton(
-                icon: Icon(Icons.system_update),
+              FlatButton(
+                child: updating ? CircularProgressIndicator() : Text('UPDATE'),
                 onPressed: updateFromIob,
               ),
             ],

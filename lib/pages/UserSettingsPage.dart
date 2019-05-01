@@ -1,7 +1,5 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:wyob/data/FileManager.dart';
 
 
 class UserSettingsPage extends StatefulWidget {
@@ -17,10 +15,7 @@ class UserSettingsPageState extends State<UserSettingsPage> {
   }
 
   void loadUserData() async {
-    Map<String, dynamic> data = json.decode(await FileManager.readUserData());
-    setState(() {
-      userData = data;
-    });
+
   }
 
   // TODO Define what data is needed
