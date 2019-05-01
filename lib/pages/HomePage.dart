@@ -161,11 +161,11 @@ class HomePageState extends State<HomePage> {
                       title: Text("Login credentials")
                   ),
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoginPage(),
-                        )
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return LoginPopUp(context);
+                      }
                     );
                   },
                 ),

@@ -32,12 +32,19 @@ class _LoginPopUpState extends State<LoginPopUp> {
               padding: EdgeInsets.all(10.0),
               child: Row(
                 children: <Widget>[
-                  Text('Username: (Staff number)'),
-                  Expanded(child: TextField(
-                    onChanged: (value) {
-                      username = value;
-                    },
-                  ),)
+                  Text('Username:'),
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Staff Number',
+                        hintStyle: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                      textAlign: TextAlign.center,
+                      onChanged: (String value) {
+                        username = value;
+                      },
+                    ),
+                  )
                 ],
               ),
             ),
@@ -46,11 +53,18 @@ class _LoginPopUpState extends State<LoginPopUp> {
               child: Row(
                 children: <Widget>[
                   Text('Password:'),
-                  Expanded(child: TextField(
-                    onChanged: (value) {
-                      password = value;
-                    },
-                  ),)
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'IOB password',
+                        hintStyle: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                      textAlign: TextAlign.center,
+                      onChanged: (value) {
+                        password = value;
+                      },
+                    ),
+                  )
                 ],
               )
             )
