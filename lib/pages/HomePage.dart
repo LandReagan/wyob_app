@@ -188,7 +188,7 @@ class HomePageState extends State<HomePage> {
             )
         ),
         appBar: new AppBar(
-          title: new Text("WYOB v0.1 alpha"),
+          title: new Text("WYOB v0.2 beta"),
         ),
         body: new HomeWidget(_duties),
         bottomNavigationBar: BottomAppBar(
