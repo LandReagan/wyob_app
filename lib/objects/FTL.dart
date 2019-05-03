@@ -3,15 +3,16 @@ import 'package:wyob/utils/DateTimeUtils.dart';
 
 /// Used to calculate all FTLs.
 class FTL {
+
   AwareDT _reporting;
   int _numberOfLandings;
 
-  Duration get maxFlightDutyPeriod => _getMaxFlightDutyPeriod();
+  Duration get maxFlightDutyLength => _getMaxFlightDutyLength();
 
   set reporting (AwareDT reporting) => _reporting = reporting;
   set numberOfLandings (int number) => _numberOfLandings = number;
 
-  Duration _getMaxFlightDutyPeriod() {
+  Duration _getMaxFlightDutyLength() {
 
     if (_reporting == null) throw WyobExceptionFtlIncomplete(
         'Reporting time missing, calculation impossible!');
@@ -45,5 +46,32 @@ class FTL {
     if (maxFDP < Duration(hours: 9)) maxFDP = Duration(hours: 9);
 
     return maxFDP;
+  }
+}
+
+class Period {
+
+  DateTime start;
+  DateTime end;
+
+  Period({DateTime from, DateTime to}) : start = from, end = to;
+
+  Duration get duration {
+    if (end != null && start != null) return end.difference(start);
+    return null;
+  }
+
+  String get durationString {
+    if (this.duration == null) return null;
+
+    int hours = this.duration.inHours;
+    int minutes = (this.duration - Duration(hours: this.duration.inHours)).inMinutes;
+
+    String hoursString = hours.toString();
+    if (hoursString.length == 1) hoursString = '0' + hoursString;
+    String minutesString = minutes.toString();
+    if (minutesString.length == 1) minutesString = '0' + minutesString;
+
+    return hoursString + ':' + minutesString;
   }
 }
