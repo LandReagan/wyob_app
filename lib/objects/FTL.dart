@@ -49,6 +49,8 @@ class FTL {
   }
 }
 
+/// Convenience class to deal with "periods", i.e. time intervals having
+/// a [start] and an [end], whom attributes we can derive [duration]s.
 class Period {
 
   DateTime start;
