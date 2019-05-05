@@ -101,8 +101,8 @@ class RestWidget extends StatelessWidget {
   String getMinimumRestDuration() {
     int hours = _rest.duration.inHours;
     int minutes = _rest.duration.inMinutes - hours * 60;
-    return hours.toString() + ' hours ' +
-        (minutes.toString() == '0' ? '' : minutes.toString() + ' minutes');
+    return hours.toString() + 'h' +
+        (minutes.toString() == '0' ? '' : minutes.toString() + 'm');
   }
 
   @override
@@ -122,9 +122,8 @@ class RestWidget extends StatelessWidget {
           Expanded(
               child: Column(
                 children: <Widget>[
-                  Text('Minimum rest:', textAlign: TextAlign.center,
+                  Text('Minimum rest: ' + getMinimumRestDuration(), textAlign: TextAlign.center,
                       style: TextStyle(fontWeight: FontWeight.bold),),
-                  Text(getMinimumRestDuration()),
                   Text('ends: ' + _rest.end.localDayString + ' ' +
                       _rest.end.localTimeString,
                     style: TextStyle(color: Colors.redAccent),
