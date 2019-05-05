@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Flight.dart';
-import 'package:wyob/objects/FTL.dart';
+import 'package:wyob/objects/Rest.dart';
 
 
 class FlightDutyScreen extends StatelessWidget {
 
   final Duty flightDuty;
+  final Rest rest;
 
-  FlightDutyScreen(this.flightDuty);
+  FlightDutyScreen(this.flightDuty) : rest = Rest.fromDuty(flightDuty);
 
   String getTitle() {
     String returnValue = '';
@@ -67,7 +68,7 @@ class FlightDutyScreen extends StatelessWidget {
       ));
     }
 
-    result.add(RestWidget(flightDuty.rest));
+    result.add(RestWidget(rest));
 
     return result;
   }
@@ -101,8 +102,9 @@ class RestWidget extends StatelessWidget {
   String getMinimumRestDuration() {
     int hours = _rest.duration.inHours;
     int minutes = _rest.duration.inMinutes - hours * 60;
-    return hours.toString() + 'h' +
-        (minutes.toString() == '0' ? '' : minutes.toString() + 'm');
+    return hours.toString() + 'h' + (
+        minutes.toString() == '0' ? '' : minutes.toString() + 'm'
+    );
   }
 
   @override
@@ -122,10 +124,11 @@ class RestWidget extends StatelessWidget {
           Expanded(
               child: Column(
                 children: <Widget>[
-                  Text('Minimum rest: ' + getMinimumRestDuration(), textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.bold),),
-                  Text('ends: ' + _rest.end.localDayString + ' ' +
-                      _rest.end.localTimeString,
+                  Text('Minimum rest: ' + getMinimumRestDuration(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold),),
+                  Text('ends: ' + _rest.endTime.localDayString + ' ' +
+                      _rest.endTime.localTimeString,
                     style: TextStyle(color: Colors.redAccent),
                   )
                 ],

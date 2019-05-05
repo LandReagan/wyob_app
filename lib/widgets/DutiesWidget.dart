@@ -6,8 +6,6 @@ import 'package:wyob/pages/FlightDutyScreen.dart';
 
 /// Widget containing the ListView of DutyWidgets, built from a List of
 /// Duties
-///
-///
 class DutiesWidget extends StatelessWidget {
 
   final List<Duty> duties;
@@ -30,50 +28,30 @@ class DutiesWidget extends StatelessWidget {
 
 class DutyWidget extends StatelessWidget {
 
-  BuildContext _context;
-  
   final Duty _duty;
 
-  Text _sectorsText;
+  DutyWidget(this._duty);
 
-  DutyWidget(this._duty) {
-
+  Text get sectorsText {
     if (_duty.nature == 'FLIGHT') {
 
       String stringSectors = _duty.flights[0].startPlace.IATA;
       for (int i = 0; i < _duty.flights.length; i++) {
         stringSectors += ' - ' + _duty.flights[i].endPlace.IATA;
       }
-      _sectorsText = Text(stringSectors, textScaleFactor: 1.2,);
+      return Text(stringSectors, textScaleFactor: 1.2,);
     } else if (_duty.nature == 'STDBY') {
-      _sectorsText = Text(_duty.code, textScaleFactor: 1.2,);
+      return Text(_duty.code, textScaleFactor: 1.2,);
     }
-
-    // Text building
-    String sText = "";
-    String sSubText = "";
-    sText += _duty.startTime.localDayString;
-    sText += " ";
-
-    if (_duty.nature == "FLIGHT") {
-      sText += "report " + _duty.startTime.localTimeString;
-      sSubText += _duty.startPlace.IATA + ' ';
-      sSubText += _duty.flights[0].startTime.localTimeString;
-      sSubText += '  to  ' + _duty.endPlace.IATA + ' ' + _duty.endTime.localTimeString;
-    }
-
-    if (_duty.nature == "STDBY") {
-      sSubText += _duty.startTime.localTimeString
-      + ' to ' + _duty.endTime.localTimeString;
-    }
+    return null;
   }
 
-  Widget getTrailingIcon() {
+  Widget getTrailingIcon(BuildContext context) {
     if (_duty.nature == "FLIGHT") {
       return IconButton(
         icon: Icon(Icons.arrow_forward_ios),
         onPressed: () {
-          _goToFlightDutyScreen();
+          _goToFlightDutyScreen(context);
         },
       );
     } else {
@@ -122,24 +100,24 @@ class DutyWidget extends StatelessWidget {
         children: <Widget>[
           getUpperRow(),
           Center(
-            child: _sectorsText,
-          )
+            child: this.sectorsText,
+          ),
         ],
       );
     } else {
       return Column(
         children: <Widget>[
           Center(
-            child: _sectorsText,
-          )
+            child: this.sectorsText,
+          ),
         ],
       );
     }
   }
 
-  void _goToFlightDutyScreen() {
+  void _goToFlightDutyScreen(context) {
     Navigator.push(
-        _context,
+        context,
         MaterialPageRoute(
             builder: (_context) => FlightDutyScreen(_duty),
         ),
@@ -155,7 +133,6 @@ class DutyWidget extends StatelessWidget {
   }
 
   Widget build(BuildContext context) {
-    _context = context;
     return Container(
       decoration: BoxDecoration(
         color: _getDutyColor(),
@@ -170,7 +147,7 @@ class DutyWidget extends StatelessWidget {
           ],
         ),
         title: getCentralWidget(),
-        trailing: getTrailingIcon(),
+        trailing: getTrailingIcon(context),
       ),
     );
   }
