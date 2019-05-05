@@ -1,26 +1,56 @@
 import 'package:flutter/material.dart';
 
 import 'package:wyob/objects/Duty.dart' show Duty;
+import 'package:wyob/utils/DateTimeUtils.dart';
 import 'WidgetUtils.dart';
 import 'package:wyob/pages/FlightDutyScreen.dart';
 
+
+const double DUTY_WIDGET_HEIGHT =  90.0;
 /// Widget containing the ListView of DutyWidgets, built from a List of
 /// Duties
-class DutiesWidget extends StatelessWidget {
+class DutiesWidget extends StatefulWidget {
 
   final List<Duty> duties;
 
   DutiesWidget(this.duties);
 
+  _DutiesWidgetState createState() => _DutiesWidgetState();
+}
+
+class _DutiesWidgetState extends State<DutiesWidget> {
+
+  ScrollController _controller;
+  bool positionOnLastDuty = true;
+
+  void initState() {
+    super.initState();
+    this._controller = ScrollController();
+  }
+
+  Future<void> setScrollPositionToLastDuty() async {
+    int index = 0;
+    for (int i = 0; i < widget.duties.length; i++) {
+      Duty duty = widget.duties[i];
+      if (duty.endTime < AwareDT.now()) index = i;
+    }
+    this._controller.jumpTo(index * DUTY_WIDGET_HEIGHT);
+    positionOnLastDuty = false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return new Expanded(
+    if (positionOnLastDuty) setScrollPositionToLastDuty();
+    return Expanded(
       flex: 7,
-      child: duties == null ? new Container() : new ListView.builder(
-        itemCount: duties.length,
-        itemBuilder: (context, index) {
-          return DutyWidget(duties[index]);
-        }
+      child: widget.duties == null ?
+        Container() :
+        ListView.builder(
+          controller: this._controller,
+          itemCount: widget.duties.length,
+          itemBuilder: (context, index) {
+            return DutyWidget(widget.duties[index], DUTY_WIDGET_HEIGHT);
+          },
       )
     );
   }
@@ -29,8 +59,9 @@ class DutiesWidget extends StatelessWidget {
 class DutyWidget extends StatelessWidget {
 
   final Duty _duty;
+  final double height;
 
-  DutyWidget(this._duty);
+  DutyWidget(this._duty, this.height);
 
   Text get sectorsText {
     if (_duty.nature == 'FLIGHT') {
@@ -137,6 +168,7 @@ class DutyWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: _getDutyColor(),
       ),
+      height: this.height,
       child: ListTile(
         contentPadding: EdgeInsets.all(10.0),
         leading: Column(

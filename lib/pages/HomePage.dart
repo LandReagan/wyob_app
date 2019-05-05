@@ -177,9 +177,6 @@ class HomeWidget extends StatelessWidget {
     return new Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        new Container(
-            child: Text("Duties:")
-        ),
         new DutiesWidget(duties),
       ],
     );
