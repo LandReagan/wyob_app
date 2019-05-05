@@ -168,9 +168,14 @@ class AwareDT extends Object{
     return hour + ":" + minute + "z";
   }
 
-
   Duration difference (AwareDT before) {
     return _utc.difference(before.utc);
+  }
+
+  AwareDT add(Duration duration) {
+    DateTime locDT = this._loc.add(duration);
+    DateTime utcDT = this._utc.add(duration);
+    return AwareDT.fromDateTimes(locDT, utcDT);
   }
 
   // Operators

@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Flight.dart';
-import 'package:wyob/objects/Rest.dart';
+import 'package:wyob/objects/FTL.dart';
 
 
 class FlightDutyScreen extends StatelessWidget {
 
   final Duty flightDuty;
-  final Rest rest;
 
-  FlightDutyScreen(this.flightDuty) : rest = Rest.fromDuty(flightDuty);
+  FlightDutyScreen(this.flightDuty);
 
   String getTitle() {
     String returnValue = '';
@@ -68,7 +67,7 @@ class FlightDutyScreen extends StatelessWidget {
       ));
     }
 
-    result.add(RestWidget(rest));
+    result.add(RestWidget(flightDuty.rest));
 
     return result;
   }
@@ -126,8 +125,8 @@ class RestWidget extends StatelessWidget {
                   Text('Minimum rest:', textAlign: TextAlign.center,
                       style: TextStyle(fontWeight: FontWeight.bold),),
                   Text(getMinimumRestDuration()),
-                  Text('ends: ' + _rest.endTime.localDayString + ' ' +
-                      _rest.endTime.localTimeString,
+                  Text('ends: ' + _rest.end.localDayString + ' ' +
+                      _rest.end.localTimeString,
                     style: TextStyle(color: Colors.redAccent),
                   )
                 ],
