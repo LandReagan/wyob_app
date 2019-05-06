@@ -5,20 +5,20 @@ import 'package:wyob/objects/Duty.dart';
 class FTL {
 
   final Duty _duty;
+  final AwareDT reporting;
+  final AwareDT offDuty;
 
-  FTL(this._duty);
+  FTL(this._duty) : reporting = _duty?.startTime, offDuty = _duty?.endTime;
 
   FlightDutyPeriod get flightDutyPeriod {
-
+    // todo: case of stand by before flight duty
     if (_duty.nature != 'FLIGHT') return null;
 
-    var fdp = FlightDutyPeriod(
-      reporting: _duty.startTime,
-      onBlocks: _duty.endTime,
+    return FlightDutyPeriod(
+      reporting: this.reporting,
+      onBlocks: _duty.lastFlight.endTime,
       numberOfLandings: _duty.flights.length
     );
-
-    return fdp;
   }
 
   Rest get rest => _duty.involveRest ? Rest.fromDuty(_duty) : null;

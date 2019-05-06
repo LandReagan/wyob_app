@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Flight.dart';
-import 'package:wyob/objects/Rest.dart';
+import 'package:wyob/objects/FTL.dart';
+import 'package:wyob/pages/FtlMainPage.dart';
 
 
 class FlightDutyScreen extends StatelessWidget {
 
   final Duty flightDuty;
-  final Rest rest;
 
-  FlightDutyScreen(this.flightDuty) : rest = Rest.fromDuty(flightDuty);
+  FlightDutyScreen(this.flightDuty);
 
   String getTitle() {
     String returnValue = '';
@@ -68,7 +68,7 @@ class FlightDutyScreen extends StatelessWidget {
       ));
     }
 
-    result.add(RestWidget(rest));
+    result.add(RestWidget(flightDuty.rest));
 
     return result;
   }
@@ -78,6 +78,27 @@ class FlightDutyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(getTitle()),
+        actions: <Widget>[
+          Container(
+            padding: EdgeInsets.all(10.0),
+            child: OutlineButton(
+              child: Text('FTL >'),
+              textColor: Colors.white,
+              borderSide: BorderSide(color: Colors.white),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5.0)),
+              ),
+              onPressed: () {
+                return Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FtlMainPage(flightDuty)
+                  )
+                );
+              },
+            ),
+          ),
+        ],
       ),
       body: DefaultTextStyle(
         style: TextStyle(
@@ -102,9 +123,8 @@ class RestWidget extends StatelessWidget {
   String getMinimumRestDuration() {
     int hours = _rest.duration.inHours;
     int minutes = _rest.duration.inMinutes - hours * 60;
-    return hours.toString() + 'h' + (
-        minutes.toString() == '0' ? '' : minutes.toString() + 'm'
-    );
+    return hours.toString() + 'h' +
+        (minutes.toString() == '0' ? '' : minutes.toString() + 'm');
   }
 
   @override
@@ -124,11 +144,10 @@ class RestWidget extends StatelessWidget {
           Expanded(
               child: Column(
                 children: <Widget>[
-                  Text('Minimum rest: ' + getMinimumRestDuration(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.bold),),
-                  Text('ends: ' + _rest.endTime.localDayString + ' ' +
-                      _rest.endTime.localTimeString,
+                  Text('Minimum rest: ' + getMinimumRestDuration(), textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold),),
+                  Text('ends: ' + _rest.end.localDayString + ' ' +
+                      _rest.end.localTimeString,
                     style: TextStyle(color: Colors.redAccent),
                   )
                 ],

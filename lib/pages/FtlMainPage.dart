@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:wyob/objects/Duty.dart';
+import 'package:wyob/objects/FTL.dart';
+import 'package:wyob/widgets/FtlDateWidget.dart';
+import 'package:wyob/widgets/FtlTimeWidget.dart';
 
 class FtlMainPage extends StatefulWidget {
+
+  FTL ftl;
+
+  FtlMainPage(Duty duty) : ftl = FTL(duty);
+
   _FtlMainPageState createState() => _FtlMainPageState();
 }
 
@@ -12,12 +20,17 @@ class _FtlMainPageState extends State<FtlMainPage> {
       appBar: AppBar(
         title: Text('FTL calculator'),
       ),
-      body: FtlMainWidget(),
+      body: FtlMainWidget(widget.ftl),
     );
   }
 }
 
 class FtlMainWidget extends StatefulWidget {
+
+  final FTL ftl;
+
+  FtlMainWidget(this.ftl);
+
   _FtlMainWidgetState createState() => _FtlMainWidgetState();
 }
 
@@ -25,24 +38,20 @@ class FtlMainWidget extends StatefulWidget {
 /// information.
 class _FtlMainWidgetState extends State<FtlMainWidget> {
 
-  DateTime reporting;
-  DateTime onBlocks;
+
 
   List<ListTile> _getInputDataWidgets() {
     List<ListTile> inputDataWidgets = <ListTile>[];
 
-    // TITLE
-    inputDataWidgets.add(
-      ListTile(title: Text('INPUTS'),)
-    );
-
     // Date and reporting
     inputDataWidgets.add(
       ListTile(title: Row(children: <Widget>[
-        Text('DATE'),
-        Expanded(child: TextField(),),
-        Text('REPORTING:'),
-        Expanded(child: TextField(),)
+        Expanded(
+          child: FtlDateWidget('Reporting date', null)
+        ),
+        Expanded(
+          child: FtlTimeWidget('Reporting time'),
+        ),
       ],),)
     );
 

@@ -119,8 +119,41 @@ class HomePageState extends State<HomePage> {
               padding: EdgeInsets.zero,
               children: <Widget>[
                 new DrawerHeader(
+                  //TODO Harmonize style
                   child: new Text("Menu", style: TextStyle(fontSize: 20.0)),
                 ),
+                new GestureDetector(
+                  child: ListTile(
+                      contentPadding: EdgeInsets.all(10.0),
+                      leading: Icon(Icons.insert_emoticon),
+                      title: Text("User")
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserSettingsPage(),
+                        )
+                    );
+                  },
+                ),
+                /* Directory
+                new GestureDetector(
+                  child: ListTile(
+                      contentPadding: EdgeInsets.all(10.0),
+                      leading: Icon(Icons.phone),
+                      title: Text("Directory")
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DirectoryPage(),
+                        )
+                    );
+                  },
+                ),
+                */
                 new GestureDetector(
                   child: ListTile(
                       contentPadding: EdgeInsets.all(10.0),
@@ -136,6 +169,21 @@ class HomePageState extends State<HomePage> {
                     );
                   },
                 ),
+                new GestureDetector(
+                  child: ListTile(
+                      contentPadding: EdgeInsets.all(10.0),
+                      leading: Icon(Icons.access_time),
+                      title: Text("FTL Calculator")
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FtlMainPage(null),
+                        )
+                    );
+                  },
+                )
               ],
             )
         ),
@@ -151,11 +199,7 @@ class HomePageState extends State<HomePage> {
                 child: Text(getSinceLastUpdateMessage(), textAlign: TextAlign.center,),
               ),
               FlatButton(
-                child: updating ?
-                    CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),)
-                    :
-                    Text('UPDATE'),
+                child: updating ? CircularProgressIndicator() : Text('UPDATE'),
                 onPressed: updateFromIob,
               ),
             ],
@@ -177,6 +221,9 @@ class HomeWidget extends StatelessWidget {
     return new Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
+        new Container(
+            child: Text("Duties:")
+        ),
         new DutiesWidget(duties),
       ],
     );
