@@ -1,9 +1,10 @@
 import 'dart:convert' show json;
 
 import 'package:wyob/objects/Airport.dart' show Airport;
-import 'package:wyob/objects/FTL.dart';
 import 'package:wyob/objects/Flight.dart' show Flight;
-import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT, DurationToString;
+import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT, durationToString;
+import 'package:wyob/objects/Rest.dart' show Rest;
+
 
 const List<String> DutyNature = [
   'LEAVE',
@@ -21,6 +22,8 @@ enum DUTY_STATUS {
   DONE
 }
 
+
+/// Duty class
 /// Representing a duty.
 class Duty {
 
@@ -32,7 +35,7 @@ class Duty {
   Airport _endPlace;
   DUTY_STATUS _status;
   List<Flight> _flights = [];
-  FTL ftl;
+  Rest _rest;
 
   Duty();
 
@@ -53,7 +56,7 @@ class Duty {
       _flights.add(new Flight.fromJson(json.encode(jsonFlight)));
     }
 
-    this.ftl = FTL(this);
+    _rest = Rest.fromDuty(this);
   }
 
   Duty.fromMap(Map<String, dynamic> map) {
@@ -70,12 +73,14 @@ class Duty {
       flights.add(new Flight.fromMap(flightMap));
     }
 
-    this.ftl = FTL(this);
+    _rest = Rest.fromDuty(this);
   }
 
   Duty.fromIobMap(Map<String, String> iobMap) {
 
     RegExp flightRegExp = RegExp(r'\d{3}-\d{2}');
+    // TODO: check with other codes and other fleets
+    RegExp simRegExp = RegExp(r'\d+SD');
 
     /// Code
     _code = iobMap['Trip'];
@@ -121,7 +126,7 @@ class Duty {
     startPlace = new Airport.fromIata(iobMap['From']);
     endPlace = new Airport.fromIata(iobMap['To']);
 
-    this.ftl = FTL(this);
+    _rest = Rest.fromDuty(this);
   }
 
   String get nature => _nature;
@@ -142,18 +147,17 @@ class Duty {
     return 'UNKNOWN';
   }
   List<Flight> get flights => _flights;
-  Flight get firstFlight => _flights.first;
-  Flight get lastFlight => _flights.last;
-  Rest get rest => ftl.rest;
+  Rest get rest => _rest;
 
-  bool get involveRest {
+  bool get isOffOrLeave {
     if (this.nature == 'FLIGHT' || this.nature == 'SIM'
         || this.nature == 'GROUND') {
-      return true;
+      return false;
     }
-    return false;
+    return true;
   }
 
+  //TODO: Add convenient setters with other types if needed.
   set nature (String nature) {
     DutyNature.contains(nature) ? _nature = nature : _nature = "UNKNOWN";
   }
@@ -187,7 +191,7 @@ class Duty {
     endPlace == null ? result += 'XXX|' : result += endPlace.IATA + '|';
     endTime == null ?
       result += 'DDMMMYYYY HH:MM|' : result += endTime.toString() + '|';
-    result += DurationToString(duration) + '|';
+    result += durationToString(duration) + '|';
     result += statusAsString + '|';
 
     for (Flight flight in _flights) {

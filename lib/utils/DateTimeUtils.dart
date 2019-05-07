@@ -5,7 +5,7 @@ List<String> months = [
 /// This function returns a properly formatted DateTime.
 /// Format: DDMmmYYYY HH:MM
 /// with month as the standard 3 letters (e.g. JAN, FEB, MAR, etc.).
-String DateTimeToString(DateTime datetime) {
+String dateTimeToString(DateTime datetime) {
 
   String day = datetime.day.toString();
   if (day.length < 2) { day = "0" + day; }
@@ -22,7 +22,7 @@ String DateTimeToString(DateTime datetime) {
 /// This function returns a DateTime object out of a String.
 /// Format: DDMmmYYYY HH:MM
 /// with month as the standard 3 letters (e.g. JAN, FEB, MAR, etc.).
-DateTime StringToDateTime(String txt) {
+DateTime stringToDateTime(String txt) {
 
   RegExp regexp = new RegExp(
     r'(\d{2})(\w{3})(\d{4})\s(\d{2}):(\d{2})'
@@ -40,7 +40,7 @@ DateTime StringToDateTime(String txt) {
   return new DateTime(year, month, day, hour, minute);
 }
 
-String DurationToString(Duration duration) {
+String durationToString(Duration duration) {
 
   String sign = duration.isNegative ? "-" : "+";
   String hours = duration.abs().inHours.toString();
@@ -51,7 +51,17 @@ String DurationToString(Duration duration) {
   return sign + hours + ":" + minutes;
 }
 
-Duration StringToDuration(String txt) {
+String durationToStringHM(Duration duration) {
+  String result = '';
+  if (duration.inHours < 10) result += '0';
+  result += duration.inHours.toString() + 'h';
+  int minutes = duration.inMinutes - duration.inHours * 60;
+  if (minutes < 10) result += '0';
+  result += minutes.toString() + 'm';
+  return result;
+}
+
+Duration stringToDuration(String txt) {
 
   RegExp durationRegExp = new RegExp(
     r"([\+|-])(\d{2}):(\d{2})"
@@ -93,8 +103,8 @@ class AwareDT extends Object{
 
     var match = txtRegExp.firstMatch(txt);
 
-    _loc = StringToDateTime(match.group(1));
-    _utc = _loc.subtract(StringToDuration(match.group(2)));
+    _loc = stringToDateTime(match.group(1));
+    _utc = _loc.subtract(stringToDuration(match.group(2)));
   }
 
   /// Special constructor with an IOB string.
@@ -199,8 +209,8 @@ class AwareDT extends Object{
   @override
   String toString() {
 
-    String locDateTimeString = DateTimeToString(_loc);
-    String gmtDiffString = DurationToString(gmtDiff);
+    String locDateTimeString = dateTimeToString(_loc);
+    String gmtDiffString = durationToString(gmtDiff);
 
     return locDateTimeString + " " + gmtDiffString;
   }

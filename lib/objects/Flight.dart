@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:wyob/utils/DateTimeUtils.dart';
+
 import 'Airport.dart' show Airport;
-import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT, DurationToString;
+import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT, durationToString;
 
 /// This class represents a flight
 class Flight {
@@ -14,13 +16,7 @@ class Flight {
 
   Duration get duration => endTime.difference(startTime);
   String get durationString {
-    String result = '';
-    if (duration.inHours < 10) result += '0';
-    result += duration.inHours.toString() + 'h';
-    int minutes = duration.inMinutes - duration.inHours * 60;
-    if (minutes < 10) result += '0';
-    result += minutes.toString() + 'm';
-    return result;
+    return durationToStringHM(duration);
   }
 
   Flight.fromMap(Map<String, dynamic> map) {
@@ -76,7 +72,7 @@ class Flight {
     endPlace == null ? result += 'XXX|' : result += endPlace.IATA + '|';
     endTime == null ?
     result += 'DDMMMYYYY HH:MM|' : result += endTime.toString() + '|';
-    result += DurationToString(duration) + '|';
+    result += durationToString(duration) + '|';
 
     return result;
   }

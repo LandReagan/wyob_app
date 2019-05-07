@@ -111,6 +111,18 @@ class RawDutyWidget extends StatelessWidget {
     );
   }
 
+  Widget getRestWidget() {
+    return Row(
+      children: <Widget>[
+        Text('REST: '),
+        Expanded(child: Text(duty.rest.durationString, style: BOLD,),),
+        Text('ends: '),
+        Expanded(child: Text(duty.rest.endTime.localDayString + ' ', style: BOLD,),),
+        Expanded(child: Text(duty.rest.endTime.localTimeString, style: BOLD,),),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -120,6 +132,9 @@ class RawDutyWidget extends StatelessWidget {
     widgets.addAll(getFlightsWidgets());
     if (duty.nature == 'STDBY') widgets.add(getStandByWidget());
     if (getEndDateWidget() != null) widgets.add(getEndDateWidget());
+    if (duty.nature == 'FLIGHT' || duty.nature == 'GROUND' || duty.nature == 'SIM') {
+      widgets.add(getRestWidget());
+    }
     widgets.add(Divider(color: Colors.black,));
 
     return Container(
