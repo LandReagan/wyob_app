@@ -13,6 +13,15 @@ class Flight {
   String flightNumber;
 
   Duration get duration => endTime.difference(startTime);
+  String get durationString {
+    String result = '';
+    if (duration.inHours < 10) result += '0';
+    result += duration.inHours.toString() + 'h';
+    int minutes = duration.inMinutes - duration.inHours * 60;
+    if (minutes < 10) result += '0';
+    result += minutes.toString() + 'm';
+    return result;
+  }
 
   Flight.fromMap(Map<String, dynamic> map) {
     startTime = new AwareDT.fromString(map['startTime']);

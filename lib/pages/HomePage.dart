@@ -4,15 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
 
-// High level packages
-import 'package:wyob/iob/IobConnector.dart';
-import 'package:wyob/iob/IobDutyFactory.dart';
-
-// Pages
-import 'package:wyob/pages/UserSettingsPage.dart';
-import 'package:wyob/pages/DirectoryPage.dart';
-import 'package:wyob/pages/LoginPage.dart';
-import 'package:wyob/pages/FtlMainPage.dart';
+import 'package:wyob/pages/DebugPage.dart';
 
 // Widgets
 import 'package:wyob/widgets/DutiesWidget.dart';
@@ -20,10 +12,6 @@ import 'package:wyob/widgets/LoginPopUp.dart';
 
 // Objects
 import 'package:wyob/objects/Duty.dart';
-
-// Utils
-import 'package:wyob/utils/DateTimeUtils.dart';
-
 
 class HomePage extends StatefulWidget {
 
@@ -60,8 +48,8 @@ class HomePageState extends State<HomePage> {
 
     setState(() {
       _duties = widget.database.getDuties(
-          DateTime.now().subtract(Duration(days: 5)),
-          DateTime.now().add(Duration(days: 30))
+          DateTime.now().subtract(Duration(days: 3)),
+          DateTime.now().add(Duration(days: 40))
       );
       _lastUpdate = widget.database.updateTimeLoc;
     });
@@ -119,41 +107,8 @@ class HomePageState extends State<HomePage> {
               padding: EdgeInsets.zero,
               children: <Widget>[
                 new DrawerHeader(
-                  //TODO Harmonize style
                   child: new Text("Menu", style: TextStyle(fontSize: 20.0)),
                 ),
-                new GestureDetector(
-                  child: ListTile(
-                      contentPadding: EdgeInsets.all(10.0),
-                      leading: Icon(Icons.insert_emoticon),
-                      title: Text("User")
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => UserSettingsPage(),
-                        )
-                    );
-                  },
-                ),
-                /* Directory
-                new GestureDetector(
-                  child: ListTile(
-                      contentPadding: EdgeInsets.all(10.0),
-                      leading: Icon(Icons.phone),
-                      title: Text("Directory")
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DirectoryPage(),
-                        )
-                    );
-                  },
-                ),
-                */
                 new GestureDetector(
                   child: ListTile(
                       contentPadding: EdgeInsets.all(10.0),
@@ -172,18 +127,18 @@ class HomePageState extends State<HomePage> {
                 new GestureDetector(
                   child: ListTile(
                       contentPadding: EdgeInsets.all(10.0),
-                      leading: Icon(Icons.access_time),
-                      title: Text("FTL Calculator")
+                      leading: Icon(Icons.keyboard),
+                      title: Text("Database")
                   ),
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FtlMainPage(null),
-                        )
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DatabasePage();
+                        }
                     );
                   },
-                )
+                ),
               ],
             )
         ),
@@ -199,7 +154,11 @@ class HomePageState extends State<HomePage> {
                 child: Text(getSinceLastUpdateMessage(), textAlign: TextAlign.center,),
               ),
               FlatButton(
-                child: updating ? CircularProgressIndicator() : Text('UPDATE'),
+                child: updating ?
+                    CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),)
+                    :
+                    Text('UPDATE'),
                 onPressed: updateFromIob,
               ),
             ],
@@ -221,9 +180,6 @@ class HomeWidget extends StatelessWidget {
     return new Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        new Container(
-            child: Text("Duties:")
-        ),
         new DutiesWidget(duties),
       ],
     );
