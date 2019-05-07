@@ -1,9 +1,9 @@
 import 'dart:convert' show json;
 
 import 'package:wyob/objects/Airport.dart' show Airport;
+import 'package:wyob/objects/FTL.dart';
 import 'package:wyob/objects/Flight.dart' show Flight;
 import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT, durationToString;
-import 'package:wyob/objects/Rest.dart' show Rest;
 
 
 const List<String> DutyNature = [
@@ -22,8 +22,6 @@ enum DUTY_STATUS {
   DONE
 }
 
-
-/// Duty class
 /// Representing a duty.
 class Duty {
 
@@ -35,7 +33,6 @@ class Duty {
   Airport _endPlace;
   DUTY_STATUS _status;
   List<Flight> _flights = [];
-  Rest _rest;
 
   Duty();
 
@@ -55,8 +52,6 @@ class Duty {
     for (Map<String, String> jsonFlight in jsonFlights) {
       _flights.add(new Flight.fromJson(json.encode(jsonFlight)));
     }
-
-    _rest = Rest.fromDuty(this);
   }
 
   Duty.fromMap(Map<String, dynamic> map) {
@@ -72,15 +67,11 @@ class Duty {
     for (var flightMap in map['flights']) {
       flights.add(new Flight.fromMap(flightMap));
     }
-
-    _rest = Rest.fromDuty(this);
   }
 
   Duty.fromIobMap(Map<String, String> iobMap) {
 
     RegExp flightRegExp = RegExp(r'\d{3}-\d{2}');
-    // TODO: check with other codes and other fleets
-    RegExp simRegExp = RegExp(r'\d+SD');
 
     /// Code
     _code = iobMap['Trip'];
@@ -125,8 +116,6 @@ class Duty {
     /// Start and end places
     startPlace = new Airport.fromIata(iobMap['From']);
     endPlace = new Airport.fromIata(iobMap['To']);
-
-    _rest = Rest.fromDuty(this);
   }
 
   String get nature => _nature;
@@ -147,17 +136,21 @@ class Duty {
     return 'UNKNOWN';
   }
   List<Flight> get flights => _flights;
-  Rest get rest => _rest;
+  Flight get firstFlight => _flights.first;
+  Flight get lastFlight => _flights.last;
 
-  bool get isOffOrLeave {
+  FTL get ftl => FTL(this);
+  Rest get rest => ftl.rest;
+  FlightDutyPeriod get flightDutyPeriod => ftl.flightDutyPeriod;
+
+  bool get involveRest {
     if (this.nature == 'FLIGHT' || this.nature == 'SIM'
         || this.nature == 'GROUND') {
-      return false;
+      return true;
     }
-    return true;
+    return false;
   }
 
-  //TODO: Add convenient setters with other types if needed.
   set nature (String nature) {
     DutyNature.contains(nature) ? _nature = nature : _nature = "UNKNOWN";
   }

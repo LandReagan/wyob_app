@@ -52,6 +52,7 @@ String durationToString(Duration duration) {
 }
 
 String durationToStringHM(Duration duration) {
+  if (duration == null) return null;
   String result = '';
   if (duration.inHours < 10) result += '0';
   result += duration.inHours.toString() + 'h';

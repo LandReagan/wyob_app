@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:wyob/objects/Duty.dart';
+import 'package:wyob/objects/FTL.dart';
 
 class DatabaseContentWidget extends StatelessWidget {
 
@@ -111,14 +112,56 @@ class RawDutyWidget extends StatelessWidget {
     );
   }
 
+  List<Widget> getFDPWidgets() {
+
+    FlightDutyPeriod fdp = duty.ftl.flightDutyPeriod;
+    var widgets = <Widget>[];
+
+    widgets.add(
+      Row(
+        children: <Widget>[
+          Text('FDP start: '),
+          Expanded(
+            child: Text(
+              fdp.start.localDayString + ' ' + fdp.start.localTimeString,
+              style: ITALIC,
+            ),
+          ),
+          Text('end: '),
+          Expanded(
+            child: Text(
+              fdp.end.localDayString + ' ' + fdp.end.localTimeString,
+              style: ITALIC,
+            ),
+          ),
+        ],
+      )
+    );
+
+    widgets.add(
+      Row(
+        children: <Widget>[
+          Text('DURATION: '),
+          Expanded(child: Text(fdp.durationString, style: BOLD,),),
+          Text('MAX: '),
+          Expanded(child: Text(fdp.maxFlightDutyPeriod.durationString, style: BOLD,),),
+          Text('EXT: '),
+          Expanded(child: Text(fdp.extendedFlightDutyPeriod.durationString, style: BOLD,),),
+        ],
+      )
+    );
+
+    return widgets;
+  }
+
   Widget getRestWidget() {
     return Row(
       children: <Widget>[
         Text('REST: '),
         Expanded(child: Text(duty.rest.durationString, style: BOLD,),),
         Text('ends: '),
-        Expanded(child: Text(duty.rest.endTime.localDayString + ' ', style: BOLD,),),
-        Expanded(child: Text(duty.rest.endTime.localTimeString, style: BOLD,),),
+        Expanded(child: Text(duty.rest.end.localDayString + ' ', style: BOLD,),),
+        Expanded(child: Text(duty.rest.end.localTimeString, style: BOLD,),),
       ],
     );
   }
@@ -132,6 +175,7 @@ class RawDutyWidget extends StatelessWidget {
     widgets.addAll(getFlightsWidgets());
     if (duty.nature == 'STDBY') widgets.add(getStandByWidget());
     if (getEndDateWidget() != null) widgets.add(getEndDateWidget());
+    if (duty.nature == 'FLIGHT') widgets.addAll(getFDPWidgets());
     if (duty.nature == 'FLIGHT' || duty.nature == 'GROUND' || duty.nature == 'SIM') {
       widgets.add(getRestWidget());
     }

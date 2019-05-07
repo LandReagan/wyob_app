@@ -1,7 +1,8 @@
 import 'package:wyob/utils/DateTimeUtils.dart';
 import 'package:wyob/objects/Duty.dart';
 
-/// Used to calculate all FTLs. It is linked to a Duty.
+/// Used to calculate all FTLs. It is constructed thanks to a Duty and give
+/// Rest and FlightDutyPeriod objects.
 class FTL {
 
   final Duty _duty;
@@ -43,19 +44,7 @@ class Period {
     return null;
   }
 
-  String get durationString {
-    if (this.duration == null) return null;
-
-    int hours = this.duration.inHours;
-    int minutes = (this.duration - Duration(hours: this.duration.inHours)).inMinutes;
-
-    String hoursString = hours.toString();
-    if (hoursString.length == 1) hoursString = '0' + hoursString;
-    String minutesString = minutes.toString();
-    if (minutesString.length == 1) minutesString = '0' + minutesString;
-
-    return hoursString + ':' + minutesString;
-  }
+  String get durationString => durationToStringHM(duration);
 }
 
 /// As defined in OM-A chapter 7, from reporting time to on-blocks time
