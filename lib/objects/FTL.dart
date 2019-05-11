@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
 import 'package:wyob/objects/Duty.dart';
 
@@ -5,26 +7,69 @@ import 'package:wyob/objects/Duty.dart';
 /// Rest and FlightDutyPeriod objects.
 class FTL {
 
+  // Optional
   final Duty _duty;
-  final AwareDT reporting;
-  final AwareDT offDuty;
 
-  FTL(this._duty) : reporting = _duty?.startTime, offDuty = _duty?.endTime;
+  // Mandatory
+  AwareDT reporting;
+  bool isFlightDuty;
+  int numberOfLandings;
+  AwareDT onBlocks;
+
+  FTL(this._duty) : reporting = _duty?.startTime, isFlightDuty = _duty?.isFlight,
+        onBlocks = _duty?.lastFlight?.endTime,
+        numberOfLandings = _duty == null ? 0 : _duty.flights.length;
+
+  FTL.fromWidget({
+        @required DateTime reportingDate,
+        @required TimeOfDay reportingTime,
+        @required int numberOfLandings,
+        @required TimeOfDay onBlocks,
+        @required Duration timeZoneDifference
+  }) : this._duty = null {
+    DateTime reportingLoc = reportingDate;
+    reportingLoc = reportingLoc.add(
+        Duration(hours: reportingTime.hour, minutes: reportingTime.minute));
+    this.reporting = AwareDT.fromDateTimes(reportingLoc, reportingLoc);
+    if (numberOfLandings > 0) this.isFlightDuty = true;
+    this.numberOfLandings = numberOfLandings;
+    DateTime onBlocksLoc = reportingDate;
+    onBlocksLoc = onBlocksLoc.add(
+        Duration(hours: onBlocks?.hour, minutes: onBlocks.minute));
+    DateTime onBlocksUtc = onBlocksLoc.subtract(timeZoneDifference);
+    this.onBlocks = AwareDT.fromDateTimes(onBlocksLoc, onBlocksUtc);
+    if (this.reporting > this.onBlocks)
+        this.onBlocks = this.onBlocks.add(Duration(hours: 24));
+  }
 
   FlightDutyPeriod get flightDutyPeriod {
+
     // todo: case of stand by before flight duty
-    if (_duty.nature != 'FLIGHT') return null;
+    if (!this.isFlightDuty || !this.isValid) return null;
 
     return FlightDutyPeriod(
       reporting: this.reporting,
-      onBlocks: _duty.lastFlight.endTime,
-      numberOfLandings: _duty.flights.length
+      onBlocks: this.onBlocks,
+      numberOfLandings: numberOfLandings
     );
   }
 
-  Rest get rest => _duty.involveRest ? Rest.fromDuty(_duty) : null;
+  Rest get rest {
+    if (!this.isValid) return null;
+
+    if (this._duty != null && this._duty.involveRest) return Rest.fromDuty(this._duty);
+
+    return Rest.fromFTLInputs(reporting, onBlocks);
+  }
+
+  bool get isValid {
+    if (reporting > onBlocks) return false;
+    if (isFlightDuty && (numberOfLandings < 1 || numberOfLandings > 8)) return false;
+    return true;
+  }
 
   String toString() {
+    if (!this.isValid) return 'INVALID FTL OBJECT';
     return '|FTL data|\n==>' + flightDutyPeriod.toString() +
       '\n==>' + rest.toString();
   }
@@ -130,26 +175,33 @@ class FlightDutyPeriod extends Period {
 class Rest extends Period {
 
   Rest.fromDuty(Duty duty) {
+
+    // Rest immediately follows the end of the last duty.
+    this.start = duty.endTime;
+
     if (!duty.involveRest) {
-      this.start = duty.endTime;
       this.end = duty.endTime;
       return;
     }
 
-    // Start time is duty end time (30 minutes after blocks on time)
-    this.start = AwareDT.fromDateTimes(duty.endTime.loc, duty.endTime.utc);
+    this.end = this.start.add(this._getMinimumRestDuration(duty.duration));
+  }
 
-    // Rest time is either 11 hours or total duty time whichever is longer.
-    Duration dutyDuration = duty.endTime.utc.difference(duty.startTime.utc);
-    Duration stdRestDuration = Duration(hours: 11);
-    Duration restDuration =
-    dutyDuration > stdRestDuration ? dutyDuration : stdRestDuration;
-
-    this.end = this.start.add(restDuration);
+  Rest.fromFTLInputs(AwareDT reporting, AwareDT onBlocks) {
+    this.start = onBlocks.add(Duration(minutes: 30));
+    Duration fdpDuration = onBlocks.utc.difference(reporting.utc) + Duration(minutes: 30);
+    this.end = this.start.add(_getMinimumRestDuration(fdpDuration));
   }
 
   String toString() {
     return '|REST|from: ' + this.start.toString() +
             '|to: ' + this.end.toString() + '|duration: ' + this.durationString;
+  }
+
+  Duration _getMinimumRestDuration(Duration fdpDuration) {
+    /// Minimum Rest equals to preceding duty period or 11 hours whichever is
+    /// longer.
+    if (fdpDuration > Duration(hours: 11)) return fdpDuration;
+    return Duration(hours: 11);
   }
 }

@@ -121,7 +121,7 @@ class IobConnector {
         )
       ).headers.toString();
       this.cookie = cookieRegExp.firstMatch(loginHeaders).group(1);
-    } on Exception catch (e) {
+    } on Exception {
       throw WyobExceptionLogIn('IobConnector failed to log in');
     }
 
@@ -193,8 +193,8 @@ class IobConnector {
       "&todtm=" + todtm +
       "&command=Go";
 
-    String oldurl = fromToGanttUrl + 'fromdtm=' + fromdtm + '&todtm=' + todtm +
-        '&persons=' + personId + ',&mlt.baseStation=MCT&mlt.utcLocal=Utc';
+    /* String oldurl = fromToGanttUrl + 'fromdtm=' + fromdtm + '&todtm=' + todtm +
+        */
 
     http.Response response = await client.get(
         url, headers: {"Cookie": cookie + ";" + bigCookie});

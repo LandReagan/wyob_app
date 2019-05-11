@@ -5,7 +5,10 @@ import 'package:intl/intl.dart';
 class FtlTimeWidget extends StatefulWidget {
 
   final String title;
-  FtlTimeWidget(this.title);
+  final TimeOfDay initialTime;
+  final ValueChanged<TimeOfDay> callback;
+
+  FtlTimeWidget(this.title, this.initialTime, this.callback);
 
   _FtlTimeWidgetState createState() => _FtlTimeWidgetState();
 }
@@ -13,6 +16,11 @@ class FtlTimeWidget extends StatefulWidget {
 class _FtlTimeWidgetState extends State<FtlTimeWidget> {
 
   TimeOfDay _time;
+
+  void initState() {
+    super .initState();
+    _time = widget?.initialTime;
+  }
 
   String get dateString {
     if (_time == null) {
@@ -35,10 +43,13 @@ class _FtlTimeWidgetState extends State<FtlTimeWidget> {
           Text(widget.title, style: TextStyle(fontStyle: FontStyle.italic),),
           GestureDetector(
             child: Text(dateString, textScaleFactor: 1.2,),
-            onTap: () async => _time = await showTimePicker(
-                context: context,
-                initialTime: TimeOfDay.now()
-            ),
+            onTap: () async {
+              _time = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.now()
+              );
+              widget.callback(_time);
+            },
           )
         ],
       ),

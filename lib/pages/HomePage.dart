@@ -5,6 +5,7 @@ import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
 
 import 'package:wyob/pages/DebugPage.dart';
+import 'package:wyob/pages/FtlMainPage.dart';
 
 // Widgets
 import 'package:wyob/widgets/DutiesWidget.dart';
@@ -136,6 +137,21 @@ class HomePageState extends State<HomePage> {
                         builder: (BuildContext context) {
                           return DatabasePage();
                         }
+                    );
+                  },
+                ),
+                new GestureDetector(
+                  child: ListTile(
+                      contentPadding: EdgeInsets.all(10.0),
+                      leading: Icon(Icons.av_timer),
+                      title: Text("FTL Calculator")
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FtlMainPage(null),
+                        )
                     );
                   },
                 ),

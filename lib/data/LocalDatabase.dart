@@ -50,7 +50,7 @@ class LocalDatabase {
       print('No credentials...');
       _ready = true;
       throw e;
-    } on WyobExceptionDatabaseIntegrity catch (e) {
+    } on WyobExceptionDatabaseIntegrity {
       // todo: Handle file system problems... How???
     }
     _ready = true;
@@ -65,7 +65,7 @@ class LocalDatabase {
       await _writeLocalData();
     } on Exception catch (e) {
       _ready = true;
-      throw WyobException('File system problem, most likely...');
+      throw WyobException('File system problem, most likely... Error thrown: ' + e.toString());
     }
     _ready = true;
   }
@@ -211,7 +211,7 @@ class LocalDatabase {
     String data;
     try {
       data = await File(filePath).readAsString();
-    } on FileSystemException catch (e) {
+    } on FileSystemException {
       // File is not existing, create it...
       data = json.encode(EMPTY_DATABASE_STRUCTURE);
       await File(filePath).writeAsString(data);

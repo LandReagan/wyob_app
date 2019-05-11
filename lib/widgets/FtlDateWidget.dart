@@ -8,8 +8,9 @@ class FtlDateWidget extends StatefulWidget {
 
   final String title;
   final DateTime initialDate;
+  final ValueChanged<DateTime> callback;
 
-  FtlDateWidget(this.title, this.initialDate);
+  FtlDateWidget(this.title, this.initialDate, this.callback);
 
   _FtlDateWidgetState createState() => _FtlDateWidgetState();
 }
@@ -18,7 +19,8 @@ class _FtlDateWidgetState extends State<FtlDateWidget> {
 
   DateTime _date;
 
-  _FtlDateWidgetState() {
+  void initState() {
+    super.initState();
     _date = widget.initialDate;
   }
 
@@ -38,12 +40,15 @@ class _FtlDateWidgetState extends State<FtlDateWidget> {
           Text(widget.title, style: TextStyle(fontStyle: FontStyle.italic),),
           GestureDetector(
             child: Text(dateString, textScaleFactor: 1.2,),
-            onTap: () async => _date = await showDatePicker(
-              context: context,
-              firstDate: DateTime.now().subtract(Duration(days: 1000)),
-              initialDate: DateTime.now(),
-              lastDate: DateTime.now().add(Duration(days: 1000))
-            ),
+            onTap: () async {
+              _date = await showDatePicker(
+                context: context,
+                firstDate: DateTime.now().subtract(Duration(days: 1000)),
+                initialDate: DateTime.now(),
+                lastDate: DateTime.now().add(Duration(days: 1000))
+              );
+              widget.callback(_date);
+            }
           )
         ],
       ),

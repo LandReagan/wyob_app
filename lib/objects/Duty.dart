@@ -135,6 +135,7 @@ class Duty {
     if (_status == DUTY_STATUS.DONE) return 'DONE';
     return 'UNKNOWN';
   }
+  bool get isFlight => _flights.length != 0;
   List<Flight> get flights => _flights;
   Flight get firstFlight => _flights.first;
   Flight get lastFlight => _flights.last;
