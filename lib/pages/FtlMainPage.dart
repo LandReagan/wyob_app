@@ -45,9 +45,10 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
 
   DateTime _reportingDate;
   TimeOfDay _reportingTime;
+  Duration _reportingGMTDiff;
   int _numberOfLandings = DEFAULT_NUMBER_OF_LANDINGS;
   TimeOfDay _onBlocksTime;
-  Duration _timeZoneDifference = Duration.zero;
+  Duration _onBlocksGMTDiff;
 
   FTL getFTL() {
     if (this._reportingDate == null || this._reportingTime == null ||
@@ -55,9 +56,10 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
     return FTL.fromWidget(
         reportingDate: this._reportingDate,
         reportingTime: this._reportingTime,
+        reportingGMTDiff: this._reportingGMTDiff,
         numberOfLandings: this._numberOfLandings,
         onBlocks: this._onBlocksTime,
-        timeZoneDifference: this._timeZoneDifference
+        onBlocksGMTDiff: this._onBlocksGMTDiff
     );
   }
 
@@ -67,10 +69,10 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
       _reportingDate = widget.ftl.reporting.loc;
       _reportingTime = TimeOfDay.fromDateTime(_reportingDate);
       _reportingDate = DateTime(_reportingDate.year, _reportingDate.month, _reportingDate.day);
-
+      _reportingGMTDiff = widget.ftl.reporting.gmtDiff;
       _numberOfLandings = widget.ftl.numberOfLandings;
       _onBlocksTime = TimeOfDay.fromDateTime(widget.ftl.onBlocks.loc);
-      _timeZoneDifference =  widget.ftl.onBlocks.gmtDiff - widget.ftl.reporting.gmtDiff;
+      _onBlocksGMTDiff = widget.ftl.onBlocks.gmtDiff;
     }
   }
 
@@ -91,17 +93,6 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
       _onBlocksTime = newTime;
     });
   }
-  
-  String _getUTCDifferenceString() {
-    String result = '';
-    _timeZoneDifference > Duration.zero ? result += '+' : result += '-';
-    if (_timeZoneDifference.inHours.abs().toString().length < 2) result += '0';
-    result += _timeZoneDifference.inHours.abs().toString();
-    result += ':';
-    if ((_timeZoneDifference - Duration(hours: _timeZoneDifference.inHours)).inMinutes.abs().toString().length < 2) result += '0';
-    result += (_timeZoneDifference - Duration(hours: _timeZoneDifference.inHours)).inMinutes.abs().toString();
-    return result;
-  }
 
   void _setNumberOfLandings(double value) {
     setState(() {
@@ -113,14 +104,56 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
 
     var inputDataWidgets = <ListTile>[];
 
-    // Date and reporting
+    // Date
     inputDataWidgets.add(
       ListTile(title: Row(children: <Widget>[
         Expanded(
           child: FtlDateWidget('Reporting date', this._reportingDate, this._setDate),
         ),
+    ]),),);
+
+    // Reporting data
+    inputDataWidgets.add(
+      ListTile(title: Row(children: <Widget>[
         Expanded(
+          flex: 5,
           child: FtlTimeWidget('Reporting time', this._reportingTime, this._setReporting),
+        ),
+        Expanded(
+          flex: 5,
+          child: Column(
+            children: <Widget>[
+              Text(
+                'GMT diff.',
+                style: TextStyle(fontStyle: FontStyle.italic),
+                textAlign: TextAlign.center,
+              ),
+              Text(durationToStringHM(_reportingGMTDiff), textScaleFactor: 1.2,),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Column(
+            children: <Widget>[
+              FlatButton(
+                child: Text('+', textScaleFactor: 1.5,),
+                onPressed: () {
+                  setState(() {
+                    _reportingGMTDiff += Duration(minutes: 15);
+                  });
+                },
+              ),
+              FlatButton(
+                child: Text('-', textScaleFactor: 1.5,),
+                onPressed: () {
+                  setState(() {
+                    _reportingGMTDiff -= Duration(minutes: 15);
+                  });
+                },
+              )
+            ],
+          ),
         ),
       ],),)
     );
@@ -142,15 +175,15 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
         ],),)
     );
 
-    // Number of landings
+    // On blocks data
     inputDataWidgets.add(
         ListTile(title: Row(children: <Widget>[
           Expanded(
-            flex: 3,
+            flex: 5,
             child: FtlTimeWidget('On Blocks', _onBlocksTime, this._setOnBlocks),
           ),
           Expanded(
-            flex: 3,
+            flex: 5,
             child: Column(
               children: <Widget>[
                 Text(
@@ -158,7 +191,7 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
                   style: TextStyle(fontStyle: FontStyle.italic),
                   textAlign: TextAlign.center,
                 ),
-                Text(_getUTCDifferenceString(), textScaleFactor: 1.2,),
+                Text(durationToStringHM(_onBlocksGMTDiff), textScaleFactor: 1.2,),
               ],
             ),
           ),
@@ -170,7 +203,7 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
                   child: Text('+', textScaleFactor: 1.5,),
                   onPressed: () {
                     setState(() {
-                      _timeZoneDifference += Duration(minutes: 15);
+                      _onBlocksGMTDiff += Duration(minutes: 15);
                     });
                   },
                 ),
@@ -178,38 +211,13 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
                   child: Text('-', textScaleFactor: 1.5,),
                   onPressed: () {
                     setState(() {
-                      _timeZoneDifference -= Duration(minutes: 15);
+                      _onBlocksGMTDiff -= Duration(minutes: 15);
                     });
                   },
                 )
               ],
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.info, color: Colors.blue),
-            onPressed: () =>
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('GMT Difference?'),
-                    content: Text('This is the difference of time zones between '
-                        'the country where the last flight ends and the reporting country. \n'
-                        'Example: Flight from Muscat (GMT +4) to Frankfurt (GMT +2 during summer) '
-                        'should be -02:00'
-                    ),
-                    actions: <Widget>[
-                      FlatButton(
-                        child: Text('Got it...'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      )
-                    ],
-                  );
-                }
-              ),
-          )
         ],),)
     );
     return inputDataWidgets;

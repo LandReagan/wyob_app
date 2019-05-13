@@ -23,20 +23,25 @@ class FTL {
   FTL.fromWidget({
         @required DateTime reportingDate,
         @required TimeOfDay reportingTime,
+        @required Duration reportingGMTDiff,
         @required int numberOfLandings,
         @required TimeOfDay onBlocks,
-        @required Duration timeZoneDifference
+        @required Duration onBlocksGMTDiff
   }) : this._duty = null {
     DateTime reportingLoc = reportingDate;
     reportingLoc = reportingLoc.add(
         Duration(hours: reportingTime.hour, minutes: reportingTime.minute));
-    this.reporting = AwareDT.fromDateTimes(reportingLoc, reportingLoc);
+    DateTime reportingUtc = reportingLoc.subtract(reportingGMTDiff);
+    this.reporting = AwareDT.fromDateTimes(reportingLoc, reportingUtc);
+
     if (numberOfLandings > 0) this.isFlightDuty = true;
+
     this.numberOfLandings = numberOfLandings;
+
     DateTime onBlocksLoc = reportingDate;
     onBlocksLoc = onBlocksLoc.add(
         Duration(hours: onBlocks?.hour, minutes: onBlocks.minute));
-    DateTime onBlocksUtc = onBlocksLoc.subtract(timeZoneDifference);
+    DateTime onBlocksUtc = onBlocksLoc.subtract(onBlocksGMTDiff);
     this.onBlocks = AwareDT.fromDateTimes(onBlocksLoc, onBlocksUtc);
     if (this.reporting > this.onBlocks)
         this.onBlocks = this.onBlocks.add(Duration(hours: 24));
