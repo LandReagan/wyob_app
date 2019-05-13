@@ -54,9 +54,10 @@ String durationToString(Duration duration) {
 String durationToStringHM(Duration duration) {
   if (duration == null) return null;
   String result = '';
-  if (duration.inHours < 10) result += '0';
-  result += duration.inHours.toString() + 'h';
-  int minutes = duration.inMinutes - duration.inHours * 60;
+  duration >= Duration.zero ? result += '' : result += '-';
+  if (duration.inHours.abs() < 10) result += '0';
+  result += duration.inHours.abs().toString() + 'h';
+  int minutes = duration.inMinutes.abs() - duration.inHours.abs() * 60;
   if (minutes < 10) result += '0';
   result += minutes.toString() + 'm';
   return result;

@@ -6,6 +6,7 @@ import 'package:wyob/objects/FTL.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
 import 'package:wyob/widgets/FtlDateWidget.dart';
 import 'package:wyob/widgets/FtlTimeWidget.dart';
+import 'package:wyob/widgets/GMTDiffWidget.dart';
 
 class FtlMainPage extends StatefulWidget {
 
@@ -52,7 +53,8 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
 
   FTL getFTL() {
     if (this._reportingDate == null || this._reportingTime == null ||
-        this._onBlocksTime == null) return null;
+        this._onBlocksTime == null || this._reportingGMTDiff == null ||
+        this._onBlocksGMTDiff == null) return null;
     return FTL.fromWidget(
         reportingDate: this._reportingDate,
         reportingTime: this._reportingTime,
@@ -88,15 +90,27 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
     });
   }
 
-  void _setOnBlocks(TimeOfDay newTime) {
+  void _setReportingGMTDiff(Duration duration) {
     setState(() {
-      _onBlocksTime = newTime;
+      _reportingGMTDiff = duration;
     });
   }
 
   void _setNumberOfLandings(double value) {
     setState(() {
       _numberOfLandings = value.floor();
+    });
+  }
+
+  void _setOnBlocks(TimeOfDay newTime) {
+    setState(() {
+      _onBlocksTime = newTime;
+    });
+  }
+
+  void _setOnBlocksGMTDiff(Duration duration) {
+    setState(() {
+      _onBlocksGMTDiff = duration;
     });
   }
 
@@ -119,42 +133,7 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
           flex: 5,
           child: FtlTimeWidget('Reporting time', this._reportingTime, this._setReporting),
         ),
-        Expanded(
-          flex: 5,
-          child: Column(
-            children: <Widget>[
-              Text(
-                'GMT diff.',
-                style: TextStyle(fontStyle: FontStyle.italic),
-                textAlign: TextAlign.center,
-              ),
-              Text(durationToStringHM(_reportingGMTDiff), textScaleFactor: 1.2,),
-            ],
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: Column(
-            children: <Widget>[
-              FlatButton(
-                child: Text('+', textScaleFactor: 1.5,),
-                onPressed: () {
-                  setState(() {
-                    _reportingGMTDiff += Duration(minutes: 15);
-                  });
-                },
-              ),
-              FlatButton(
-                child: Text('-', textScaleFactor: 1.5,),
-                onPressed: () {
-                  setState(() {
-                    _reportingGMTDiff -= Duration(minutes: 15);
-                  });
-                },
-              )
-            ],
-          ),
-        ),
+        GMTDiffWidget('GMT Diff.', _reportingGMTDiff, _setReportingGMTDiff),
       ],),)
     );
 
@@ -182,42 +161,7 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
             flex: 5,
             child: FtlTimeWidget('On Blocks', _onBlocksTime, this._setOnBlocks),
           ),
-          Expanded(
-            flex: 5,
-            child: Column(
-              children: <Widget>[
-                Text(
-                  'GMT diff.',
-                  style: TextStyle(fontStyle: FontStyle.italic),
-                  textAlign: TextAlign.center,
-                ),
-                Text(durationToStringHM(_onBlocksGMTDiff), textScaleFactor: 1.2,),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Column(
-              children: <Widget>[
-                FlatButton(
-                  child: Text('+', textScaleFactor: 1.5,),
-                  onPressed: () {
-                    setState(() {
-                      _onBlocksGMTDiff += Duration(minutes: 15);
-                    });
-                  },
-                ),
-                FlatButton(
-                  child: Text('-', textScaleFactor: 1.5,),
-                  onPressed: () {
-                    setState(() {
-                      _onBlocksGMTDiff -= Duration(minutes: 15);
-                    });
-                  },
-                )
-              ],
-            ),
-          ),
+          GMTDiffWidget('GMT Diff.', _onBlocksGMTDiff, _setOnBlocksGMTDiff),
         ],),)
     );
     return inputDataWidgets;
