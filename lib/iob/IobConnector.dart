@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:http/http.dart' as http;
 import 'package:wyob/WyobException.dart';
@@ -39,15 +40,28 @@ enum DUTY_TYPE {
   Acy
 }
 
+enum CONNECTOR_STATUS {
+  OFF,
+  CONNECTING,
+  OFFLINE,
+  LOGIN_FAILED,
+  CONNECTED,
+  AUTHENTIFIED,
+  ERROR,
+}
+
 class IobConnector {
 
   final String username;
   final String password;
+  final ValueChanged<CONNECTOR_STATUS> onStatusChanged;
+
   String token;
   String cookie;
   String bigCookie;
   String personId;
   http.Client client;
+  CONNECTOR_STATUS status;
 
   Map<String, String> crewSelectForm = {
     "org.apache.struts.taglib.html.TOKEN": "", // <= set token here
@@ -86,26 +100,32 @@ class IobConnector {
     "hidActivity": "",
   };
 
-  IobConnector(this.username, this.password);
+  IobConnector(this.username, this.password, this.onStatusChanged) : status = CONNECTOR_STATUS.OFF;
   
   /// Used for initial connection, set token and cookie for the session.
   /// Returns the check-in list in a String to be parsed (see Parsers.dart)
   /// In the case of any failure, throws a WyobException subclass.
   Future<String> init() async {
     print("Connecting to IOB...");
+    this._changeStatus(CONNECTOR_STATUS.CONNECTING);
     client = new http.Client();
     http.Response iobResponse;
 
-    if (username == '' || password == '' || username == null || password == null)
+    if (username == '' || password == '' || username == null ||
+        password == null) {
+      this._changeStatus(CONNECTOR_STATUS.ERROR);
       throw WyobExceptionCredentials('Credentials not set in IobConnector');
+    }
 
     try {
       iobResponse = await client.get(landingUrl);
     } on Exception catch (e) {
+      this._changeStatus(CONNECTOR_STATUS.OFFLINE);
       throw WyobExceptionOffline(
           'OFFLINE mode. For info, error: ' + e.toString());
     }
 
+    this._changeStatus(CONNECTOR_STATUS.CONNECTED);
     print("Connected with status code: " + iobResponse.statusCode.toString());
     String landingBodyWithToken = iobResponse.body;
     this.token = tokenRegExp.firstMatch(landingBodyWithToken).group(1);
@@ -122,6 +142,7 @@ class IobConnector {
       ).headers.toString();
       this.cookie = cookieRegExp.firstMatch(loginHeaders).group(1);
     } on Exception {
+      this._changeStatus(CONNECTOR_STATUS.LOGIN_FAILED);
       throw WyobExceptionLogIn('IobConnector failed to log in');
     }
 
@@ -130,6 +151,8 @@ class IobConnector {
     http.Response checkinListResponse =
       await client.get(checkinListUrl, headers: {"Cookie": cookie});
     this.bigCookie = checkinListResponse.headers["set-cookie"];
+
+    this._changeStatus(CONNECTOR_STATUS.AUTHENTIFIED);
 
     print('Big Cookie: ' + this.bigCookie);
 
@@ -234,5 +257,12 @@ class IobConnector {
         url, headers: {"Cookie": cookie + ";" + bigCookie});
 
     return response.body;
+  }
+
+  void _changeStatus(CONNECTOR_STATUS newStatus) {
+    if (newStatus != null) {
+      this.status = newStatus;
+      if (onStatusChanged != null) onStatusChanged(this.status);
+    }
   }
 }

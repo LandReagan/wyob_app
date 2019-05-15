@@ -2,6 +2,7 @@ import 'dart:io' show File;
 import 'dart:convert' show json;
 import 'dart:io';
 
+import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/iob/IobConnector.dart';
@@ -18,6 +19,7 @@ class LocalDatabase {
   Map<String, dynamic> _root;
   bool _ready;
   String _fileName = DEFAULT_FILE_NAME;
+  ValueChanged<CONNECTOR_STATUS> onConnectorStatusChanged;
   
   static const String DEFAULT_FILE_NAME = 'database.json';
 
@@ -88,7 +90,10 @@ class LocalDatabase {
     IobConnector connector;
     try {
       connector = IobConnector(
-          _getCredentials()['username'], _getCredentials()['password']);
+          this._getCredentials()['username'],
+          this._getCredentials()['password'],
+          this.onConnectorStatusChanged
+      );
     } catch (e) {
       // Has to be dealt with at higher level...
       throw e;

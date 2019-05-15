@@ -1,7 +1,5 @@
 import 'dart:io' show File;
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 
 import 'package:test/test.dart';
 import 'package:wyob/data/LocalDatabase.dart';
@@ -22,7 +20,7 @@ void main() {
   test("Get current own duties with no errors", () async {
 
     // 1. Get checkin list as text
-    IobConnector connector = IobConnector('93429', '93429iob');
+    IobConnector connector = IobConnector('93429', '93429iob', null);
     String checkinListAsText = await connector.init();
     checkinAsTextFile.writeAsStringSync(checkinListAsText);
 
@@ -53,7 +51,7 @@ void main() {
 
   test('Gantt stuff', () async {
 
-    IobConnector connector = IobConnector('93429', '93429iob');
+    IobConnector connector = IobConnector('93429', '93429iob', null);
 
     // Get the references...
     String referencesString = await connector.getFromToGanttDuties(
@@ -85,7 +83,6 @@ void main() {
   });
 
   test('Get the duties from nothing (first connection)', () async {
-    IobConnector connector = IobConnector('93429', '93429iob');
     LocalDatabase database = LocalDatabase();
     await database.connect();
     database.getDuties(DateTime.now(), DateTime.now().add(Duration(days: 5)));

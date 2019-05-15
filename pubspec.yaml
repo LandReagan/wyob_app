@@ -19,7 +19,6 @@ dependencies:
   test: ^1.5.1+1
 
   mockito: ^4.0.0
-    #path: mockito-4.0.0
 
   flutter_test:
     sdk: flutter
