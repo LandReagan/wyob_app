@@ -65,6 +65,7 @@ class LocalDatabase {
       _root['user_data']['username'] = username;
       _root['user_data']['password'] = password;
       await _writeLocalData();
+      _ready = true;
     } on Exception catch (e) {
       _ready = true;
       throw WyobException('File system problem, most likely... Error thrown: ' + e.toString());
@@ -141,6 +142,7 @@ class LocalDatabase {
 
       from = from.add(Duration(days: INTERVAL_DAYS));
     }
+    connector.changeStatus(CONNECTOR_STATUS.OFF);
     await _setUpdateTime(AwareDT.now());
   }
 
@@ -210,6 +212,7 @@ class LocalDatabase {
     String databasePath = rootPath + '/' + _fileName;
     String encodedData = json.encode(_root);
     await File(databasePath).writeAsString(encodedData, mode: FileMode.write);
+    _ready = true;
   }
 
   Future<String> _readDatabaseFile(String filePath) async {

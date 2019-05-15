@@ -47,6 +47,8 @@ enum CONNECTOR_STATUS {
   LOGIN_FAILED,
   CONNECTED,
   AUTHENTIFIED,
+  FETCHING_GANTT_TABLE,
+  FETCHING_DUTIES,
   ERROR,
 }
 
@@ -107,25 +109,25 @@ class IobConnector {
   /// In the case of any failure, throws a WyobException subclass.
   Future<String> init() async {
     print("Connecting to IOB...");
-    this._changeStatus(CONNECTOR_STATUS.CONNECTING);
+    this.changeStatus(CONNECTOR_STATUS.CONNECTING);
     client = new http.Client();
     http.Response iobResponse;
 
     if (username == '' || password == '' || username == null ||
         password == null) {
-      this._changeStatus(CONNECTOR_STATUS.ERROR);
+      this.changeStatus(CONNECTOR_STATUS.ERROR);
       throw WyobExceptionCredentials('Credentials not set in IobConnector');
     }
 
     try {
       iobResponse = await client.get(landingUrl);
     } on Exception catch (e) {
-      this._changeStatus(CONNECTOR_STATUS.OFFLINE);
+      this.changeStatus(CONNECTOR_STATUS.OFFLINE);
       throw WyobExceptionOffline(
           'OFFLINE mode. For info, error: ' + e.toString());
     }
 
-    this._changeStatus(CONNECTOR_STATUS.CONNECTED);
+    this.changeStatus(CONNECTOR_STATUS.CONNECTED);
     print("Connected with status code: " + iobResponse.statusCode.toString());
     String landingBodyWithToken = iobResponse.body;
     this.token = tokenRegExp.firstMatch(landingBodyWithToken).group(1);
@@ -142,7 +144,7 @@ class IobConnector {
       ).headers.toString();
       this.cookie = cookieRegExp.firstMatch(loginHeaders).group(1);
     } on Exception {
-      this._changeStatus(CONNECTOR_STATUS.LOGIN_FAILED);
+      this.changeStatus(CONNECTOR_STATUS.LOGIN_FAILED);
       throw WyobExceptionLogIn('IobConnector failed to log in');
     }
 
@@ -152,7 +154,7 @@ class IobConnector {
       await client.get(checkinListUrl, headers: {"Cookie": cookie});
     this.bigCookie = checkinListResponse.headers["set-cookie"];
 
-    this._changeStatus(CONNECTOR_STATUS.AUTHENTIFIED);
+    this.changeStatus(CONNECTOR_STATUS.AUTHENTIFIED);
 
     print('Big Cookie: ' + this.bigCookie);
 
@@ -163,6 +165,8 @@ class IobConnector {
 
   Future<String> getGanttMainTable() async {
     /// gets the GANTT  main table data and change it into a String to be parsed.
+
+    this.changeStatus(CONNECTOR_STATUS.FETCHING_GANTT_TABLE);
 
     crewSelectForm['org.apache.struts.taglib.html.TOKEN'] = this.token;
     crewSelectForm['action'] = 'fastcrewonly';
@@ -190,6 +194,9 @@ class IobConnector {
   Future<String> getFromToGanttDuties(DateTime from, DateTime to) async {
     // Gets the Gantt duties references between [from] and [to],
     // MAX 30 DAYS !!!
+
+    this.changeStatus(CONNECTOR_STATUS.FETCHING_GANTT_TABLE);
+
     if (this.cookie == null || this.bigCookie == null) {
       await this.init();
     }
@@ -247,6 +254,9 @@ class IobConnector {
   Future<String> _getGanttDuty(String personId, String persAllocId,
       TIME_ZONE tz, DUTY_TYPE dt) async {
 
+    if (this.status != CONNECTOR_STATUS.FETCHING_DUTIES)
+      this.changeStatus(CONNECTOR_STATUS.FETCHING_DUTIES);
+
     String url = (dt == DUTY_TYPE.Trip ? ganttDutyTripUrl : ganttDutyAcyUrl)
         .replaceAll("REPLACEPERSONID", personId)
         .replaceAll("REPLACEPERSALLOCID", persAllocId);
@@ -259,10 +269,11 @@ class IobConnector {
     return response.body;
   }
 
-  void _changeStatus(CONNECTOR_STATUS newStatus) {
+  void changeStatus(CONNECTOR_STATUS newStatus) {
     if (newStatus != null) {
       this.status = newStatus;
       if (onStatusChanged != null) onStatusChanged(this.status);
     }
+    print(newStatus);
   }
 }
