@@ -5,7 +5,7 @@ import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/iob/IobConnector.dart';
 
-import 'package:wyob/pages/DebugPage.dart';
+import 'package:wyob/pages/DatabasePage.dart';
 import 'package:wyob/pages/FtlMainPage.dart';
 
 // Widgets
@@ -26,7 +26,6 @@ class HomePageState extends State<HomePage> {
 
   List<Duty> _duties = [];
   DateTime _lastUpdate;
-  Timer _timer;
 
   bool updating = false;
   CONNECTOR_STATUS _connectorStatus = CONNECTOR_STATUS.OFF;
@@ -34,7 +33,7 @@ class HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     this._initialization();
-    this._timer = Timer.periodic(Duration(seconds: 1), resetPage);
+    Timer.periodic(Duration(seconds: 1), resetPage);
     widget.database.onConnectorStatusChanged =
         this._handleConnectorStatusChange;
   }
@@ -42,7 +41,7 @@ class HomePageState extends State<HomePage> {
   void _initialization() async {
     try {
       await this.widget.database.connect();
-    } on WyobExceptionCredentials catch (e) {
+    } on WyobExceptionCredentials {
       showDialog(context: context, builder: (context) => LoginPopUp(context));
     }
     readDutiesFromDatabase();
