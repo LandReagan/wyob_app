@@ -50,13 +50,12 @@ class DutyWidget extends StatelessWidget {
         stringSectors += ' - ' + _duty.flights[i].endPlace.IATA;
       }
       return Text(stringSectors, textScaleFactor: 1.2,);
-    } else if (_duty.nature == 'STDBY') {
+    } else {
       return Text(_duty.code, textScaleFactor: 1.2,);
     }
-    return null;
   }
 
-  Widget getTrailingIcon(BuildContext context) {
+  Widget _getTrailingIcon(BuildContext context) {
     if (_duty.nature == "FLIGHT") {
       return IconButton(
         icon: Icon(Icons.arrow_forward_ios),
@@ -69,16 +68,20 @@ class DutyWidget extends StatelessWidget {
     }
   }
 
-  Widget getLocalDayText() {
+  Widget _getLocalStartDayText() {
     return Text(_duty.startTime.localDayString, textScaleFactor: 0.9);
   }
 
-  Widget getUpperRow() {
+  Widget _getLocalEndDayText() {
+    return Text(_duty.endTime.localDayString, textScaleFactor: 0.9);
+  }
+
+  Widget _getUpperRow() {
     // If reporting time is relevant
     if (_duty.nature == 'FLIGHT') {
       return Row(
         children: <Widget>[
-          getLocalDayText(),
+          _getLocalStartDayText(),
           Spacer(),
           ReportingTimeWidget(_duty.startTime.localTimeString),
         ],
@@ -86,7 +89,7 @@ class DutyWidget extends StatelessWidget {
     } else if (_duty.nature == 'STDBY') {
       return Row(
         children: <Widget>[
-          getLocalDayText(),
+          _getLocalStartDayText(),
           Spacer(),
           StandbyTimesWidget(
             _duty.startTime.localTimeString,
@@ -97,32 +100,34 @@ class DutyWidget extends StatelessWidget {
     } else {
       return Row(
         children: <Widget>[
-          getLocalDayText(),
+          _getLocalStartDayText(),
           Spacer(),
         ],
       );
     }
   }
 
-  Widget getCentralWidget() {
-    if (getUpperRow() != null) {
-      return Column(
-        children: <Widget>[
-          getUpperRow(),
-          Center(
-            child: this.sectorsText,
-          ),
-        ],
-      );
-    } else {
-      return Column(
-        children: <Widget>[
-          Center(
-            child: this.sectorsText,
-          ),
-        ],
-      );
+  Widget _getLowerRow() {
+    if (_duty.startTime.localDayString != _duty.endTime.localDayString) {
+      return Row(children: <Widget>[_getLocalEndDayText()],);
     }
+    return null;
+  }
+
+  Widget _getCentralWidget() {
+    var widgets = <Widget>[];
+
+    Widget upperRow = _getUpperRow();
+    Widget centerText = Center(child: this.sectorsText,);
+    Widget lowerRow = _getLowerRow();
+
+    if (upperRow != null) widgets.add(upperRow);
+    widgets.add(centerText);
+    if (lowerRow != null) widgets.add(lowerRow);
+
+    return Column(
+      children: widgets,
+    );
   }
 
   void _goToFlightDutyScreen(context) {
@@ -156,8 +161,8 @@ class DutyWidget extends StatelessWidget {
             Text(_duty.nature)
           ],
         ),
-        title: getCentralWidget(),
-        trailing: getTrailingIcon(context),
+        title: _getCentralWidget(),
+        trailing: _getTrailingIcon(context),
       ),
     );
   }

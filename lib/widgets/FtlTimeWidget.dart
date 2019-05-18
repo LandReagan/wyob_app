@@ -46,7 +46,7 @@ class _FtlTimeWidgetState extends State<FtlTimeWidget> {
             onTap: () async {
               _time = await showTimePicker(
                   context: context,
-                  initialTime: TimeOfDay.now()
+                  initialTime: TimeOfDay(hour: 0, minute: 0)
               );
               widget.callback(_time);
             },

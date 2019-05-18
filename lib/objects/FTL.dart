@@ -122,14 +122,18 @@ class FlightDutyPeriod extends Period {
 
   Duration get maxFlightDutyPeriodLength => this._getMaxFlightDutyLength();
   AwareDT get maxFlightDutyPeriodEndTime =>
-      this.start.add(this.maxFlightDutyPeriodLength);
+      this.start
+          .add(this.maxFlightDutyPeriodLength)
+          .subtract(this.start.timeZoneDifference(this.end));
   Period get maxFlightDutyPeriod =>
       Period(from: this.start, to: maxFlightDutyPeriodEndTime);
 
   Duration get extendedFlightDutyPeriodLength =>
       this.maxFlightDutyPeriodLength + Duration(hours: 2);
   AwareDT get extendedFlightDutyPeriodEndTime =>
-      this.start.add(this.extendedFlightDutyPeriodLength);
+      this.start
+          .add(this.extendedFlightDutyPeriodLength)
+          .subtract(this.start.timeZoneDifference(this.end));
   Period get extendedFlightDutyPeriod =>
       Period(from: this.start, to: extendedFlightDutyPeriodEndTime);
 

@@ -10,9 +10,8 @@ import 'package:wyob/widgets/GMTDiffWidget.dart';
 
 class FtlMainPage extends StatefulWidget {
 
-  final FTL ftl;
-
-  FtlMainPage(Duty duty) : ftl = FTL(duty);
+  final Duty _duty;
+  FtlMainPage(this._duty);
 
   _FtlMainPageState createState() => _FtlMainPageState();
 }
@@ -24,16 +23,16 @@ class _FtlMainPageState extends State<FtlMainPage> {
       appBar: AppBar(
         title: Text('FTL calculator'),
       ),
-      body: FtlMainWidget(widget.ftl),
+      body: FtlMainWidget(widget._duty),
     );
   }
 }
 
 class FtlMainWidget extends StatefulWidget {
 
-  final FTL ftl;
+  final Duty _duty;
 
-  FtlMainWidget(this.ftl);
+  FtlMainWidget(this._duty);
 
   _FtlMainWidgetState createState() => _FtlMainWidgetState();
 }
@@ -67,14 +66,14 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
 
   void initState() {
     super.initState();
-    if (widget.ftl != null && widget.ftl.reporting != null) {
-      _reportingDate = widget.ftl.reporting.loc;
+    if (widget._duty != null) {
+      _reportingDate = widget._duty.startTime.loc;
       _reportingTime = TimeOfDay.fromDateTime(_reportingDate);
       _reportingDate = DateTime(_reportingDate.year, _reportingDate.month, _reportingDate.day);
-      _reportingGMTDiff = widget.ftl.reporting.gmtDiff;
-      _numberOfLandings = widget.ftl.numberOfLandings;
-      _onBlocksTime = TimeOfDay.fromDateTime(widget.ftl.onBlocks.loc);
-      _onBlocksGMTDiff = widget.ftl.onBlocks.gmtDiff;
+      _reportingGMTDiff = widget._duty.startTime.gmtDiff;
+      _numberOfLandings = widget._duty.flights.length;
+      _onBlocksTime = TimeOfDay.fromDateTime(widget._duty.lastFlight.endTime.loc);
+      _onBlocksGMTDiff = widget._duty.lastFlight.endTime.gmtDiff;
     }
   }
 
@@ -296,7 +295,6 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
         )
       );
     }
-
     return widgets;
   }
 

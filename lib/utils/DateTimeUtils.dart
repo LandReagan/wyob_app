@@ -184,9 +184,19 @@ class AwareDT extends Object{
     return _utc.difference(before.utc);
   }
 
+  Duration timeZoneDifference(AwareDT other) {
+    return this.gmtDiff - other.gmtDiff;
+  }
+
   AwareDT add(Duration duration) {
     DateTime locDT = this._loc.add(duration);
     DateTime utcDT = this._utc.add(duration);
+    return AwareDT.fromDateTimes(locDT, utcDT);
+  }
+
+  AwareDT subtract(Duration duration) {
+    DateTime locDT = this._loc.subtract(duration);
+    DateTime utcDT = this._utc.subtract(duration);
     return AwareDT.fromDateTimes(locDT, utcDT);
   }
 

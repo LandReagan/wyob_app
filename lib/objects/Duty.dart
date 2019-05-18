@@ -14,6 +14,7 @@ const List<String> DutyNature = [
   'FLIGHT',
   'STDBY',
   'NOPS',
+  'SICK',
 ];
 
 enum DUTY_STATUS {
@@ -220,7 +221,6 @@ class Duty {
   }
 
   String toJson() {
-
     return json.encode(this.toMap());
   }
 }
