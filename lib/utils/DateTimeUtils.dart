@@ -45,8 +45,8 @@ String durationToString(Duration duration) {
   String sign = duration.isNegative ? "-" : "+";
   String hours = duration.abs().inHours.toString();
   String minutes = (duration.abs().inMinutes % 60).toString();
-  hours.length < 2 ? hours = "0" + hours : null;
-  minutes.length < 2 ? minutes = "0" + minutes : null;
+  if (hours.length < 2) hours = "0" + hours;
+  if (minutes.length < 2) minutes = "0" + minutes;
 
   return sign + hours + ":" + minutes;
 }
