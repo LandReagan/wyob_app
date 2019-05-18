@@ -191,11 +191,9 @@ class IobConnector {
     return response.body;
   }
 
+  // Gets the Gantt duties references between [from] and [to],
+  // MAX 30 DAYS !!!
   Future<String> getFromToGanttDuties(DateTime from, DateTime to) async {
-    // Gets the Gantt duties references between [from] and [to],
-    // MAX 30 DAYS !!!
-
-    this.changeStatus(CONNECTOR_STATUS.FETCHING_GANTT_TABLE);
 
     if (this.cookie == null || this.bigCookie == null) {
       await this.init();

@@ -4,6 +4,7 @@ import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/iob/IobConnector.dart';
 import 'package:wyob/widgets/DatabaseContentWidget.dart';
 import 'package:wyob/widgets/IobFetchDialog.dart';
+import 'package:wyob/widgets/IobStateWidget.dart';
 
 class DatabasePage extends StatefulWidget {
 
@@ -16,31 +17,23 @@ class DatabasePage extends StatefulWidget {
 class _DatabasePageState extends State<DatabasePage> {
 
   bool _updating = false;
-  ValueChanged<CONNECTOR_STATUS> onConnectorStatusChanged;
 
   @override
   void initState() {
     super.initState();
-    onConnectorStatusChanged = widget.database.onConnectorStatusChanged;
   }
 
-  void _fetchData(DateTime from, DateTime to) async {
-    setState(() {
-      _updating = true;
-    });
-
-    await widget.database.updateFromGantt(fromParameter: from, toParameter: to);
-
-    setState(() {
-      _updating = false;
-    });
+  void _processData(Map<String, dynamic> data) async {
+    this._updating = true;
+    await widget.database.updateFromGantt(
+        fromParameter: data['from'], toParameter: data['to']);
+    this._updating = false;
   }
 
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Database'),
-        /*
         actions: <Widget>[
           Container(
             padding: EdgeInsets.all(10.0),
@@ -58,15 +51,14 @@ class _DatabasePageState extends State<DatabasePage> {
                     return IobFetchDialog();
                   }
                 );
-                _fetchData(data['from'], data['to']);
+                this._processData(data);
               },
             ),
           ),
         ],
-        */
       ),
       body: DatabaseContentWidget(widget.database.getDutiesAll()),
-      bottomNavigationBar: this._updating ? null : null,
+      bottomNavigationBar: this._updating ? IobStateWidget(this.widget.database) : null,
     );
   }
 }
