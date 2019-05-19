@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:wyob/data/LocalDatabase.dart';
+import 'package:wyob/iob/IobConnector.dart';
 import 'package:wyob/widgets/DatabaseContentWidget.dart';
 import 'package:wyob/widgets/IobFetchDialog.dart';
 import 'package:wyob/widgets/IobStateWidget.dart';
@@ -23,10 +24,14 @@ class _DatabasePageState extends State<DatabasePage> {
   }
 
   void _processData(Map<String, dynamic> data) async {
-    this._updating = true;
+    setState(() {
+      this._updating = true;
+    });
     await widget.database.updateFromGantt(
         fromParameter: data['from'], toParameter: data['to']);
-    this._updating = false;
+    setState(() {
+      this._updating = false;
+    });
   }
 
   Widget build(BuildContext context) {
@@ -57,7 +62,7 @@ class _DatabasePageState extends State<DatabasePage> {
         ],
       ),
       body: DatabaseContentWidget(widget.database.getDutiesAll()),
-      bottomNavigationBar: this._updating ? IobStateWidget(this.widget.database) : null,
+      bottomNavigationBar: this._updating ? IobStateWidget(widget.database.connector) : null,
     );
   }
 }

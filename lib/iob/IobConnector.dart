@@ -56,7 +56,7 @@ class IobConnector {
 
   final String username;
   final String password;
-  final ValueChanged<CONNECTOR_STATUS> onStatusChanged;
+  ValueChanged<CONNECTOR_STATUS> onStatusChanged;
 
   String token;
   String cookie;
@@ -199,6 +199,8 @@ class IobConnector {
       await this.init();
     }
 
+    this.changeStatus(CONNECTOR_STATUS.CONNECTED);
+
     if (this.personId == null) {
       await this.getGanttMainTable();
     }
@@ -223,6 +225,8 @@ class IobConnector {
 
     /* String oldurl = fromToGanttUrl + 'fromdtm=' + fromdtm + '&todtm=' + todtm +
         */
+
+    this.changeStatus(CONNECTOR_STATUS.FETCHING_DUTIES);
 
     http.Response response = await client.get(
         url, headers: {"Cookie": cookie + ";" + bigCookie});

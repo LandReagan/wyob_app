@@ -19,6 +19,8 @@ class LocalDatabase {
   Map<String, dynamic> _root;
   bool _ready;
   String _fileName = DEFAULT_FILE_NAME;
+
+  IobConnector connector;
   ValueChanged<CONNECTOR_STATUS> onConnectorStatusChanged;
   
   static const String DEFAULT_FILE_NAME = 'database.json';
@@ -34,6 +36,7 @@ class LocalDatabase {
   };
 
   static final LocalDatabase _instance = LocalDatabase._private();
+
   factory LocalDatabase() {
     return _instance;
   }
@@ -78,7 +81,7 @@ class LocalDatabase {
   /// the [_updateTime] field as well
   ///
   /// The system limitation impose a 30 days maximum interval, this method will
-  /// use a 20 days interval repeated until the full interval has been covered.
+  /// use a 25 days interval repeated until the full interval has been covered.
   ///
   /// Throws:
   /// - [WyobExceptionCredentials] if credentials are missing,
@@ -88,7 +91,9 @@ class LocalDatabase {
     DateTime from = fromParameter != null ? fromParameter : DateTime.now().subtract(Duration(days: 5));
     DateTime to = fromParameter != null ? fromParameter : DateTime.now().add(Duration(days: 30));
 
-    IobConnector connector;
+    from = DateTime(from.year, from.month, from.day);
+    to = DateTime(to.year, to.month, to.day, 23, 59);
+
     try {
       connector = IobConnector(
           this._getCredentials()['username'],
@@ -100,8 +105,9 @@ class LocalDatabase {
       throw e;
     }
 
-    const int INTERVAL_DAYS = 20;
+    const int INTERVAL_DAYS = 25;
     while (from.isBefore(to)) {
+      print('Fetching from: ' + from.toString() + ' to: ' + to.toString());
       // get Gantt duties from 'from' to 'to'
       // Get the references...
       String referencesString = await connector.getFromToGanttDuties(
