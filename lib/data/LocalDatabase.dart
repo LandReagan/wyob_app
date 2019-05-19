@@ -88,8 +88,8 @@ class LocalDatabase {
   /// - [WYOBException] if another error occured.
   Future<void> updateFromGantt({DateTime fromParameter, DateTime toParameter}) async {
 
-    DateTime from = fromParameter != null ? fromParameter : DateTime.now().subtract(Duration(days: 5));
-    DateTime to = fromParameter != null ? fromParameter : DateTime.now().add(Duration(days: 30));
+    DateTime from = (fromParameter != null ? fromParameter : DateTime.now().subtract(Duration(days: 3)));
+    DateTime to = (toParameter != null ? toParameter : DateTime.now().add(Duration(days: 30)));
 
     from = DateTime(from.year, from.month, from.day);
     to = DateTime(to.year, to.month, to.day, 23, 59);
