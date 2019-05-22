@@ -119,6 +119,7 @@ class Duty {
     endPlace = new Airport.fromIata(iobMap['To']);
   }
 
+  String get id => nature + '_' + startTime.localDayString;
   String get nature => _nature;
   String get code => _code;
   AwareDT get startTime => _startTime;
@@ -137,6 +138,11 @@ class Duty {
     return 'UNKNOWN';
   }
   bool get isFlight => _flights.length != 0;
+  bool get isWorkingDuty {
+    if (nature == 'FLIGHT' || nature == 'SIM' || nature == 'GROUND')
+      return true;
+    return false;
+  }
   List<Flight> get flights => _flights;
   Flight get firstFlight => _flights.first;
   Flight get lastFlight => _flights.last;
@@ -144,6 +150,14 @@ class Duty {
   FTL get ftl => FTL(this);
   Rest get rest => ftl.rest;
   FlightDutyPeriod get flightDutyPeriod => ftl.flightDutyPeriod;
+
+  Duration get totalBlockTime {
+    Duration result = Duration.zero;
+    flights.forEach((flight) {
+      result += flight.duration;
+    });
+    return result;
+  }
 
   bool get involveRest {
     if (this.nature == 'FLIGHT' || this.nature == 'SIM'

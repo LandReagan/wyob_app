@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/FTL.dart';
+import 'package:wyob/objects/Statistics.dart';
+import 'package:wyob/utils/DateTimeUtils.dart';
 
 class DatabaseContentWidget extends StatelessWidget {
 
-  final List<Duty> _duties;
+  final LocalDatabase database;
 
-  DatabaseContentWidget(this._duties);
+  DatabaseContentWidget(this.database);
 
   @override
   Widget build(BuildContext context) {
+    List<Duty> duties = database.getDutiesAll();
+    List<Statistics> statisticsList = database.getStatistics();
     return ListView.builder(
-      itemCount: _duties.length,
-      itemBuilder: (context, index) => RawDutyWidget(_duties[index]),
+      itemCount: duties.length,
+      itemBuilder: (context, index) {
+        Duty duty = duties[index];
+        Statistics stat = statisticsList.firstWhere((stat) => stat.dutyID == duty.id);
+        return RawDutyWidget(duty, stat);
+      },
     );
   }
 }
@@ -21,13 +30,14 @@ class DatabaseContentWidget extends StatelessWidget {
 class RawDutyWidget extends StatelessWidget {
 
   final Duty duty;
+  final Statistics statistics;
 
   static const BOLD = TextStyle(fontWeight: FontWeight.bold);
   static const ITALIC = TextStyle(fontStyle: FontStyle.italic);
 
   static const PALE_GREY = Color.fromRGBO(230, 230, 230, 1.0);
 
-  RawDutyWidget(this.duty);
+  RawDutyWidget(this.duty, this.statistics);
 
   Widget getStartDateWidget() {
 
@@ -166,6 +176,17 @@ class RawDutyWidget extends StatelessWidget {
     );
   }
 
+  Widget getStatisticsWidget() {
+    return Row(
+      children: <Widget>[
+        Text('BLOCK CUMUL: '),
+        Text(durationToStringHM(statistics.accumulatedBlock)),
+        Text('DUTY CUMUL: '),
+        Text(durationToStringHM(statistics.accumulatedDuty)),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -176,9 +197,8 @@ class RawDutyWidget extends StatelessWidget {
     if (duty.nature == 'STDBY') widgets.add(getStandByWidget());
     if (getEndDateWidget() != null) widgets.add(getEndDateWidget());
     if (duty.nature == 'FLIGHT') widgets.addAll(getFDPWidgets());
-    if (duty.nature == 'FLIGHT' || duty.nature == 'GROUND' || duty.nature == 'SIM') {
-      widgets.add(getRestWidget());
-    }
+    if (duty.isWorkingDuty) widgets.add(getRestWidget());
+    widgets.add(getStatisticsWidget());
     widgets.add(Divider(color: Colors.black,));
 
     return Container(

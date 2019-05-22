@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/iob/IobConnector.dart';
+import 'package:wyob/objects/Statistics.dart';
 import 'package:wyob/utils/Parsers.dart';
 import 'package:wyob/iob/GanttDutyFactory.dart';
 
@@ -149,6 +150,7 @@ class LocalDatabase {
       from = from.add(Duration(days: INTERVAL_DAYS));
     }
     connector.changeStatus(CONNECTOR_STATUS.OFF);
+    connector = null;
     await _setUpdateTime(AwareDT.now());
   }
 
@@ -193,6 +195,17 @@ class LocalDatabase {
       return duty.startTime.loc.isAfter(to) || duty.endTime.loc.isBefore(from);
     });
     return allDuties;
+  }
+
+  List<Statistics> getStatistics() {
+    var result = <Statistics>[];
+    Statistics last;
+    this.getDutiesAll().forEach((duty) {
+      Statistics stat = Statistics(duty, last);
+      result.add(stat);
+      last = stat;
+    });
+    return result;
   }
   
   Future<void> _setUpdateTime(AwareDT time) async {

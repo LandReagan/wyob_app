@@ -15,10 +15,12 @@ class FTL {
   bool isFlightDuty;
   int numberOfLandings;
   AwareDT onBlocks;
+  AwareDT offDuty;
 
   FTL(this._duty) : reporting = _duty?.startTime, isFlightDuty = _duty?.isFlight,
         onBlocks = _duty?.lastFlight?.endTime,
-        numberOfLandings = _duty == null ? 0 : _duty.flights.length;
+        numberOfLandings = _duty == null ? 0 : _duty.flights.length,
+        offDuty = _duty?.endTime;
 
   FTL.fromWidget({
         @required DateTime reportingDate,
@@ -45,6 +47,7 @@ class FTL {
     this.onBlocks = AwareDT.fromDateTimes(onBlocksLoc, onBlocksUtc);
     if (this.reporting > this.onBlocks)
         this.onBlocks = this.onBlocks.add(Duration(hours: 24));
+    this.offDuty = this.onBlocks.add(Duration(minutes: 30));
   }
 
   FlightDutyPeriod get flightDutyPeriod {
@@ -65,6 +68,10 @@ class FTL {
     if (this._duty != null && this._duty.involveRest) return Rest.fromDuty(this._duty);
 
     return Rest.fromFTLInputs(reporting, onBlocks);
+  }
+
+  DutyPeriod get dutyPeriod {
+    return DutyPeriod.fromAwareDT(this.reporting, this.offDuty);
   }
 
   bool get isValid {
@@ -212,5 +219,18 @@ class Rest extends Period {
     /// longer.
     if (fdpDuration > Duration(hours: 11)) return fdpDuration;
     return Duration(hours: 11);
+  }
+}
+
+class DutyPeriod extends Period {
+
+  DutyPeriod.fromDuty(Duty duty) {
+    this.start = duty.startTime;
+    this.end = duty.endTime;
+  }
+
+  DutyPeriod.fromAwareDT(AwareDT from, AwareDT to) {
+    this.start = from;
+    this.end = to;
   }
 }

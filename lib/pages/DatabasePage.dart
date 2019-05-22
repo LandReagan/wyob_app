@@ -61,7 +61,7 @@ class _DatabasePageState extends State<DatabasePage> {
           ),
         ],
       ),
-      body: DatabaseContentWidget(widget.database.getDutiesAll()),
+      body: DatabaseContentWidget(widget.database),
       bottomNavigationBar: this._updating ? IobStateWidget(widget.database.connector) : null,
     );
   }
