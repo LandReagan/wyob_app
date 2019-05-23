@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/iob/IobConnector.dart';
+import 'package:wyob/objects/MonthlyAggregation.dart';
 import 'package:wyob/objects/Statistics.dart';
 import 'package:wyob/utils/Parsers.dart';
 import 'package:wyob/iob/GanttDutyFactory.dart';
@@ -20,6 +21,8 @@ class LocalDatabase {
   Map<String, dynamic> _root;
   bool _ready;
   String _fileName = DEFAULT_FILE_NAME;
+
+  DateTime earliestDutyDate;
 
   IobConnector connector;
   ValueChanged<CONNECTOR_STATUS> onConnectorStatusChanged;
@@ -97,9 +100,9 @@ class LocalDatabase {
 
     try {
       connector = IobConnector(
-          this._getCredentials()['username'],
-          this._getCredentials()['password'],
-          this.onConnectorStatusChanged
+          _getCredentials()['username'],
+          _getCredentials()['password'],
+          onConnectorStatusChanged
       );
     } catch (e) {
       // Has to be dealt with at higher level...
@@ -145,7 +148,7 @@ class LocalDatabase {
       }
 
       // set duties
-      this.setDuties(duties);
+      setDuties(duties);
 
       from = from.add(Duration(days: INTERVAL_DAYS));
     }
@@ -184,6 +187,7 @@ class LocalDatabase {
       List<Duty> allDuties = allRawDuties.map((rawDuty) {
         return Duty.fromMap(rawDuty);
       }).toList();
+      earliestDutyDate = allDuties[0].startTime.loc;
       return allDuties;
     }
     return [];
@@ -197,10 +201,45 @@ class LocalDatabase {
     return allDuties;
   }
 
-  List<Statistics> getStatistics() {
+  List<Map<String, dynamic>> getDutiesAndStatistics(DateTime from, DateTime to) {
+    var result = <Map<String, dynamic>>[];
+    List<Duty> duties = getDuties(from, to);
+    List<Statistics> statistics = buildStatistics();
+    duties.forEach((duty) {
+      result.add(
+        {
+          'duty': duty,
+          'stat': statistics.firstWhere((stat) => stat.dutyID == duty.id),
+        }
+      );
+    });
+    return result;
+  }
+
+  List<MonthlyAggregation> getAllMonthlyAggregations() {
+    var aggregations = <MonthlyAggregation>[];
+
+    if (earliestDutyDate == null) getDutiesAll();
+
+    DateTime rolling = earliestDutyDate;
+    DateTime nowMonth = DateTime(DateTime.now().year, DateTime.now().month);
+
+    while (rolling.compareTo(nowMonth) <= 0) {
+      aggregations.add(MonthlyAggregation(rolling, this));
+      if (rolling.month == 12) {
+        rolling = DateTime(rolling.year + 1, 1);
+      } else {
+        rolling = DateTime(rolling.year, rolling.month + 1);
+      }
+    }
+
+    return aggregations;
+  }
+
+  List<Statistics> buildStatistics() {
     var result = <Statistics>[];
     Statistics last;
-    this.getDutiesAll().forEach((duty) {
+    getDutiesAll().forEach((duty) {
       Statistics stat = Statistics(duty, last);
       result.add(stat);
       last = stat;

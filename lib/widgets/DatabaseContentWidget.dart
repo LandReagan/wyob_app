@@ -3,9 +3,52 @@ import 'package:flutter/painting.dart';
 import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/FTL.dart';
+import 'package:wyob/objects/MonthlyAggregation.dart';
 import 'package:wyob/objects/Statistics.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
 
+class DatabaseByMonthWidget extends StatefulWidget{
+
+  final LocalDatabase database;
+  DatabaseByMonthWidget(this.database);
+
+  _DatabaseByMonthWidgetState createState() => _DatabaseByMonthWidgetState();
+}
+
+class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
+
+  Widget getMonthWidget(MonthlyAggregation aggregation) {
+    List<Map<String, dynamic>> aggregDataList = aggregation.dutiesAndStatistics;
+    return ExpansionTile(
+      title: Text(aggregation.titleString),
+      children: List.generate(
+        aggregDataList.length,
+        (int index) {
+          Duty duty = aggregDataList[index]['duty'];
+          Statistics stat = aggregDataList[index]['stat'];
+          return RawDutyWidget(duty, stat);
+        }
+      ),
+    );
+  }
+
+  List<Widget> _getMonthTiles() {
+    var widgets = <Widget>[];
+    widget.database.getAllMonthlyAggregations().forEach((aggregation) {
+      widgets.add(getMonthWidget(aggregation));
+    });
+    return widgets;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: _getMonthTiles(),
+    );
+  }
+}
+
+/* OBSOLETE
 class DatabaseContentWidget extends StatelessWidget {
 
   final LocalDatabase database;
@@ -14,8 +57,11 @@ class DatabaseContentWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Duty> duties = database.getDutiesAll();
-    List<Statistics> statisticsList = database.getStatistics();
+    List<Duty> duties = database.getDuties(
+      DateTime(DateTime.now().year, DateTime.now().month, 1),
+      DateTime(DateTime.now().year, DateTime.now().month + 1)
+    );
+    List<Statistics> statisticsList = database.buildStatistics();
     return ListView.builder(
       itemCount: duties.length,
       itemBuilder: (context, index) {
@@ -26,6 +72,7 @@ class DatabaseContentWidget extends StatelessWidget {
     );
   }
 }
+*/
 
 class RawDutyWidget extends StatelessWidget {
 
