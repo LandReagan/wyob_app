@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wyob/WyobException.dart';
 
 import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/iob/IobConnector.dart';
@@ -27,8 +28,12 @@ class _DatabasePageState extends State<DatabasePage> {
     setState(() {
       this._updating = true;
     });
-    await widget.database.updateFromGantt(
-        fromParameter: data['from'], toParameter: data['to']);
+    try {
+      await widget.database.updateFromGantt(
+          fromParameter: data['from'], toParameter: data['to']);
+    } on WyobException { // We are probably Offline or IOB is down
+
+    }
     setState(() {
       this._updating = false;
     });

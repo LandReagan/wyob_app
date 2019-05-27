@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:http/http.dart' as http;
@@ -54,9 +55,8 @@ enum CONNECTOR_STATUS {
 
 class IobConnector {
 
-  final String username;
-  final String password;
-  ValueChanged<CONNECTOR_STATUS> onStatusChanged;
+  String username;
+  String password;
 
   String token;
   String cookie;
@@ -64,6 +64,7 @@ class IobConnector {
   String personId;
   http.Client client;
   CONNECTOR_STATUS status;
+  ValueNotifier<CONNECTOR_STATUS> onStatusChanged;
 
   Map<String, String> crewSelectForm = {
     "org.apache.struts.taglib.html.TOKEN": "", // <= set token here
@@ -102,7 +103,21 @@ class IobConnector {
     "hidActivity": "",
   };
 
-  IobConnector(this.username, this.password, this.onStatusChanged) : status = CONNECTOR_STATUS.OFF;
+  static final IobConnector _instance = IobConnector._private();
+
+  factory IobConnector(
+      String username,
+      String password,
+      ) {
+    _instance.username = username;
+    _instance.password = password;
+    return _instance;
+  }
+  IobConnector._private() {
+    onStatusChanged = ValueNotifier<CONNECTOR_STATUS>(status);
+  }
+
+  //IobConnector(this.username, this.password, this.onStatusChanged) : status = CONNECTOR_STATUS.OFF;
   
   /// Used for initial connection, set token and cookie for the session.
   /// Returns the check-in list in a String to be parsed (see Parsers.dart)
@@ -274,7 +289,7 @@ class IobConnector {
   void changeStatus(CONNECTOR_STATUS newStatus) {
     if (newStatus != null) {
       this.status = newStatus;
-      if (onStatusChanged != null) onStatusChanged(this.status);
+      if (onStatusChanged != null) onStatusChanged.value = newStatus;
     }
     print(newStatus);
   }

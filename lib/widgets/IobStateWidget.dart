@@ -17,12 +17,12 @@ class _IobStateWidgetState extends State<IobStateWidget> {
   @override
   void initState() {
     super.initState();
-    widget.connector.onStatusChanged = this._handleConnectorStatusChange;
+    widget.connector.onStatusChanged.addListener(this._handleConnectorStatusChange);
   }
 
-  void _handleConnectorStatusChange(CONNECTOR_STATUS newStatus) {
+  void _handleConnectorStatusChange() {
     setState(() {
-      this._connectorStatus = newStatus;
+      this._connectorStatus = widget.connector.status;
     });
   }
 

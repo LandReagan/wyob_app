@@ -2,6 +2,7 @@ import 'dart:io' show File;
 import 'dart:convert' show json;
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wyob/WyobException.dart';
@@ -19,13 +20,12 @@ import 'package:wyob/utils/DateTimeUtils.dart';
 class LocalDatabase {
 
   Map<String, dynamic> _root;
-  bool _ready;
+  bool _ready = true;
   String _fileName = DEFAULT_FILE_NAME;
 
   DateTime earliestDutyDate;
 
   IobConnector connector;
-  ValueChanged<CONNECTOR_STATUS> onConnectorStatusChanged;
   
   static const String DEFAULT_FILE_NAME = 'database.json';
 
@@ -55,6 +55,10 @@ class LocalDatabase {
     _root = await _readLocalData();
     try {
       _checkIntegrity();
+      connector = IobConnector(
+        _getCredentials()['username'],
+        _getCredentials()['password']
+      );
     } on WyobExceptionCredentials catch (e) {
       print('No credentials...');
       _ready = true;
@@ -98,20 +102,10 @@ class LocalDatabase {
     from = DateTime(from.year, from.month, from.day);
     to = DateTime(to.year, to.month, to.day, 23, 59);
 
-    try {
-      connector = IobConnector(
-          _getCredentials()['username'],
-          _getCredentials()['password'],
-          onConnectorStatusChanged
-      );
-    } catch (e) {
-      // Has to be dealt with at higher level...
-      throw e;
-    }
-
     const int INTERVAL_DAYS = 25;
     while (from.isBefore(to)) {
-      print('Fetching from: ' + from.toString() + ' to: ' + to.toString());
+      print('Fetching from: ' + from.toString() +
+            ' to: ' + from.add(Duration(days: INTERVAL_DAYS)).toString());
       // get Gantt duties from 'from' to 'to'
       // Get the references...
       String referencesString = await connector.getFromToGanttDuties(

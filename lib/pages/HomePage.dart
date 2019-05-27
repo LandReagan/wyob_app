@@ -34,13 +34,12 @@ class HomePageState extends State<HomePage> {
     super.initState();
     this._initialization();
     Timer.periodic(Duration(seconds: 1), resetPage);
-    widget.database.onConnectorStatusChanged =
-        this._handleConnectorStatusChange;
   }
 
   void _initialization() async {
     try {
-      await this.widget.database.connect();
+      await widget.database.connect();
+      widget.database.connector.onStatusChanged.addListener(_handleConnectorStatusChange);
     } on WyobExceptionCredentials {
       showDialog(context: context, builder: (context) => LoginPopUp(context));
     }
@@ -48,9 +47,9 @@ class HomePageState extends State<HomePage> {
     await updateFromIob();
   }
 
-  void _handleConnectorStatusChange(CONNECTOR_STATUS newStatus) {
+  void _handleConnectorStatusChange() {
     setState(() {
-      this._connectorStatus = newStatus;
+      this._connectorStatus = widget.database.connector.status;
     });
   }
 
