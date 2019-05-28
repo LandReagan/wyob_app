@@ -166,6 +166,54 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
     return inputDataWidgets;
   }
 
+  List<Widget> _getDPWidgets() {
+    var widgets = <Widget>[];
+
+    if (getFTL() != null && getFTL().dutyPeriod != null) {
+      FTL ftl = getFTL();
+      widgets.add(
+          Column(
+            children: <Widget>[
+              Container(
+                constraints: BoxConstraints.expand(height: 30.0),
+                decoration: BoxDecoration(color: Colors.deepOrangeAccent),
+                child: Center(
+                  child: Text('DUTY PERIOD', textScaleFactor: 1.2,),
+                ),
+              ),
+              Row(
+                children: <Widget>[
+                  Expanded(child: Text('Starts: '),),
+                  Text(ftl.dutyPeriod.start.localDayString + ' ', textScaleFactor: 1.2,),
+                  Expanded(
+                    child: Text(ftl.dutyPeriod.start.localTimeString, textScaleFactor: 1.2,),
+                  )
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Expanded(child: Text('Ends: '),),
+                  Text(ftl.dutyPeriod.end.localDayString + ' ', textScaleFactor: 1.2,),
+                  Expanded(
+                    child: Text(ftl.dutyPeriod.end.localTimeString, textScaleFactor: 1.2,),
+                  )
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Expanded(child: Text('Duration: '),),
+                  Expanded(
+                    child: Text(ftl.dutyPeriod.durationString, textScaleFactor: 1.2,),
+                  )
+                ],
+              ),
+            ],
+          )
+      );
+    }
+    return widgets;
+  }
+
   List<Widget> _getRestWidgets() {
     var widgets = <Widget>[];
 
@@ -305,8 +353,9 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
     tiles.add(Center(child:
         Text('All times local...', style: TextStyle(fontStyle: FontStyle.italic),)));
     tiles.addAll(_getInputDataWidgets(context));
-    tiles.addAll(_getRestWidgets());
+    tiles.addAll(_getDPWidgets());
     tiles.addAll(_getFDPWidgets());
+    tiles.addAll(_getRestWidgets());
 
     return ListView(
       children: tiles,
