@@ -7,9 +7,10 @@ import 'package:wyob/objects/MonthlyAggregation.dart';
 import 'package:wyob/objects/Statistics.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
 
-class DatabaseByMonthWidget extends StatefulWidget{
+class DatabaseByMonthWidget extends StatefulWidget {
 
   final LocalDatabase database;
+
   DatabaseByMonthWidget(this.database);
 
   _DatabaseByMonthWidgetState createState() => _DatabaseByMonthWidgetState();
@@ -19,16 +20,52 @@ class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
 
   Widget getMonthWidget(MonthlyAggregation aggregation) {
     List<Map<String, dynamic>> aggregDataList = aggregation.dutiesAndStatistics;
-    return ExpansionTile(
-      title: Text(aggregation.titleString),
-      children: List.generate(
+
+    var days = <DateTime>[];
+    for (
+    DateTime dt = aggregation.monthStart;
+    dt.isBefore(aggregation.monthEnd);
+    dt = dt.add(Duration(days: 1))) {
+      days.add(dt);
+    }
+    aggregDataList.forEach((data) {
+      Duty duty = data['duty'];
+      days.removeWhere((day) => day.day == duty.startTime.loc.day);
+      days.removeWhere((day) => day.day == duty.endTime.loc.day);
+    });
+
+    List<Widget> dayWidgets = List.generate(
         aggregDataList.length,
-        (int index) {
+            (int index) {
           Duty duty = aggregDataList[index]['duty'];
           Statistics stat = aggregDataList[index]['stat'];
           return RawDutyWidget(duty, stat);
         }
-      ),
+    );
+
+    days.forEach((dt) {
+      dayWidgets.add(BlankDayWidget(dt));
+    });
+
+    dayWidgets.sort((first, second) {
+      DateTime dtFirst;
+      DateTime dtSecond;
+      if (first is RawDutyWidget) {
+        dtFirst = first.duty.startTime.loc;
+      } else if (first is BlankDayWidget) {
+        dtFirst = first.date;
+      }
+      if (second is RawDutyWidget) {
+        dtSecond = second.duty.startTime.loc;
+      } else if (second is BlankDayWidget) {
+        dtSecond = second.date;
+      }
+      return dtFirst.compareTo(dtSecond);
+    });
+
+    return ExpansionTile(
+      title: Text(aggregation.titleString),
+      children: dayWidgets,
     );
   }
 
@@ -48,31 +85,31 @@ class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
   }
 }
 
-/* OBSOLETE
-class DatabaseContentWidget extends StatelessWidget {
+class BlankDayWidget extends StatelessWidget {
+  final DateTime date;
 
-  final LocalDatabase database;
-
-  DatabaseContentWidget(this.database);
+  BlankDayWidget(this.date);
 
   @override
   Widget build(BuildContext context) {
-    List<Duty> duties = database.getDuties(
-      DateTime(DateTime.now().year, DateTime.now().month, 1),
-      DateTime(DateTime.now().year, DateTime.now().month + 1)
-    );
-    List<Statistics> statisticsList = database.buildStatistics();
-    return ListView.builder(
-      itemCount: duties.length,
-      itemBuilder: (context, index) {
-        Duty duty = duties[index];
-        Statistics stat = statisticsList.firstWhere((stat) => stat.dutyID == duty.id);
-        return RawDutyWidget(duty, stat);
-      },
+    return Column(
+      children: <Widget>[
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.limeAccent,
+          ),
+          child: Row(
+            children: <Widget>[
+              Text(dateToString(date)),
+              Expanded(child: Text('BLANK DAY!', textAlign: TextAlign.center,),),
+            ]
+          )
+        ),
+        Divider(color: Colors.black,),
+      ],
     );
   }
 }
-*/
 
 class RawDutyWidget extends StatelessWidget {
 
@@ -87,21 +124,20 @@ class RawDutyWidget extends StatelessWidget {
   RawDutyWidget(this.duty, this.statistics);
 
   Widget getStartDateWidget() {
-
     var widgets = <Widget>[];
     widgets.add(Expanded(child: Text(duty.startTime.localDayString)));
-    if (duty.nature == 'FLIGHT' || duty.nature == 'GROUND' || duty.nature == 'SIM') {
+    if (duty.isWorkingDuty) {
       widgets.add(Text('REPORTING: '));
-      widgets.add(Expanded(child: Text(duty.startTime.localTimeString, style: BOLD,)));
+      widgets.add(
+          Expanded(child: Text(duty.startTime.localTimeString, style: BOLD,)));
     }
 
     return Row(
-      children: widgets
+        children: widgets
     );
   }
 
   Widget getEndDateWidget() {
-
     var widgets = <Widget>[];
     if (duty.startTime.localDayString != duty.endTime.localDayString) {
       widgets.add(Expanded(child: Text(duty.endTime.localDayString),),);
@@ -109,7 +145,7 @@ class RawDutyWidget extends StatelessWidget {
       widgets.add(Expanded(child: Text(''),));
     }
 
-    if (duty.nature == 'FLIGHT' || duty.nature == 'GROUND' || duty.nature == 'SIM') {
+    if (duty.isWorkingDuty) {
       widgets.add(Text('OFF DUTY: '));
       widgets.add(
           Expanded(child: Text(duty.endTime.localTimeString, style: BOLD,)));
@@ -136,23 +172,25 @@ class RawDutyWidget extends StatelessWidget {
     List<Widget> flightWidgets = [];
     duty.flights.forEach((flight) {
       flightWidgets.add(
-        Container(
-          decoration: BoxDecoration(
-            color: PALE_GREY
-          ),
-          child: Row(
-            children: <Widget>[
-              Expanded(child: Text(flight.flightNumber ?? '', style: BOLD,),),
-              Text(flight.startPlace.IATA + ' ', style: BOLD,),
-              Text(flight.startTime.localTimeString + ' ', style: BOLD),
-              Expanded(child: Text(flight.startTime.utcTimeString, style: ITALIC),),
-              Text(flight.endPlace.IATA + ' ', style: BOLD,),
-              Text(flight.endTime.localTimeString + ' ', style: BOLD,),
-              Expanded(child: Text(flight.endTime.utcTimeString, style: ITALIC,),),
-              Text(flight.durationString, style: BOLD,),
-            ],
-          ),
-        )
+          Container(
+            decoration: BoxDecoration(
+                color: PALE_GREY
+            ),
+            child: Row(
+              children: <Widget>[
+                Expanded(child: Text(flight.flightNumber ?? '', style: BOLD,),),
+                Text(flight.startPlace.IATA + ' ', style: BOLD,),
+                Text(flight.startTime.localTimeString + ' ', style: BOLD),
+                Expanded(
+                  child: Text(flight.startTime.utcTimeString, style: ITALIC),),
+                Text(flight.endPlace.IATA + ' ', style: BOLD,),
+                Text(flight.endTime.localTimeString + ' ', style: BOLD,),
+                Expanded(
+                  child: Text(flight.endTime.utcTimeString, style: ITALIC,),),
+                Text(flight.durationString, style: BOLD,),
+              ],
+            ),
+          )
       );
     });
     return flightWidgets;
@@ -170,42 +208,43 @@ class RawDutyWidget extends StatelessWidget {
   }
 
   List<Widget> getFDPWidgets() {
-
     FlightDutyPeriod fdp = duty.ftl.flightDutyPeriod;
     var widgets = <Widget>[];
 
     widgets.add(
-      Row(
-        children: <Widget>[
-          Text('FDP start: '),
-          Expanded(
-            child: Text(
-              fdp.start.localDayString + ' ' + fdp.start.localTimeString,
-              style: ITALIC,
+        Row(
+          children: <Widget>[
+            Text('FDP start: '),
+            Expanded(
+              child: Text(
+                fdp.start.localDayString + ' ' + fdp.start.localTimeString,
+                style: ITALIC,
+              ),
             ),
-          ),
-          Text('end: '),
-          Expanded(
-            child: Text(
-              fdp.end.localDayString + ' ' + fdp.end.localTimeString,
-              style: ITALIC,
+            Text('end: '),
+            Expanded(
+              child: Text(
+                fdp.end.localDayString + ' ' + fdp.end.localTimeString,
+                style: ITALIC,
+              ),
             ),
-          ),
-        ],
-      )
+          ],
+        )
     );
 
     widgets.add(
-      Row(
-        children: <Widget>[
-          Text('DURATION: '),
-          Expanded(child: Text(fdp.durationString, style: BOLD,),),
-          Text('MAX: '),
-          Expanded(child: Text(fdp.maxFlightDutyPeriod.durationString, style: BOLD,),),
-          Text('EXT: '),
-          Expanded(child: Text(fdp.extendedFlightDutyPeriod.durationString, style: BOLD,),),
-        ],
-      )
+        Row(
+          children: <Widget>[
+            Text('DURATION: '),
+            Expanded(child: Text(fdp.durationString, style: BOLD,),),
+            Text('MAX: '),
+            Expanded(child: Text(
+              fdp.maxFlightDutyPeriod.durationString, style: BOLD,),),
+            Text('EXT: '),
+            Expanded(child: Text(
+              fdp.extendedFlightDutyPeriod.durationString, style: BOLD,),),
+          ],
+        )
     );
 
     return widgets;
@@ -217,7 +256,8 @@ class RawDutyWidget extends StatelessWidget {
         Text('REST: '),
         Expanded(child: Text(duty.rest.durationString, style: BOLD,),),
         Text('ends: '),
-        Expanded(child: Text(duty.rest.end.localDayString + ' ', style: BOLD,),),
+        Expanded(
+          child: Text(duty.rest.end.localDayString + ' ', style: BOLD,),),
         Expanded(child: Text(duty.rest.end.localTimeString, style: BOLD,),),
       ],
     );
@@ -236,7 +276,6 @@ class RawDutyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     List<Widget> widgets = [];
     widgets.add(getStartDateWidget());
     widgets.add(getHeaderWidget());
@@ -254,7 +293,7 @@ class RawDutyWidget extends StatelessWidget {
         //todo
       ),
       child: Column(
-        children: widgets
+          children: widgets
       ),
     );
   }

@@ -195,6 +195,7 @@ class LocalDatabase {
     return allDuties;
   }
 
+  /// Returns aggregation of duties and statistics in a list of Maps.
   List<Map<String, dynamic>> getDutiesAndStatistics(DateTime from, DateTime to) {
     var result = <Map<String, dynamic>>[];
     List<Duty> duties = getDuties(from, to);

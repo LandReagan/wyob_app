@@ -4,6 +4,14 @@ List<String> months = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+String dateToString(DateTime datetime) {
+  String day = datetime.day.toString();
+  if (day.length < 2) { day = "0" + day; }
+  String month = months[datetime.month - 1];
+  String year = datetime.year.toString();
+  return day + ' ' + month + ' ' + year;
+}
+
 /// This function returns a properly formatted DateTime.
 /// Format: DDMmmYYYY HH:MM
 /// with month as the standard 3 letters (e.g. JAN, FEB, MAR, etc.).

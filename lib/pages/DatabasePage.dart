@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:wyob/WyobException.dart';
 
 import 'package:wyob/data/LocalDatabase.dart';
-import 'package:wyob/iob/IobConnector.dart';
 import 'package:wyob/widgets/DatabaseContentWidget.dart';
 import 'package:wyob/widgets/IobFetchDialog.dart';
 import 'package:wyob/widgets/IobStateWidget.dart';
