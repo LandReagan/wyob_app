@@ -47,6 +47,12 @@ class HomePageState extends State<HomePage> {
     await updateFromIob();
   }
 
+  @override
+  void dispose() {
+    widget.database.connector.onStatusChanged.removeListener(this._handleConnectorStatusChange);
+    super.dispose();
+  }
+
   void _handleConnectorStatusChange() {
     setState(() {
       this._connectorStatus = widget.database.connector.status;

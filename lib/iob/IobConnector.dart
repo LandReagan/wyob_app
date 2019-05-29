@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:http/http.dart' as http;
 import 'package:wyob/WyobException.dart';
@@ -103,6 +102,7 @@ class IobConnector {
     "hidActivity": "",
   };
 
+  /*
   static final IobConnector _instance = IobConnector._private();
 
   factory IobConnector(
@@ -116,8 +116,11 @@ class IobConnector {
   IobConnector._private() {
     onStatusChanged = ValueNotifier<CONNECTOR_STATUS>(status);
   }
+  */
 
-  //IobConnector(this.username, this.password, this.onStatusChanged) : status = CONNECTOR_STATUS.OFF;
+  IobConnector(this.username, this.password) : status = CONNECTOR_STATUS.OFF {
+    onStatusChanged = ValueNotifier<CONNECTOR_STATUS>(status);
+  }
   
   /// Used for initial connection, set token and cookie for the session.
   /// Returns the check-in list in a String to be parsed (see Parsers.dart)

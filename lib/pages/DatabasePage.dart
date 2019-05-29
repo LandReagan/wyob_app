@@ -18,11 +18,6 @@ class _DatabasePageState extends State<DatabasePage> {
 
   bool _updating = false;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   void _processData(Map<String, dynamic> data) async {
     setState(() {
       this._updating = true;

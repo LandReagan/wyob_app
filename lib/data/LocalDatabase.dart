@@ -2,8 +2,6 @@ import 'dart:io' show File;
 import 'dart:convert' show json;
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/iob/IobConnector.dart';
@@ -25,7 +23,7 @@ class LocalDatabase {
 
   DateTime earliestDutyDate;
 
-  IobConnector connector;
+  IobConnector _connector;
   
   static const String DEFAULT_FILE_NAME = 'database.json';
 
@@ -51,11 +49,24 @@ class LocalDatabase {
   DateTime get updateTimeLoc => _getUpdateTime()?.loc;
   DateTime get updateTimeUtc => _getUpdateTime()?.utc;
 
+  IobConnector get connector {
+    /*
+    if (_connector == null) {
+      print("connector is null...");
+      try {
+        await this.connect();
+      } on WyobException catch (e) {
+        print("Exception: " + e.toString());
+      }
+    }*/
+    return _connector;
+  }
+
   Future<void> connect() async {
     _root = await _readLocalData();
     try {
       _checkIntegrity();
-      connector = IobConnector(
+      _connector = IobConnector(
         _getCredentials()['username'],
         _getCredentials()['password']
       );
@@ -108,6 +119,7 @@ class LocalDatabase {
             ' to: ' + from.add(Duration(days: INTERVAL_DAYS)).toString());
       // get Gantt duties from 'from' to 'to'
       // Get the references...
+
       String referencesString = await connector.getFromToGanttDuties(
           from,
           from.add(Duration(days: INTERVAL_DAYS))
@@ -147,7 +159,6 @@ class LocalDatabase {
       from = from.add(Duration(days: INTERVAL_DAYS));
     }
     connector.changeStatus(CONNECTOR_STATUS.OFF);
-    connector = null;
     await _setUpdateTime(AwareDT.now());
   }
 

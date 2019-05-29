@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/iob/IobConnector.dart';
 
 class IobStateWidget extends StatefulWidget {
@@ -13,17 +14,25 @@ class IobStateWidget extends StatefulWidget {
 class _IobStateWidgetState extends State<IobStateWidget> {
 
   CONNECTOR_STATUS _connectorStatus = CONNECTOR_STATUS.OFF;
+  LocalDatabase database;
 
   @override
   void initState() {
     super.initState();
-    widget.connector.onStatusChanged.addListener(this._handleConnectorStatusChange);
+    database = LocalDatabase();
+    database.connector.onStatusChanged.addListener(this._handleConnectorStatusChange);
   }
 
   void _handleConnectorStatusChange() {
     setState(() {
       this._connectorStatus = widget.connector.status;
     });
+  }
+
+  @override
+  void dispose() {
+    database.connector.onStatusChanged.removeListener(this._handleConnectorStatusChange);
+    super.dispose();
   }
 
   String _getMessage() {
