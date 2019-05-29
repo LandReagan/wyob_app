@@ -244,12 +244,60 @@ class LocalDatabase {
 
   List<Statistics> buildStatistics() {
     var result = <Statistics>[];
-    Statistics last;
-    getDutiesAll().forEach((duty) {
-      Statistics stat = Statistics(duty, last);
+    List<Duty> duties = getDutiesAll();
+    for (int i = 0; i < duties.length; i++) { // for all duties...
+      Duty duty = duties[i];
+      Statistics stat = Statistics(duty);
+
+      if (duty.isWorkingDuty) {
+        stat.sevenDaysDutyAccumulation = duty.duration;
+        stat.twentyEightDaysDutyAccumulation = duty.duration;
+        stat.oneYearDutyDaysAccumulation = duty.duration;
+      } else {
+        stat.sevenDaysDutyAccumulation = Duration.zero;
+        stat.twentyEightDaysDutyAccumulation = Duration.zero;
+        stat.oneYearDutyDaysAccumulation = Duration.zero;
+      }
+
+      if (duty.isFlight) {
+        stat.twentyEightDaysBlockAccumulation = duty.totalBlockTime;
+        stat.oneYearBlockAccumulation = duty.totalBlockTime;
+      } else {
+        stat.twentyEightDaysBlockAccumulation = Duration.zero;
+        stat.oneYearBlockAccumulation = Duration.zero;
+      }
+
+      DateTime sevenDaysBeforeDutyEnd = DateTime(
+          duty.endTime.loc.year, duty.endTime.loc.month, duty.endTime.loc.day)
+          .subtract(Duration(days: 6));
+      DateTime twentyEightDaysBeforeDutyEnd = DateTime(
+          duty.endTime.loc.year, duty.endTime.loc.month, duty.endTime.loc.day)
+          .subtract(Duration(days: 27));
+      DateTime oneYearBeforeDutyEnd = DateTime(
+          duty.endTime.loc.year, duty.endTime.loc.month, duty.endTime.loc.day)
+          .subtract(Duration(days: 364));
+
+      for (int j = 0; j < i; j++) { // for all previous duties
+        Duty previousDuty = duties[j];
+
+        if (previousDuty.isWorkingDuty &&
+              previousDuty.endTime.loc.isAfter(sevenDaysBeforeDutyEnd))
+            stat.sevenDaysDutyAccumulation += previousDuty.duration;
+
+        if (previousDuty.isWorkingDuty &&
+            previousDuty.endTime.loc.isAfter(twentyEightDaysBeforeDutyEnd)) {
+          stat.twentyEightDaysDutyAccumulation += previousDuty.duration;
+          stat.twentyEightDaysBlockAccumulation += previousDuty.totalBlockTime;
+        }
+
+        if (previousDuty.isWorkingDuty &&
+            previousDuty.endTime.loc.isAfter(oneYearBeforeDutyEnd)) {
+          stat.oneYearDutyDaysAccumulation += previousDuty.duration;
+          stat.oneYearBlockAccumulation += previousDuty.totalBlockTime;
+        }
+      }
       result.add(stat);
-      last = stat;
-    });
+    }
     return result;
   }
   

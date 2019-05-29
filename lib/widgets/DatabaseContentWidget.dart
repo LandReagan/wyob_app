@@ -74,7 +74,7 @@ class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
     widget.database.getAllMonthlyAggregations().forEach((aggregation) {
       widgets.add(getMonthWidget(aggregation));
     });
-    return widgets;
+    return widgets.reversed.toList();
   }
 
   @override
@@ -235,7 +235,7 @@ class RawDutyWidget extends StatelessWidget {
     widgets.add(
         Row(
           children: <Widget>[
-            Text('DURATION: '),
+            Text('ACT: '),
             Expanded(child: Text(fdp.durationString, style: BOLD,),),
             Text('MAX: '),
             Expanded(child: Text(
@@ -264,12 +264,36 @@ class RawDutyWidget extends StatelessWidget {
   }
 
   Widget getStatisticsWidget() {
-    return Row(
+    return Column(
       children: <Widget>[
-        Text('BLOCK CUMUL: '),
-        Text(durationToStringHM(statistics.accumulatedBlock)),
-        Text('DUTY CUMUL: '),
-        Text(durationToStringHM(statistics.accumulatedDuty)),
+        Row(
+          children: <Widget>[
+            Expanded(child: Text('DUTY ACCUMULATED (PREVIOUS X DAYS):', textAlign: TextAlign.center,),)
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Text('7: ', style: TextStyle(fontWeight: FontWeight.bold),),
+            Expanded(child: Text(durationToStringHM(statistics.sevenDaysDutyAccumulation)),),
+            Text('28: ', style: TextStyle(fontWeight: FontWeight.bold),),
+            Expanded(child: Text(durationToStringHM(statistics.twentyEightDaysDutyAccumulation)),),
+            Text('365: ', style: TextStyle(fontWeight: FontWeight.bold),),
+            Expanded(child: Text(durationToStringHM(statistics.oneYearDutyDaysAccumulation)),),
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Expanded(child: Text('BLOCK ACCUMULATED (PREVIOUS X DAYS):', textAlign: TextAlign.center,),)
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Text('28: ', style: TextStyle(fontWeight: FontWeight.bold),),
+            Expanded(child: Text(durationToStringHM(statistics.twentyEightDaysBlockAccumulation)),),
+            Text('365: ', style: TextStyle(fontWeight: FontWeight.bold),),
+            Expanded(child: Text(durationToStringHM(statistics.oneYearBlockAccumulation)),),
+          ],
+        ),
       ],
     );
   }
@@ -295,6 +319,26 @@ class RawDutyWidget extends StatelessWidget {
       child: Column(
           children: widgets
       ),
+    );
+  }
+}
+
+class MonthlyStatisticsWidget extends StatelessWidget {
+
+  final MonthlyAggregation aggregation;
+
+  MonthlyStatisticsWidget(this.aggregation);
+
+  List<Map<String, dynamic>> get revisedAggregationDutiesAndStatistics {
+    return aggregation.dutiesAndStatistics.where((data) {
+      return data['duty'].startTime.loc.month == aggregation.monthStart.month;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+
     );
   }
 }

@@ -3,23 +3,18 @@ import 'package:wyob/objects/Duty.dart';
 class Statistics {
 
   final Duty _duty;
-  final Statistics _previous;
 
-  Statistics(this._duty, [this._previous]);
+  Statistics(this._duty);
 
   String get dutyID => _duty.id;
 
-  Duration get accumulatedBlock {
-    Duration result = Duration.zero;
-    if (_previous != null) result += _previous.accumulatedBlock;
-    if (_duty.isFlight) result += _duty.totalBlockTime;
-    return result;
-  }
+  Duration sevenDaysDutyAccumulation;
+  Duration twentyEightDaysDutyAccumulation;
+  Duration oneYearDutyDaysAccumulation;
 
-  Duration get accumulatedDuty {
-    Duration result = Duration.zero;
-    if (_previous != null) result += _previous.accumulatedDuty;
-    if (_duty.isWorkingDuty) result += _duty.duration;
-    return result;
-  }
+  Duration twentyEightDaysBlockAccumulation;
+  Duration oneYearBlockAccumulation;
+
+  // Setters from LocalDatabase.buildStatistics method
+
 }
