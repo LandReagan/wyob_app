@@ -64,7 +64,7 @@ class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
     });
 
     return ExpansionTile(
-      title: Text(aggregation.titleString),
+      title: Text(aggregation.titleString, textScaleFactor: 1.3,),
       children: dayWidgets,
     );
   }
@@ -72,6 +72,7 @@ class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
   List<Widget> _getMonthTiles() {
     var widgets = <Widget>[];
     widget.database.getAllMonthlyAggregations().forEach((aggregation) {
+      widgets.add(MonthlyStatisticsWidget(aggregation));
       widgets.add(getMonthWidget(aggregation));
     });
     return widgets.reversed.toList();
@@ -326,8 +327,23 @@ class RawDutyWidget extends StatelessWidget {
 class MonthlyStatisticsWidget extends StatelessWidget {
 
   final MonthlyAggregation aggregation;
+  Duration blockTime = Duration.zero;
+  Duration dutyTime = Duration.zero;
+  int nbrOfFlights = 0;
+  int flyingAllowance = 0;
 
-  MonthlyStatisticsWidget(this.aggregation);
+  MonthlyStatisticsWidget(this.aggregation) {
+    aggregation.dutiesAndStatistics.forEach((Map<String, dynamic>data) {
+      Duty duty = data['duty'];
+      if (duty.isFlight) {
+        blockTime += duty.totalBlockTime;
+        nbrOfFlights += duty.flights.length;
+      }
+      if (duty.isWorkingDuty) {
+        dutyTime += duty.duration;
+      }
+    });
+  }
 
   List<Map<String, dynamic>> get revisedAggregationDutiesAndStatistics {
     return aggregation.dutiesAndStatistics.where((data) {
@@ -335,10 +351,39 @@ class MonthlyStatisticsWidget extends StatelessWidget {
     });
   }
 
+  Widget _getStatItem(String title, String value, VoidCallback callback) {
+
+    List<Widget> widgets = [];
+    widgets.add(Expanded(child: Text(title),));
+    widgets.add(Text(value, textAlign: TextAlign.center,));
+    if (callback != null) {
+      widgets.add(
+        IconButton(
+          icon: Icon(Icons.info),
+          onPressed: () { callback(); },
+        )
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.all(5.0),
+      child: Row(children: widgets),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-
+    return ExpansionTile(
+      title: Text(
+        aggregation.titleString + ' Statistics',
+        style: TextStyle(fontStyle: FontStyle.italic, color: Colors.blue),
+      ),
+      children: <Widget>[
+        _getStatItem('BLOCK TIME: ', durationToStringHM(blockTime), null),
+        _getStatItem('FLYING ALLOWANCE: ', flyingAllowance.toString(), null),
+        _getStatItem('DUTY TIME: ', durationToStringHM(dutyTime), null),
+        _getStatItem('FLIGHTS: ', nbrOfFlights.toString(), null),
+      ],
     );
   }
 }
