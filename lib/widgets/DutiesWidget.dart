@@ -85,7 +85,7 @@ class DutyWidget extends StatelessWidget {
           ReportingTimeWidget(_duty.startTime.localTimeString),
         ],
       );
-    } else if (_duty.nature == 'STDBY') {
+    } else if (_duty.nature == 'STDBY' || _duty.nature == 'GROUND') {
       return Row(
         children: <Widget>[
           _getLocalStartDayText(),
@@ -142,6 +142,8 @@ class DutyWidget extends StatelessWidget {
     if (_duty.endTime.loc.difference(DateTime.now()).inMinutes < 0) {
       return Colors.grey;
     } // TODO: color for "acknowledge" duties
+
+    if (_duty.acknowledge) return Colors.redAccent;
 
     return Colors.white;
   }

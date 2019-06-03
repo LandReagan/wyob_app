@@ -199,9 +199,13 @@ class LocalDatabase {
   }
 
   List<Duty> getDuties(DateTime from, DateTime to) {
+
     List<Duty> allDuties = getDutiesAll();
     allDuties.removeWhere((duty) {
       return duty.startTime.loc.isAfter(to) || duty.endTime.loc.isBefore(from);
+    });
+    allDuties.forEach((duty) {
+      if (connector.acknowledgeDutyIds.contains(duty.id)) duty.acknowledge = true;
     });
     return allDuties;
   }

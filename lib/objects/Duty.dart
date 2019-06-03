@@ -35,6 +35,8 @@ class Duty {
   DUTY_STATUS _status;
   List<Flight> _flights = [];
 
+  bool acknowledge = false;
+
   Duty();
 
   Duty.fromJson(String jsonString) {
@@ -144,8 +146,8 @@ class Duty {
     return false;
   }
   List<Flight> get flights => _flights;
-  Flight get firstFlight => _flights.first;
-  Flight get lastFlight => _flights.last;
+  Flight get firstFlight => isFlight ? flights.first : null;
+  Flight get lastFlight => isFlight ? flights.last : null;
 
   FTL get ftl => FTL(this);
   Rest get rest => ftl.rest;

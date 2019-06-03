@@ -42,6 +42,7 @@ class HomePageState extends State<HomePage> {
       widget.database.connector.onStatusChanged.addListener(_handleConnectorStatusChange);
     } on WyobExceptionCredentials {
       showDialog(context: context, builder: (context) => LoginPopUp(context));
+      return;
     }
     readDutiesFromDatabase();
     await updateFromIob();

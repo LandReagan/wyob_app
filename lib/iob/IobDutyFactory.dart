@@ -30,6 +30,18 @@ class IobDutyFactory {
 
     return duties;
   }
+
+  static List<String> getAcknowledgeDutyIds(String checkinText) {
+
+    var dutyIds = <String>[];
+    List<Map<String, String>> iobMaps = parseCheckinList(checkinText);
+
+    iobMaps.forEach((iobMap) {
+      if (iobMap['Acknowledge'] == 'Yes') dutyIds.add(Duty.fromIobMap(iobMap).id);
+    });
+
+    return dutyIds;
+  }
 }
 
 

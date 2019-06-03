@@ -75,7 +75,9 @@ class FTL {
   }
 
   bool get isValid {
-    if (reporting > onBlocks) return false;
+    if (onBlocks != null) {
+      if (reporting > onBlocks) return false;
+    }
     if (isFlightDuty && (numberOfLandings < 1 || numberOfLandings > 8)) return false;
     return true;
   }

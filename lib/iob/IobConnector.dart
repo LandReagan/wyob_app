@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:http/http.dart' as http;
 import 'package:wyob/WyobException.dart';
+import 'package:wyob/iob/IobDutyFactory.dart';
 
 
 /// URLs
@@ -102,21 +103,7 @@ class IobConnector {
     "hidActivity": "",
   };
 
-  /*
-  static final IobConnector _instance = IobConnector._private();
-
-  factory IobConnector(
-      String username,
-      String password,
-      ) {
-    _instance.username = username;
-    _instance.password = password;
-    return _instance;
-  }
-  IobConnector._private() {
-    onStatusChanged = ValueNotifier<CONNECTOR_STATUS>(status);
-  }
-  */
+  List<String> acknowledgeDutyIds = [];
 
   IobConnector(this.username, this.password) : status = CONNECTOR_STATUS.OFF {
     onStatusChanged = ValueNotifier<CONNECTOR_STATUS>(status);
@@ -177,6 +164,8 @@ class IobConnector {
     print('Big Cookie: ' + this.bigCookie);
 
     String checkinList = checkinListResponse.body;
+
+    this.acknowledgeDutyIds = IobDutyFactory.getAcknowledgeDutyIds(checkinList);
 
     return checkinList;
   }
@@ -240,9 +229,6 @@ class IobConnector {
       "&fromdtm=" + fromdtm +
       "&todtm=" + todtm +
       "&command=Go";
-
-    /* String oldurl = fromToGanttUrl + 'fromdtm=' + fromdtm + '&todtm=' + todtm +
-        */
 
     this.changeStatus(CONNECTOR_STATUS.FETCHING_DUTIES);
 
