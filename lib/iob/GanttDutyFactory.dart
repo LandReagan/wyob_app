@@ -37,7 +37,7 @@ class GanttDutyFactory {
         if (locEnd.isBefore(locStart)) locEnd = locEnd.add(Duration(hours: 24));
         if (utcEnd.isBefore(utcStart)) utcEnd = utcEnd.add(Duration(hours: 24));
 
-        if (dataLocal[i]['flights'].length > 0) duty.nature = 'FLIGHT';
+        if (dataLocal[i]['flights'].length > 0) duty.nature = DUTY_NATURE.FLIGHT;
 
         duty.startTime = AwareDT.fromDateTimes(locStart, utcStart);
         duty.endTime = AwareDT.fromDateTimes(locEnd, utcEnd);

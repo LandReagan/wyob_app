@@ -20,6 +20,7 @@ class _LoginPopUpState extends State<LoginPopUp> {
   Future<void> updateDatabase() async {
     var database = LocalDatabase();
     await database.setCredentials(username, password);
+    await database.connect();
   }
 
   Widget build(BuildContext context) {

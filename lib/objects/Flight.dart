@@ -19,26 +19,19 @@ class Flight {
     return durationToStringHM(duration);
   }
 
-  Flight.fromMap(Map<String, dynamic> map) {
-    startTime = new AwareDT.fromString(map['startTime']);
-    endTime = new AwareDT.fromString(map['endTime']);
-    startPlace = new Airport.fromIata(map['startPlace']);
-    endPlace = new Airport.fromIata(map['endPlace']);
-    flightNumber = map['flightNumber'];
+  Flight.fromMap(Map<String, dynamic> mapObject) {
+    startTime = new AwareDT.fromString(mapObject['startTime']);
+    endTime = new AwareDT.fromString(mapObject['endTime']);
+    startPlace = new Airport.fromIata(mapObject['startPlace']);
+    endPlace = new Airport.fromIata(mapObject['endPlace']);
+    flightNumber = mapObject['flightNumber'];
   }
 
-  Flight.fromJson(String jsonString) {
-
-    Map<String, dynamic> jsonObject = json.decode(jsonString);
-
-    startTime = new AwareDT.fromString(jsonObject['startTime']);
-    endTime = new AwareDT.fromString(jsonObject['endTime']);
-    startPlace = new Airport.fromIata(jsonObject['startPlace']);
-    endPlace = new Airport.fromIata(jsonObject['endPlace']);
-    flightNumber = jsonObject['flightNumber'];
+  factory Flight.fromJson(String jsonString) {
+    return Flight.fromMap(jsonDecode(jsonString));
   }
 
-  Flight.fromIobMap(Map<String, String> iobMap) {
+  Flight.fromIobMap(Map<String, dynamic> iobMap) {
     startTime = new AwareDT.fromIobString(iobMap['Start']);
     endTime = new AwareDT.fromIobString(iobMap['End']);
     startPlace = new Airport.fromIata(iobMap['From']);
@@ -50,8 +43,8 @@ class Flight {
     return json.encode(this.toMap());
   }
 
-  Map<String, String> toMap() {
-    Map<String, String> flightMap = {
+  Map<String, dynamic> toMap() {
+    Map<String, dynamic> flightMap = {
       'startTime': startTime.toString(),
       'endTime': endTime.toString(),
       'startPlace': startPlace.IATA,

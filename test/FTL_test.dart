@@ -48,19 +48,19 @@ void main() {
         from: AwareDT.fromDateTimes(DateTime(1970, 1, 1), DateTime(1970, 1, 1, 2)),
           to: AwareDT.fromDateTimes(DateTime(1970, 1, 2, 12), DateTime(1970, 1, 2, 14))
       );
-      expect(period.durationString, '36:00');
+      expect(period.durationString, '36h00m');
       period = period = Period(
           from: AwareDT.fromDateTimes(DateTime(1970, 1, 1, 0, 0), DateTime(1970, 1, 1, 2, 0)),
           to: AwareDT.fromDateTimes(DateTime(1970, 1, 1, 0, 1), DateTime(1970, 1, 1, 2, 1))
       );
-      expect(period.durationString, '00:01');
+      expect(period.durationString, '00h01m');
     });
   });
 
   test('Rest class tests:', () {
 
     Duty duty1 = Duty();
-    duty1.nature = 'FLIGHT';
+    duty1.nature = DUTY_NATURE.FLIGHT;
     duty1.startPlace = Airport.fromIata('MCT');
     duty1.endPlace = Airport.fromIata('DOH');
     duty1.startTime = AwareDT.fromDateTimes(

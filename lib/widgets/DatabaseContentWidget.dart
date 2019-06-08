@@ -305,9 +305,9 @@ class RawDutyWidget extends StatelessWidget {
     widgets.add(getStartDateWidget());
     widgets.add(getHeaderWidget());
     widgets.addAll(getFlightsWidgets());
-    if (duty.nature == 'STDBY') widgets.add(getStandByWidget());
+    if (duty.nature == DUTY_NATURE.STDBY) widgets.add(getStandByWidget());
     if (getEndDateWidget() != null) widgets.add(getEndDateWidget());
-    if (duty.nature == 'FLIGHT') widgets.addAll(getFDPWidgets());
+    if (duty.nature == DUTY_NATURE.FLIGHT) widgets.addAll(getFDPWidgets());
     if (duty.isWorkingDuty) widgets.add(getRestWidget());
     widgets.add(getStatisticsWidget());
     widgets.add(Divider(color: Colors.black,));

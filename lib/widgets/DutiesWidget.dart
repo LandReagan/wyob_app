@@ -27,6 +27,7 @@ class _DutiesWidgetState extends State<DutiesWidget> {
         Container() :
         ListView.builder(
           itemCount: widget.duties.length,
+          //itemExtent: 100.0,
           itemBuilder: (context, index) {
             return DutyWidget(widget.duties[index]);
           },
@@ -42,7 +43,7 @@ class DutyWidget extends StatelessWidget {
   DutyWidget(this._duty);
 
   Text get sectorsText {
-    if (_duty.nature == 'FLIGHT') {
+    if (_duty.isFlight) {
 
       String stringSectors = _duty.flights[0].startPlace.IATA;
       for (int i = 0; i < _duty.flights.length; i++) {
@@ -55,7 +56,7 @@ class DutyWidget extends StatelessWidget {
   }
 
   Widget _getTrailingIcon(BuildContext context) {
-    if (_duty.nature == "FLIGHT") {
+    if (_duty.isFlight) {
       return IconButton(
         icon: Icon(Icons.arrow_forward_ios),
         onPressed: () {
@@ -77,7 +78,7 @@ class DutyWidget extends StatelessWidget {
 
   Widget _getUpperRow() {
     // If reporting time is relevant
-    if (_duty.nature == 'FLIGHT') {
+    if (_duty.isFlight) {
       return Row(
         children: <Widget>[
           _getLocalStartDayText(),
@@ -85,7 +86,7 @@ class DutyWidget extends StatelessWidget {
           ReportingTimeWidget(_duty.startTime.localTimeString),
         ],
       );
-    } else if (_duty.nature == 'STDBY' || _duty.nature == 'GROUND') {
+    } else if (_duty.isWorkingDuty) {
       return Row(
         children: <Widget>[
           _getLocalStartDayText(),
@@ -159,7 +160,7 @@ class DutyWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             WidgetUtils.getIconFromDutyNature(_duty.nature),
-            Text(_duty.nature)
+            Text(_duty.natureAsString)
           ],
         ),
         title: _getCentralWidget(),
