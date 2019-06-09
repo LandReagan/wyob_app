@@ -1,5 +1,6 @@
 import 'dart:convert' show json;
 
+import 'package:flutter/cupertino.dart';
 import 'package:wyob/objects/Airport.dart' show Airport;
 import 'package:wyob/objects/FTL.dart';
 import 'package:wyob/objects/Flight.dart' show Flight;
@@ -120,6 +121,18 @@ class Duty {
     endPlace = new Airport.fromIata(iobMap['To']);
   }
 
+  Duty.layover({
+      @required AwareDT startTime,
+      @required AwareDT endTime,
+      @required Airport airport})
+  {
+    nature = DUTY_NATURE.LAYOVER;
+    code = 'LAYOVER';
+    this.startTime = startTime;
+    this.endTime = endTime;
+    startPlace = endPlace = airport;
+  }
+
   String get id => nature.toString() + '_' + startTime.localDayString;
 
   Duration get duration {
@@ -158,11 +171,12 @@ class Duty {
       return true;
     return false;
   }
+  bool get isLayover => nature == DUTY_NATURE.LAYOVER;
   List<Flight> get flights => _flights;
   Flight get firstFlight => isFlight ? flights.first : null;
   Flight get lastFlight => isFlight ? flights.last : null;
 
-  FTL get ftl => isWorkingDuty ? FTL(this) : null;
+  FTL get ftl => isWorkingDuty ? FTL.fromDuty(this) : null;
   Rest get rest => ftl?.rest;
   FlightDutyPeriod get flightDutyPeriod => ftl.flightDutyPeriod;
 

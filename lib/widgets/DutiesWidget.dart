@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:wyob/objects/Duty.dart' show Duty;
+import 'package:wyob/utils/DateTimeUtils.dart';
 import 'WidgetUtils.dart';
 import 'package:wyob/pages/FlightDutyScreen.dart';
 
@@ -44,12 +45,13 @@ class DutyWidget extends StatelessWidget {
 
   Text get sectorsText {
     if (_duty.isFlight) {
-
       String stringSectors = _duty.flights[0].startPlace.IATA;
       for (int i = 0; i < _duty.flights.length; i++) {
         stringSectors += ' - ' + _duty.flights[i].endPlace.IATA;
       }
       return Text(stringSectors, textScaleFactor: 1.2,);
+    } else if (_duty.isLayover) {
+      return Text(_duty.code + ' ' + _duty.startPlace.IATA, textScaleFactor: 1.2,);
     } else {
       return Text(_duty.code, textScaleFactor: 1.2,);
     }
@@ -92,11 +94,13 @@ class DutyWidget extends StatelessWidget {
           _getLocalStartDayText(),
           Spacer(),
           StandbyTimesWidget(
-            _duty.startTime.localTimeString,
-            _duty.endTime.localTimeString
+              _duty.startTime.localTimeString,
+              _duty.endTime.localTimeString
           ),
         ],
       );
+    } else if (_duty.isLayover) {
+      return LayoverTimingWidget(durationToStringHM(_duty.duration));
     } else {
       return Row(
         children: <Widget>[
@@ -108,6 +112,7 @@ class DutyWidget extends StatelessWidget {
   }
 
   Widget _getLowerRow() {
+    if (_duty.isLayover) return null; // No day on Layovers
     if (_duty.startTime.localDayString != _duty.endTime.localDayString) {
       return Row(children: <Widget>[_getLocalEndDayText()],);
     }
@@ -160,7 +165,7 @@ class DutyWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             WidgetUtils.getIconFromDutyNature(_duty.nature),
-            Text(_duty.natureAsString)
+            //Text(_duty.natureAsString)
           ],
         ),
         title: _getCentralWidget(),
@@ -201,6 +206,22 @@ class StandbyTimesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       'from ' + startTime + ' to ' + endTime,
+      textScaleFactor: 0.9,
+      style: TextStyle(color: Colors.redAccent),
+    );
+  }
+}
+
+class LayoverTimingWidget extends StatelessWidget {
+
+  final String durationString;
+
+  LayoverTimingWidget(this.durationString);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      durationString,
       textScaleFactor: 0.9,
       style: TextStyle(color: Colors.redAccent),
     );

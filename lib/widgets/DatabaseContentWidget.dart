@@ -30,8 +30,10 @@ class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
     }
     aggregDataList.forEach((data) {
       Duty duty = data['duty'];
-      days.removeWhere((day) => day.day == duty.startTime.loc.day);
-      days.removeWhere((day) => day.day == duty.endTime.loc.day);
+      days.removeWhere((day) =>
+          day.day >= duty.startTime.loc.day &&
+          day.day <= duty.endTime.loc.day
+      );
     });
 
     List<Widget> dayWidgets = List.generate(
@@ -158,9 +160,11 @@ class RawDutyWidget extends StatelessWidget {
   }
 
   Widget getHeaderWidget() {
+    String dutyNature = duty.natureAsString;
+    if (duty.isLayover) dutyNature += ' ' + duty.startPlace.IATA;
     return Row(
       children: <Widget>[
-        Expanded(child: Text(duty.nature ?? '', style: BOLD,),),
+        Expanded(child: Text(dutyNature ?? '', style: BOLD,),),
         Text('CODE: '),
         Expanded(child: Text(duty.code ?? '---', style: BOLD,),),
         Text('STATUS: '),
@@ -309,7 +313,7 @@ class RawDutyWidget extends StatelessWidget {
     if (getEndDateWidget() != null) widgets.add(getEndDateWidget());
     if (duty.nature == DUTY_NATURE.FLIGHT) widgets.addAll(getFDPWidgets());
     if (duty.isWorkingDuty) widgets.add(getRestWidget());
-    widgets.add(getStatisticsWidget());
+    if (!duty.isLayover)widgets.add(getStatisticsWidget());
     widgets.add(Divider(color: Colors.black,));
 
     return Container(

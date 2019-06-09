@@ -152,6 +152,25 @@ class LocalDatabase {
             rotationDutiesDataLocal, rotationDutiesDataUtc);
         duties.addAll(rotationDuties);
       }
+      // Add the "fake" LAYOVER duties
+      for (int i = 0; i < duties.length - 1; i++) {
+        Duty current = duties[i];
+        Duty next = duties[i + 1];
+        if (
+        current.isFlight && next.isFlight &&
+            current.endPlace.IATA != 'MCT' && next.startPlace.IATA != 'MCT' &&
+            next.startTime.difference(current.endTime) >= Duration(hours: 10)
+        ) {
+          duties.insert(
+              i + 1,
+              Duty.layover(
+                  startTime: current.endTime,
+                  endTime: next.startTime,
+                  airport: current.endPlace
+              )
+          );
+        }
+      }
 
       // set duties
       setDuties(duties);

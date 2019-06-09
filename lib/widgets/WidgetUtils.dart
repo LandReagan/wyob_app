@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:wyob/objects/Duty.dart';
 
 /// groups utility functions in this static class
@@ -29,8 +30,16 @@ class WidgetUtils {
       case DUTY_NATURE.NOPS:
         return Image.asset('graphics/icons/nops-50.png');
 
+      case DUTY_NATURE.LAYOVER:
+        return Image.asset('graphics/icons/hotel-50.png');
+
       default:
-        return new Icon(Icons.schedule);
+        return new ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: 50.0, minHeight: 50.0
+          ),
+          child: Icon(Icons.schedule),
+        );
     }
   }
 }

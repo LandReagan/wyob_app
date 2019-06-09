@@ -7,9 +7,6 @@ import 'package:wyob/objects/Duty.dart';
 /// Rest and FlightDutyPeriod objects.
 class FTL {
 
-  // Optional
-  final Duty _duty;
-
   // Mandatory
   AwareDT reporting;
   bool isFlightDuty;
@@ -17,10 +14,13 @@ class FTL {
   AwareDT onBlocks;
   AwareDT offDuty;
 
-  FTL(this._duty) : reporting = _duty?.startTime, isFlightDuty = _duty?.isFlight,
-        onBlocks = _duty?.lastFlight?.endTime,
-        numberOfLandings = _duty == null ? 0 : _duty.flights.length,
-        offDuty = _duty?.endTime;
+  FTL.fromDuty(Duty duty) {
+    reporting = duty.startTime;
+    isFlightDuty = duty.isFlight;
+    numberOfLandings = duty.flights.length;
+    onBlocks = isFlightDuty ? duty.lastFlight.endTime : null;
+    offDuty = duty.endTime;
+  }
 
   FTL.fromWidget({
         @required DateTime reportingDate,
@@ -29,7 +29,7 @@ class FTL {
         @required int numberOfLandings,
         @required TimeOfDay onBlocks,
         @required Duration onBlocksGMTDiff
-  }) : this._duty = null {
+  }) {
     DateTime reportingLoc = reportingDate;
     reportingLoc = reportingLoc.add(
         Duration(hours: reportingTime.hour, minutes: reportingTime.minute));
@@ -64,9 +64,7 @@ class FTL {
 
   Rest get rest {
     if (!this.isValid) return null;
-
-    if (this._duty != null && this._duty.involveRest) return Rest.fromDuty(this._duty);
-
+    if (offDuty != null) return Rest(reporting, offDuty);
     return Rest.fromFTLInputs(reporting, onBlocks);
   }
 
@@ -191,6 +189,11 @@ class FlightDutyPeriod extends Period {
 }
 
 class Rest extends Period {
+
+  Rest(AwareDT dutyStart, AwareDT dutyEnd) {
+    start = dutyEnd;
+    end = start.add(_getMinimumRestDuration(dutyEnd.difference(dutyStart)));
+  }
 
   Rest.fromDuty(Duty duty) {
 
