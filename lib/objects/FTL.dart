@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
 import 'package:wyob/objects/Duty.dart';
+import 'package:wyob/widgets/StandbyTypeWidget.dart';
 
 /// Used to calculate all FTLs. It is constructed thanks to a Duty and give
 /// Rest and FlightDutyPeriod objects.
@@ -13,6 +14,10 @@ class FTL {
   int numberOfLandings;
   AwareDT onBlocks;
   AwareDT offDuty;
+
+  // Optional, in case of Stand By before
+  AwareDT standbyStart;
+  STANDBY_TYPE standbyType;
 
   FTL.fromDuty(Duty duty) {
     reporting = duty.startTime;
@@ -28,7 +33,10 @@ class FTL {
         @required Duration reportingGMTDiff,
         @required int numberOfLandings,
         @required TimeOfDay onBlocks,
-        @required Duration onBlocksGMTDiff
+        @required Duration onBlocksGMTDiff,
+        bool isStandby = false,
+        TimeOfDay standbyStartTime,
+        STANDBY_TYPE standbyType,
   }) {
     DateTime reportingLoc = reportingDate;
     reportingLoc = reportingLoc.add(
@@ -48,6 +56,30 @@ class FTL {
     if (this.reporting > this.onBlocks)
         this.onBlocks = this.onBlocks.add(Duration(hours: 24));
     this.offDuty = this.onBlocks.add(Duration(minutes: 30));
+
+    if (isStandby) {
+      DateTime standbyStartLoc = reportingDate;
+      standbyStartLoc = standbyStartLoc.add(
+        Duration(hours: standbyStartTime.hour, minutes: standbyStartTime.minute)
+      );
+      DateTime standbyStartUtc = standbyStartLoc.subtract(reportingGMTDiff);
+      this.standbyStart = AwareDT.fromDateTimes(standbyStartLoc, standbyStartUtc);
+      if (this.reporting < this.standbyStart)
+          this.reporting.add(Duration(days: 1));
+      this.standbyType = standbyType;
+    }
+  }
+
+  /// returns additional duration in case of previous standby or null if none
+  Duration get addition {
+    Duration addition;
+    if (standbyStart != null && reporting.difference(standbyStart) > Duration(hours: 4)) {
+      int additionInMinutes = (reporting.difference(standbyStart) -
+          Duration(hours: 4)).inMinutes;
+      additionInMinutes = (additionInMinutes / 2).floor();
+      addition = Duration(minutes: additionInMinutes);
+    }
+    return addition;
   }
 
   FlightDutyPeriod get flightDutyPeriod {
@@ -58,6 +90,7 @@ class FTL {
     return FlightDutyPeriod(
       reporting: this.reporting,
       onBlocks: this.onBlocks,
+      addition: this.addition,
       numberOfLandings: numberOfLandings
     );
   }
@@ -69,7 +102,8 @@ class FTL {
   }
 
   DutyPeriod get dutyPeriod {
-    return DutyPeriod.fromAwareDT(this.reporting, this.offDuty);
+    AwareDT start = standbyStart != null ? standbyStart : reporting;
+    return DutyPeriod(start: start, end: this.onBlocks.add(Duration(minutes: 30)), addition: this.addition);
   }
 
   bool get isValid {
@@ -93,12 +127,19 @@ class Period {
 
   AwareDT start;
   AwareDT end;
+  Duration addition;
 
-  Period({AwareDT from, AwareDT to}) : start = from, end = to;
+  Period(
+      {AwareDT from, AwareDT to, Duration addition}
+  ) : start = from, end = to, addition = addition;
 
   Duration get duration {
-    if (end != null && start != null) return end.difference(start);
-    return null;
+    Duration result;
+    if (end != null && start != null) {
+      result = end.difference(start);
+      if (addition != null) result += addition;
+    }
+    return result;
   }
 
   String get durationString => durationToStringHM(duration);
@@ -109,9 +150,10 @@ class FlightDutyPeriod extends Period {
 
   int numberOfLandings;
 
-  FlightDutyPeriod({AwareDT reporting, AwareDT onBlocks, int numberOfLandings}) {
+  FlightDutyPeriod({AwareDT reporting, AwareDT onBlocks, int numberOfLandings, Duration addition}) {
     this.start = reporting;
     this.end = onBlocks;
+    this.addition = addition;
     this.numberOfLandings = numberOfLandings;
   }
 
@@ -229,13 +271,26 @@ class Rest extends Period {
 
 class DutyPeriod extends Period {
 
+  DutyPeriod({AwareDT start, AwareDT end, Duration addition}) {
+    this.start = start;
+    this.end = end;
+    this.addition = addition;
+  }
+
   DutyPeriod.fromDuty(Duty duty) {
     this.start = duty.startTime;
     this.end = duty.endTime;
   }
 
-  DutyPeriod.fromAwareDT(AwareDT from, AwareDT to) {
+  DutyPeriod.fromAwareDT(AwareDT from, AwareDT to, {Duration addition}) {
     this.start = from;
     this.end = to;
+    this.addition = addition;
+  }
+
+  String toString() {
+    return '|DP|start: ' + this.start.toString() +
+        '|end: ' + this.end.toString() +
+        '|duration: ' + this.durationString;
   }
 }

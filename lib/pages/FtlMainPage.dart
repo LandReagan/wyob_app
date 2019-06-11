@@ -7,6 +7,8 @@ import 'package:wyob/utils/DateTimeUtils.dart';
 import 'package:wyob/widgets/FtlDateWidget.dart';
 import 'package:wyob/widgets/FtlTimeWidget.dart';
 import 'package:wyob/widgets/GMTDiffWidget.dart';
+import 'package:wyob/widgets/StandbyToggleWidget.dart';
+import 'package:wyob/widgets/StandbyTypeWidget.dart';
 
 class FtlMainPage extends StatefulWidget {
 
@@ -43,6 +45,10 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
 
   static const int DEFAULT_NUMBER_OF_LANDINGS = 1;
 
+  bool _isStandby = false;
+  TimeOfDay _standbyStartTime;
+  STANDBY_TYPE _standbyType = STANDBY_TYPE.HOME;
+
   DateTime _reportingDate;
   TimeOfDay _reportingTime;
   Duration _reportingGMTDiff;
@@ -60,7 +66,10 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
         reportingGMTDiff: this._reportingGMTDiff,
         numberOfLandings: this._numberOfLandings,
         onBlocks: this._onBlocksTime,
-        onBlocksGMTDiff: this._onBlocksGMTDiff
+        onBlocksGMTDiff: this._onBlocksGMTDiff,
+        isStandby: this._isStandby,
+        standbyStartTime: this._standbyStartTime,
+        standbyType: this._standbyType
     );
   }
 
@@ -113,24 +122,66 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
     });
   }
 
+  void _toggleStandby(bool isStandby) {
+    setState(() {
+      this._isStandby = isStandby;
+    });
+  }
+
+  void _setStandbyStartTime(TimeOfDay newTime) {
+    setState(() {
+      _standbyStartTime = newTime;
+    });
+  }
+
+  void _toggleStandbyType(STANDBY_TYPE type) {
+    setState(() {
+      _standbyType = type;
+    });
+  }
+
   List<ListTile> _getInputDataWidgets(BuildContext context) {
 
     var inputDataWidgets = <ListTile>[];
+
+    String dateWidgetTitle = _isStandby ? 'StandBy Start Date' : 'Reporting Date';
 
     // Date
     inputDataWidgets.add(
       ListTile(title: Row(children: <Widget>[
         Expanded(
-          child: FtlDateWidget('Reporting date', this._reportingDate, this._setDate),
+          child: FtlDateWidget(dateWidgetTitle, this._reportingDate, this._setDate),
         ),
+        Expanded(
+          child: StandbyToggleWidget('From StandBy?', _toggleStandby),
+        )
     ]),),);
+
+    // Standby data
+    if (_isStandby) {
+      inputDataWidgets.add(
+        ListTile(
+          title: Row(
+            children: <Widget>[
+              Expanded(
+                child: FtlTimeWidget(
+                    'StandBy start time', _standbyStartTime, _setStandbyStartTime),
+              ),
+              Expanded(
+                child: StandbyTypeWidget(_toggleStandbyType),
+              )
+            ],
+          ),
+        )
+      );
+    }
 
     // Reporting data
     inputDataWidgets.add(
       ListTile(title: Row(children: <Widget>[
         Expanded(
           flex: 5,
-          child: FtlTimeWidget('Reporting time', this._reportingTime, this._setReporting),
+          child: FtlTimeWidget('Flight Reporting time', this._reportingTime, this._setReporting),
         ),
         GMTDiffWidget('GMT Diff.', _reportingGMTDiff, _setReportingGMTDiff),
       ],),)

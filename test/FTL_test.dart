@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:test/test.dart';
 import 'package:wyob/objects/FTL.dart';
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Airport.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
+import 'package:wyob/widgets/StandbyTypeWidget.dart';
 
 void main() {
   group('Allowable Flight Duty Period', () {
@@ -89,8 +91,28 @@ void main() {
     }
 
     for (Duty duty in duties) {
-      print(duty.toString());
-      print(duty.ftl.toString());
+      //print(duty.toString());
+      //print(duty.ftl.toString());
     }
+  });
+
+  group('Tests of flight duty with previous stand by', () {
+    test('Home STDBY from 02:00, flight reporting at 08:00, blocks at 12:00', () {
+      FTL ftl = FTL.fromWidget(
+          reportingDate: DateTime(1970, 1, 1),
+          reportingTime: TimeOfDay(hour: 8, minute: 0),
+          numberOfLandings: 2,
+          reportingGMTDiff: Duration(hours: 4),
+          onBlocks: TimeOfDay(hour: 12, minute: 0),
+          onBlocksGMTDiff: Duration(hours: 4),
+          isStandby: true,
+          standbyStartTime: TimeOfDay(hour: 2, minute: 0),
+          standbyType: STANDBY_TYPE.HOME
+      );
+
+      print(ftl.flightDutyPeriod);
+      print(ftl.dutyPeriod);
+
+    });
   });
 }
