@@ -31,7 +31,10 @@ class WidgetUtils {
         return Image.asset('graphics/icons/nops-50.png');
 
       case DUTY_NATURE.LAYOVER:
-        return Image.asset('graphics/icons/hotel-50.png');
+        return Image.asset('graphics/icons/hotel.png');
+
+      case DUTY_NATURE.GROUND:
+        return Image.asset('graphics/icons/ground.png');
 
       default:
         return new ConstrainedBox(
