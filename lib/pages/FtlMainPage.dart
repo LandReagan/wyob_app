@@ -56,10 +56,16 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
   TimeOfDay _onBlocksTime;
   Duration _onBlocksGMTDiff;
 
-  FTL getFTL() {
+  bool get isComplete {
+    if (_isStandby && _standbyStartTime == null) return false;
     if (this._reportingDate == null || this._reportingTime == null ||
         this._onBlocksTime == null || this._reportingGMTDiff == null ||
-        this._onBlocksGMTDiff == null) return null;
+        this._onBlocksGMTDiff == null) return false;
+    return true;
+  }
+
+  FTL getFTL() {
+    if (!isComplete) return null;
     return FTL.fromWidget(
         reportingDate: this._reportingDate,
         reportingTime: this._reportingTime,

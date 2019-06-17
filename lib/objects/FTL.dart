@@ -70,6 +70,8 @@ class FTL {
     }
   }
 
+  bool get isStandby => standbyStart != null;
+
   /// returns additional duration in case of previous standby or null if none
   Duration get addition {
     Duration addition;
