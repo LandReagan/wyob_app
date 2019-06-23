@@ -4,6 +4,7 @@ import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Flight.dart';
 import 'package:wyob/objects/FTL.dart';
 import 'package:wyob/pages/FtlMainPage.dart';
+import 'package:wyob/widgets/PeriodWidgets.dart';
 
 
 class FlightDutyScreen extends StatelessWidget {
@@ -32,18 +33,18 @@ class FlightDutyScreen extends StatelessWidget {
       child: Row(
         children: <Widget>[
           Expanded(
-            child: Text("Reporting:", style: TextStyle(fontStyle: FontStyle.italic),),
+            child: Text("Reporting:", style: TextStyle(fontStyle: FontStyle.italic),textScaleFactor: 1.5,),
           ),
           Expanded(
             child: Text(
-              flightDuty.startTime.localDayString,
+              flightDuty.startTime.localDayString,textScaleFactor: 1.5,
               style: TextStyle(color: Colors.red),
             ),
           ),
   
           Expanded(
             child: Text(
-              flightDuty.startTime.localTimeString,
+              flightDuty.startTime.localTimeString,textScaleFactor: 1.5,
               style: TextStyle(color: Colors.red),
             ),
           ),
@@ -62,13 +63,16 @@ class FlightDutyScreen extends StatelessWidget {
 
     for (Widget flightWidget in flightWidgets) {
       result.add(flightWidget);
-      result.add(Divider(
-        height: 5.0,
-        color: Colors.black,
-      ));
     }
 
-    result.add(RestWidget(flightDuty.rest));
+    FTL ftl = FTL.fromDuty(flightDuty);
+
+    result.add(Divider(color: Colors.white, height: 15.0,));
+    result.add(FlightDutyPeriodWidget(ftl));
+    result.add(Divider(color: Colors.white, height: 3.0,));
+    result.add(DutyPeriodWidget(ftl));
+    result.add(Divider(color: Colors.white, height: 3.0,));
+    result.add(RestPeriodWidget(ftl));
 
     return result;
   }
@@ -100,61 +104,9 @@ class FlightDutyScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: DefaultTextStyle(
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 20.0,
-          fontWeight: FontWeight.bold
-        ),
-        child: Column(
+      body: ListView(
           children: getFlightWidgets(),
         ),
-      ),
-    );
-  }
-}
-
-class RestWidget extends StatelessWidget {
-
-  final Rest _rest;
-
-  RestWidget(this._rest);
-
-  String getMinimumRestDuration() {
-    int hours = _rest.duration.inHours;
-    int minutes = _rest.duration.inMinutes - hours * 60;
-    return hours.toString() + 'h' +
-        (minutes.toString() == '0' ? '' : minutes.toString() + 'm');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTextStyle(
-      style: TextStyle(
-        color: Colors.black,
-        fontSize: 20.0,
-        fontWeight: FontWeight.normal
-      ),
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Icon(Icons.hotel, size: 40.0,),
-          ),
-          Expanded(
-              child: Column(
-                children: <Widget>[
-                  Text('Minimum rest: ' + getMinimumRestDuration(), textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.bold),),
-                  Text('ends: ' + _rest.end.localDayString + ' ' +
-                      _rest.end.localTimeString,
-                    style: TextStyle(color: Colors.redAccent),
-                  )
-                ],
-              )
-          )
-        ],
-      ),
     );
   }
 }

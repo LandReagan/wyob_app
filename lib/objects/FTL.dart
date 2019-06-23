@@ -4,26 +4,24 @@ import 'package:wyob/utils/DateTimeUtils.dart';
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/widgets/StandbyTypeWidget.dart';
 
-/// Used to calculate all FTLs. It is constructed thanks to a Duty and give
-/// Rest and FlightDutyPeriod objects.
+/// Used to calculate all FTLs. It can be constructed from a Duty or from the
+/// widget input, with optional previous standby data.
 class FTL {
 
-  // Mandatory
   AwareDT reporting;
-  bool isFlightDuty;
   int numberOfLandings;
   AwareDT onBlocks;
   AwareDT offDuty;
 
-  // Optional, in case of Stand By before
   AwareDT standbyStart;
   STANDBY_TYPE standbyType;
 
   FTL.fromDuty(Duty duty) {
     reporting = duty.startTime;
-    isFlightDuty = duty.isFlight;
-    numberOfLandings = duty.flights.length;
-    onBlocks = isFlightDuty ? duty.lastFlight.endTime : null;
+    if (duty.isFlight) {
+      onBlocks = duty.lastFlight.endTime;
+      numberOfLandings = duty.flights.length;
+    }
     offDuty = duty.endTime;
   }
 
@@ -34,7 +32,6 @@ class FTL {
         @required int numberOfLandings,
         @required TimeOfDay onBlocks,
         @required Duration onBlocksGMTDiff,
-        bool isStandby = false,
         TimeOfDay standbyStartTime,
         STANDBY_TYPE standbyType,
   }) {
@@ -43,8 +40,6 @@ class FTL {
         Duration(hours: reportingTime.hour, minutes: reportingTime.minute));
     DateTime reportingUtc = reportingLoc.subtract(reportingGMTDiff);
     this.reporting = AwareDT.fromDateTimes(reportingLoc, reportingUtc);
-
-    if (numberOfLandings > 0) this.isFlightDuty = true;
 
     this.numberOfLandings = numberOfLandings;
 
@@ -86,8 +81,7 @@ class FTL {
 
   FlightDutyPeriod get flightDutyPeriod {
 
-    // todo: case of stand by before flight duty
-    if (!this.isFlightDuty || !this.isValid) return null;
+    if (this.numberOfLandings == 0 || !this.isComplete) return null;
 
     return FlightDutyPeriod(
       reporting: this.reporting,
@@ -98,26 +92,24 @@ class FTL {
   }
 
   Rest get rest {
-    if (!this.isValid) return null;
+    if (!this.isComplete) return null;
     if (offDuty != null) return Rest(reporting, offDuty);
     return Rest.fromFTLInputs(reporting, onBlocks);
   }
 
   DutyPeriod get dutyPeriod {
-    AwareDT start = standbyStart != null ? standbyStart : reporting;
-    return DutyPeriod(start: start, end: this.onBlocks.add(Duration(minutes: 30)), addition: this.addition);
+    if (!this.isComplete) return null;
+    return DutyPeriod(start: reporting, end: offDuty, addition: addition);
   }
 
-  bool get isValid {
-    if (onBlocks != null) {
-      if (reporting > onBlocks) return false;
-    }
-    if (isFlightDuty && (numberOfLandings < 1 || numberOfLandings > 8)) return false;
-    return true;
+  bool get isComplete {
+    if (reporting != null && offDuty != null) return true;
+    if (reporting != null && numberOfLandings != null && onBlocks != null) return true;
+    return false;
   }
 
   String toString() {
-    if (!this.isValid) return 'INVALID FTL OBJECT';
+    if (!this.isComplete) return 'INVALID FTL OBJECT';
     return '|FTL data|\n==>' + flightDutyPeriod.toString() +
       '\n==>' + rest.toString();
   }

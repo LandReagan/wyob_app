@@ -1,9 +1,11 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/FTL.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
+import 'package:wyob/widgets/PeriodWidgets.dart';
 import 'package:wyob/widgets/FtlDateWidget.dart';
 import 'package:wyob/widgets/FtlTimeWidget.dart';
 import 'package:wyob/widgets/GMTDiffWidget.dart';
@@ -73,7 +75,6 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
         numberOfLandings: this._numberOfLandings,
         onBlocks: this._onBlocksTime,
         onBlocksGMTDiff: this._onBlocksGMTDiff,
-        isStandby: this._isStandby,
         standbyStartTime: this._standbyStartTime,
         standbyType: this._standbyType
     );
@@ -223,184 +224,31 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
     return inputDataWidgets;
   }
 
-  List<Widget> _getDPWidgets() {
-    var widgets = <Widget>[];
+  Widget _getDPWidget() {
 
     if (getFTL() != null && getFTL().dutyPeriod != null) {
       FTL ftl = getFTL();
-      widgets.add(
-          Column(
-            children: <Widget>[
-              Container(
-                constraints: BoxConstraints.expand(height: 30.0),
-                decoration: BoxDecoration(color: Colors.deepOrangeAccent),
-                child: Center(
-                  child: Text('DUTY PERIOD', textScaleFactor: 1.2,),
-                ),
-              ),
-              Row(
-                children: <Widget>[
-                  Expanded(child: Text('Starts: '),),
-                  Text(ftl.dutyPeriod.start.localDayString + ' ', textScaleFactor: 1.2,),
-                  Expanded(
-                    child: Text(ftl.dutyPeriod.start.localTimeString, textScaleFactor: 1.2,),
-                  )
-                ],
-              ),
-              Row(
-                children: <Widget>[
-                  Expanded(child: Text('Ends: '),),
-                  Text(ftl.dutyPeriod.end.localDayString + ' ', textScaleFactor: 1.2,),
-                  Expanded(
-                    child: Text(ftl.dutyPeriod.end.localTimeString, textScaleFactor: 1.2,),
-                  )
-                ],
-              ),
-              Row(
-                children: <Widget>[
-                  Expanded(child: Text('Duration: '),),
-                  Expanded(
-                    child: Text(ftl.dutyPeriod.durationString, textScaleFactor: 1.2,),
-                  )
-                ],
-              ),
-            ],
-          )
-      );
+      return DutyPeriodWidget(ftl);
     }
-    return widgets;
+    return null;
   }
 
-  List<Widget> _getRestWidgets() {
-    var widgets = <Widget>[];
+  Widget _getRestWidget() {
 
     if (getFTL() != null) {
       FTL ftl = getFTL();
-      widgets.add(
-        Column(
-          children: <Widget>[
-            Container(
-              constraints: BoxConstraints.expand(height: 30.0),
-              decoration: BoxDecoration(color: Colors.cyanAccent),
-              child: Center(
-                child: Text('MINIMUM REST:', textScaleFactor: 1.2,),
-              ),
-            ),
-            Row(
-              children: <Widget>[
-                Expanded(child: Text('Starts: '),),
-                Text(ftl.rest.start.localDayString + ' ', textScaleFactor: 1.2,),
-                Expanded(
-                  child: Text(ftl.rest.start.localTimeString, textScaleFactor: 1.2,),
-                )
-              ],
-            ),
-            Row(
-              children: <Widget>[
-                Expanded(child: Text('Ends: '),),
-                Text(ftl.rest.end.localDayString + ' ', textScaleFactor: 1.2,),
-                Expanded(
-                  child: Text(ftl.rest.end.localTimeString, textScaleFactor: 1.2,),
-                )
-              ],
-            ),
-            Row(
-              children: <Widget>[
-                Expanded(child: Text('Duration: '),),
-                Expanded(
-                  child: Text(ftl.rest.durationString, textScaleFactor: 1.2,),
-                )
-              ],
-            ),
-          ],
-        )
-      );
+      return RestPeriodWidget(ftl);
     }
-    return widgets;
+    return null;
   }
 
-  List<Widget> _getFDPWidgets() {
-    var widgets = <Widget>[];
+  Widget _getFDPWidgets() {
 
     if (getFTL() != null && getFTL().flightDutyPeriod != null) {
       FTL ftl = getFTL();
-      widgets.add(
-        Column(
-          children: <Widget>[
-            Container(
-              constraints: BoxConstraints.expand(height: 30.0),
-              decoration: BoxDecoration(color: Colors.deepOrangeAccent),
-              child: Center(
-                child: Text('FLIGHT DUTY PERIOD', textScaleFactor: 1.2,),
-              ),
-            ),
-            Row(
-              children: <Widget>[
-                Expanded(child: Text('Starts: '),),
-                Text(ftl.flightDutyPeriod.start.localDayString + ' ', textScaleFactor: 1.2,),
-                Expanded(
-                  child: Text(ftl.flightDutyPeriod.start.localTimeString, textScaleFactor: 1.2,),
-                )
-              ],
-            ),
-            Row(
-              children: <Widget>[
-                Expanded(child: Text('Ends: '),),
-                Text(ftl.flightDutyPeriod.end.localDayString + ' ', textScaleFactor: 1.2,),
-                Expanded(
-                  child: Text(ftl.flightDutyPeriod.end.localTimeString, textScaleFactor: 1.2,),
-                )
-              ],
-            ),
-            Row(
-              children: <Widget>[
-                Expanded(child: Text('Duration: '),),
-                Expanded(
-                  child: Text(ftl.flightDutyPeriod.durationString, textScaleFactor: 1.2,),
-                )
-              ],
-            ),
-            Row(
-              children: <Widget>[
-                Expanded(child: Text('MAX: '),),
-                Expanded(
-                  child: Text(
-                    durationToStringHM(ftl.flightDutyPeriod.maxFlightDutyPeriodLength),
-                    textScaleFactor: 1.2,
-                  ),
-                ),
-                Text('ends: '),
-                Expanded(
-                  child: Text(
-                    ftl.flightDutyPeriod.maxFlightDutyPeriodEndTime.localTimeString,
-                    textScaleFactor: 1.2,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: <Widget>[
-                Expanded(child: Text('EXTENDED: '),),
-                Expanded(
-                  child: Text(
-                    durationToStringHM(ftl.flightDutyPeriod.extendedFlightDutyPeriodLength),
-                    textScaleFactor: 1.2,
-                  ),
-                ),
-                Text('ends: '),
-                Expanded(
-                  child: Text(
-                    ftl.flightDutyPeriod.extendedFlightDutyPeriodEndTime.localTimeString,
-                    textScaleFactor: 1.2,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        )
-      );
+      return FlightDutyPeriodWidget(ftl);
     }
-    return widgets;
+    return null;
   }
 
   Widget build(BuildContext context) {
@@ -410,9 +258,11 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
     tiles.add(Center(child:
         Text('All times local...', style: TextStyle(fontStyle: FontStyle.italic),)));
     tiles.addAll(_getInputDataWidgets(context));
-    tiles.addAll(_getDPWidgets());
-    tiles.addAll(_getFDPWidgets());
-    tiles.addAll(_getRestWidgets());
+    tiles.add(_getFDPWidgets());
+    tiles.add(Divider(color: Colors.white, height: 3.0,));
+    tiles.add(_getDPWidget());
+    tiles.add(Divider(color: Colors.white, height: 3.0,));
+    tiles.add(_getRestWidget());
 
     return ListView(
       children: tiles,

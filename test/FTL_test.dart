@@ -105,7 +105,6 @@ void main() {
           reportingGMTDiff: Duration(hours: 4),
           onBlocks: TimeOfDay(hour: 12, minute: 0),
           onBlocksGMTDiff: Duration(hours: 4),
-          isStandby: true,
           standbyStartTime: TimeOfDay(hour: 2, minute: 0),
           standbyType: STANDBY_TYPE.HOME
       );
