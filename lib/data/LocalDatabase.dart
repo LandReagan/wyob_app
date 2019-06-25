@@ -12,6 +12,7 @@ import 'package:wyob/iob/GanttDutyFactory.dart';
 
 import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT;
 import 'package:wyob/objects/Duty.dart';
+import 'package:wyob/objects/Rank.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
 
 /// Singleton class for our database.
@@ -86,6 +87,7 @@ class LocalDatabase {
       _root = await _readLocalData();
       _root['user_data']['username'] = username;
       _root['user_data']['password'] = password;
+      _root['user_data']['rank'] = rank;
       await _writeLocalData();
       _ready = true;
     } on Exception catch (e) {
@@ -324,9 +326,16 @@ class LocalDatabase {
     return result;
   }
 
-  String getRank() {
+  RANK getRank() {
     Map<String, dynamic> userData = _root['user_data'];
-    return userData['rank'];
+    String rankString = userData['rank'];
+    switch (rankString) {
+      case 'CPT': return RANK.CPT;
+      case 'FO': return RANK.FO;
+      case 'CD': return RANK.CD;
+      case 'CC / PGC': return RANK.CC;
+      default: return null;
+    }
   }
   
   Future<void> _setUpdateTime(AwareDT time) async {

@@ -39,6 +39,11 @@ void main() {
     });
   });
 
+  test('durationToDouble function test', () {
+    Duration duration = Duration(hours: 1, minutes: 30);
+    expect(durationToDouble(duration), 1.5);
+  });
+
   group("AwareDT class tests", () {
 
     test("toString method", () {

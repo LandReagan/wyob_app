@@ -5,6 +5,7 @@ import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/FTL.dart';
 import 'package:wyob/objects/MonthlyAggregation.dart';
 import 'package:wyob/objects/Statistics.dart';
+import 'package:wyob/objects/Rank.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
 
 class DatabaseByMonthWidget extends StatefulWidget {
@@ -74,7 +75,7 @@ class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
   List<Widget> _getMonthTiles() {
     var widgets = <Widget>[];
     widget.database.getAllMonthlyAggregations().forEach((aggregation) {
-      widgets.add(MonthlyStatisticsWidget(aggregation));
+      widgets.add(MonthlyStatisticsWidget(aggregation, widget.database.getRank()));
       widgets.add(getMonthWidget(aggregation));
     });
     return widgets.reversed.toList();
@@ -331,12 +332,51 @@ class RawDutyWidget extends StatelessWidget {
 class MonthlyStatisticsWidget extends StatelessWidget {
 
   final MonthlyAggregation aggregation;
+  final RANK rank;
+
   Duration blockTime = Duration.zero;
   Duration dutyTime = Duration.zero;
   int nbrOfFlights = 0;
-  int flyingAllowance = 0;
 
-  MonthlyStatisticsWidget(this.aggregation) {
+  String get flyingAllowanceString {
+
+    if (rank == null) return '? OMR';
+
+    double allowance = 0.0;
+    var amounts = <double>[];
+
+    switch (rank) {
+      case RANK.CPT: amounts.addAll([6.0, 9.0, 35.0]); break;
+      case RANK.FO: amounts.addAll([4.0, 6.0, 25.0]); break;
+      case RANK.CD: amounts.addAll([2.0, 2.5, 3.0, 6.0]); break;
+      case RANK.CC: amounts.addAll([1.0, 1.5, 2.0, 5.0]); break;
+    }
+
+    Duration time;
+    if (amounts.length == 3) { // Flight crew rule, block time
+      time = blockTime;
+    } else if (amounts.length == 4) { // Cabin Crew rule, duty time
+      time = dutyTime;
+    }
+
+    if (amounts.length == 4 && time > Duration(hours: 100)) {
+      allowance += durationToDouble(time - Duration(hours: 100)) * amounts[3];
+      time = Duration(hours: 100);
+    }
+    if (time > Duration(hours: 75)) {
+      allowance += durationToDouble(time - Duration(hours: 75)) * amounts[2];
+      time = Duration(hours: 75);
+    }
+    if (time > Duration(hours: 50)) {
+      allowance += durationToDouble(time - Duration(hours: 50)) * amounts[1];
+      time = Duration(hours: 50);
+    }
+    allowance += durationToDouble(time) * amounts[0];
+
+    return allowance.toString() + ' OMR';
+  }
+
+  MonthlyStatisticsWidget(this.aggregation, this.rank) {
     aggregation.dutiesAndStatistics.forEach((Map<String, dynamic>data) {
       Duty duty = data['duty'];
       if (duty.isFlight) {
@@ -384,7 +424,7 @@ class MonthlyStatisticsWidget extends StatelessWidget {
       ),
       children: <Widget>[
         _getStatItem('BLOCK TIME: ', durationToStringHM(blockTime), null),
-        _getStatItem('FLYING ALLOWANCE: ', flyingAllowance.toString(), null),
+        _getStatItem('FLYING ALLOWANCE: (' + rankString(rank) + ')', flyingAllowanceString, null),
         _getStatItem('DUTY TIME: ', durationToStringHM(dutyTime), null),
         _getStatItem('FLIGHTS: ', nbrOfFlights.toString(), null),
       ],

@@ -3,8 +3,8 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:wyob/data/LocalDatabase.dart';
+import 'package:wyob/objects/Rank.dart' show RANK, rankString;
 
-enum RANK { CPT, FO, CD, CC }
 
 class LoginPopUp extends StatefulWidget {
 
@@ -20,16 +20,6 @@ class _LoginPopUpState extends State<LoginPopUp> {
   String username;
   String password;
   RANK rank;
-
-  String rankString(RANK rank) {
-    switch (rank) {
-      case RANK.CPT: return "CPT"; break;
-      case RANK.FO: return "FO"; break;
-      case RANK.CD: return "CD"; break;
-      case RANK.CC: return "CC / PGC"; break;
-      default: return "";
-    }
-  }
 
   Future<void> updateDatabase() async {
     var database = LocalDatabase();

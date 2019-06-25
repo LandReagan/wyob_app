@@ -1,5 +1,3 @@
-import 'package:flutter/scheduler.dart';
-
 List<String> months = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -70,6 +68,12 @@ String durationToStringHM(Duration duration) {
   int minutes = duration.inMinutes.abs() - duration.inHours.abs() * 60;
   if (minutes < 10) result += '0';
   result += minutes.toString() + 'm';
+  return result;
+}
+
+double durationToDouble(Duration duration) {
+  double result = 0.0;
+  result += duration.inMinutes / 60;
   return result;
 }
 
