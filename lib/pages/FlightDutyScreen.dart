@@ -28,7 +28,7 @@ class FlightDutyScreen extends StatelessWidget {
     Widget reportingWidget = Container(
       padding: EdgeInsets.all(10.0),
       decoration: BoxDecoration(
-        color: Colors.grey,
+        color: Color.fromRGBO(220, 220, 220, 1.0),
       ),
       child: Row(
         children: <Widget>[
@@ -37,16 +37,13 @@ class FlightDutyScreen extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              flightDuty.startTime.localDayString,textScaleFactor: 1.5,
+              flightDuty.startTime.localDayString + ' ',textScaleFactor: 1.5,
               style: TextStyle(color: Colors.red),
             ),
           ),
-  
-          Expanded(
-            child: Text(
-              flightDuty.startTime.localTimeString,textScaleFactor: 1.5,
-              style: TextStyle(color: Colors.red),
-            ),
+       Text(
+            flightDuty.startTime.localTimeString,textScaleFactor: 1.5,
+            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
           ),
         ],
       ),

@@ -154,6 +154,7 @@ class DutyWidget extends StatelessWidget {
     return Colors.white;
   }
 
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
