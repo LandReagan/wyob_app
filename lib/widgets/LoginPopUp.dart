@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:wyob/data/LocalDatabase.dart';
+
+enum RANK { CPT, FO, CD, CC }
 
 class LoginPopUp extends StatefulWidget {
 
@@ -16,11 +19,32 @@ class _LoginPopUpState extends State<LoginPopUp> {
 
   String username;
   String password;
+  RANK rank;
+
+  String rankString(RANK rank) {
+    switch (rank) {
+      case RANK.CPT: return "CPT"; break;
+      case RANK.FO: return "FO"; break;
+      case RANK.CD: return "CD"; break;
+      case RANK.CC: return "CC / PGC"; break;
+      default: return "";
+    }
+  }
 
   Future<void> updateDatabase() async {
     var database = LocalDatabase();
-    await database.setCredentials(username, password);
+    await database.setCredentials(username, password, rankString(rank));
     await database.connect();
+  }
+
+  List<DropdownMenuItem> _getItems() {
+    return RANK.values.map((rank) => DropdownMenuItem(value: rank, child: Text(rankString(rank)),)).toList();
+  }
+
+  void _changeRank(RANK value) {
+    setState(() {
+      rank = value;
+    });
   }
 
   Widget build(BuildContext context) {
@@ -33,7 +57,7 @@ class _LoginPopUpState extends State<LoginPopUp> {
               padding: EdgeInsets.all(10.0),
               child: Row(
                 children: <Widget>[
-                  Text('Username:'),
+                  Text('Username:', textScaleFactor: 1.2,),
                   Expanded(
                     child: TextField(
                       decoration: InputDecoration(
@@ -44,6 +68,7 @@ class _LoginPopUpState extends State<LoginPopUp> {
                       onChanged: (String value) {
                         username = value;
                       },
+                      keyboardType: TextInputType.number,
                     ),
                   )
                 ],
@@ -53,7 +78,7 @@ class _LoginPopUpState extends State<LoginPopUp> {
               padding: EdgeInsets.all(10.0),
               child: Row(
                 children: <Widget>[
-                  Text('Password:'),
+                  Text('Password:', textScaleFactor: 1.2,),
                   Expanded(
                     child: TextField(
                       decoration: InputDecoration(
@@ -64,10 +89,28 @@ class _LoginPopUpState extends State<LoginPopUp> {
                       onChanged: (value) {
                         password = value;
                       },
+                      obscureText: true,
                     ),
                   )
                 ],
               )
+            ),
+            Container(
+                padding: EdgeInsets.all(10.0),
+                child: Row(
+                  children: <Widget>[
+                    Text('Rank:', textScaleFactor: 1.2,),
+                    Expanded(
+                      child: DropdownButton<RANK>(
+                        items: _getItems(),
+                        hint: Text('Choose one!', textAlign: TextAlign.center,),
+                        value: rank,
+                        onChanged: (value) => _changeRank(value),
+                        isExpanded: true,
+                      ),
+                    )
+                  ],
+                )
             )
           ],
         ),

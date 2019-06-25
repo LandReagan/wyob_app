@@ -80,7 +80,7 @@ class LocalDatabase {
     _ready = true;
   }
 
-  Future<void> setCredentials(String username, String password) async {
+  Future<void> setCredentials(String username, String password, String rank) async {
     _ready = false;
     try {
       _root = await _readLocalData();
@@ -322,6 +322,11 @@ class LocalDatabase {
       result.add(stat);
     }
     return result;
+  }
+
+  String getRank() {
+    Map<String, dynamic> userData = _root['user_data'];
+    return userData['rank'];
   }
   
   Future<void> _setUpdateTime(AwareDT time) async {
