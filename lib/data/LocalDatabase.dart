@@ -188,6 +188,7 @@ class LocalDatabase {
   /// new one. The list of duties is then sorted on ascending start time...
   void setDuties(List<Duty> newDuties) {
     List<Duty> allDuties = getDutiesAll();
+    /* OLD LOGIC, NOT CONVENIENT!
     newDuties.forEach((newDuty) {
       allDuties.removeWhere((oldDuty) {
         return (newDuty.startTime.utc.compareTo(oldDuty.startTime.utc) >= 0
@@ -197,6 +198,25 @@ class LocalDatabase {
       });
       allDuties.add(newDuty);
     });
+     */
+
+    // NEW LOGIC: Delete all duties falling in the date interval, from midnight
+    // to midnight.
+    newDuties.sort((duty1, duty2) => duty1.startTime.utc.compareTo(duty2.startTime.utc));
+    DateTime start = DateTime(
+        newDuties.first.startTime.loc.year,
+        newDuties.first.startTime.loc.month,
+        newDuties.first.startTime.loc.day);
+    DateTime end = DateTime(
+        newDuties.last.startTime.loc.year,
+        newDuties.last.startTime.loc.month,
+        newDuties.last.startTime.loc.day);
+
+    allDuties.removeWhere((duty) {
+      return duty.endTime.loc.isAfter(start) && duty.startTime.loc.isBefore(end);
+    });
+
+    allDuties.addAll(newDuties);
 
     allDuties.sort((duty1, duty2) => duty1.startTime.utc.compareTo(duty2.startTime.utc));
 

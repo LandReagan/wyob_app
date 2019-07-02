@@ -373,7 +373,7 @@ class MonthlyStatisticsWidget extends StatelessWidget {
     }
     allowance += durationToDouble(time) * amounts[0];
 
-    return allowance.toString() + ' OMR';
+    return allowance.toStringAsFixed(3) + ' OMR';
   }
 
   MonthlyStatisticsWidget(this.aggregation, this.rank) {
