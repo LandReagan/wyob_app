@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 
@@ -224,31 +223,34 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
     return inputDataWidgets;
   }
 
-  Widget _getDPWidget() {
+  List<Widget> _getDPWidgets() {
 
-    if (getFTL() != null && getFTL().dutyPeriod != null) {
-      FTL ftl = getFTL();
-      return DutyPeriodWidget(ftl);
+    var widgets = <Widget>[];
+    FTL ftl = getFTL();
+    if (ftl != null && ftl.dutyPeriod != null) {
+      widgets.add(DutyPeriodWidget(ftl));
     }
-    return null;
+    return widgets;
   }
 
-  Widget _getRestWidget() {
+  List<Widget> _getRestWidget() {
 
+    var widgets = <Widget>[];
     if (getFTL() != null) {
       FTL ftl = getFTL();
-      return RestPeriodWidget(ftl);
+      widgets.add(RestPeriodWidget(ftl));
     }
-    return null;
+    return widgets;
   }
 
-  Widget _getFDPWidgets() {
+  List<Widget> _getFDPWidgets() {
 
+    var widgets = <Widget>[];
     if (getFTL() != null && getFTL().flightDutyPeriod != null) {
       FTL ftl = getFTL();
-      return FlightDutyPeriodWidget(ftl);
+      widgets.add(FlightDutyPeriodWidget(ftl));
     }
-    return null;
+    return widgets;
   }
 
   Widget build(BuildContext context) {
@@ -258,11 +260,11 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
     tiles.add(Center(child:
         Text('All times local...', style: TextStyle(fontStyle: FontStyle.italic),)));
     tiles.addAll(_getInputDataWidgets(context));
-    tiles.add(_getFDPWidgets());
+    tiles.addAll(_getFDPWidgets());
     tiles.add(Divider(color: Colors.white, height: 3.0,));
-    tiles.add(_getDPWidget());
+    tiles.addAll(_getDPWidgets());
     tiles.add(Divider(color: Colors.white, height: 3.0,));
-    tiles.add(_getRestWidget());
+    tiles.addAll(_getRestWidget());
 
     return ListView(
       children: tiles,

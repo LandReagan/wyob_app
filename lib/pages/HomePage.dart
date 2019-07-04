@@ -301,53 +301,57 @@ class HomePageState extends State<HomePage> {
       title: 'WYOB',
       home: Scaffold(
         drawer: Drawer(
-            child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text("Menu", style: TextStyle(fontSize: 20.0)),
-            ),
-            GestureDetector(
-              child: ListTile(
-                  contentPadding: EdgeInsets.all(10.0),
-                  leading: Icon(Icons.lock_outline),
-                  title: Text("Login credentials")),
-              onTap: () {
-                showDialog(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                child: Text("Menu", style: TextStyle(fontSize: 20.0)),
+              ),
+              GestureDetector(
+                child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    leading: Icon(Icons.lock_outline),
+                    title: Text("Login credentials")),
+                onTap: () {
+                  showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return LoginPopUp(context);
-                    });
-              },
-            ),
-            GestureDetector(
-              child: ListTile(
-                  contentPadding: EdgeInsets.all(10.0),
-                  leading: Icon(Icons.keyboard),
-                  title: Text("Database")),
-              onTap: () {
-                Navigator.push(
+                    }
+                  );
+                },
+              ),
+              GestureDetector(
+                child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    leading: Icon(Icons.keyboard),
+                    title: Text("Database")),
+                onTap: () {
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => DatabasePage(),
-                    ));
-              },
-            ),
-            GestureDetector(
-              child: ListTile(
-                  contentPadding: EdgeInsets.all(10.0),
-                  leading: Icon(Icons.av_timer),
-                  title: Text("FTL Calculator")),
-              onTap: () {
-                Navigator.push(
+                    )
+                  ).then((value) => this.setState(() {}));
+                },
+              ),
+              GestureDetector(
+                child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    leading: Icon(Icons.av_timer),
+                    title: Text("FTL Calculator")),
+                onTap: () {
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => FtlMainPage(null),
-                    ));
-              },
-            ),
-          ],
-        )),
+                    )
+                  );
+                },
+              ),
+            ],
+          )
+        ),
         appBar: AppBar(
           title: Text("WYOB v0.2 beta"),
         ),

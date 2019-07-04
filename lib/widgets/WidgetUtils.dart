@@ -19,7 +19,7 @@ class WidgetUtils {
         return Image.asset('graphics/icons/Coconut-50.png');
         break;
 
-      case DUTY_NATURE.STDBY:
+      case DUTY_NATURE.HOME_SBY:
         return Image.asset('graphics/icons/StandByIcon2-50.png');
         break;
 

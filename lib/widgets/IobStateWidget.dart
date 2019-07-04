@@ -59,7 +59,6 @@ class _IobStateWidgetState extends State<IobStateWidget> {
 
       case CONNECTOR_STATUS.FETCHING_DUTIES:
         return 'FETCHING DUTIES...';
-
         break;
 
       case CONNECTOR_STATUS.ERROR:
@@ -76,7 +75,7 @@ class _IobStateWidgetState extends State<IobStateWidget> {
         break;
 
       default:
-        return 'OFF';
+        return '---';
     }
   }
 

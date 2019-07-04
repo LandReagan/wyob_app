@@ -7,7 +7,7 @@ import 'package:wyob/objects/Flight.dart' show Flight;
 import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT, durationToString;
 
 enum DUTY_NATURE {
-  LEAVE, OFF, GROUND, SIM, FLIGHT, STDBY, NOPS, SICK, LAYOVER, UNKNOWN
+  LEAVE, OFF, GROUND, SIM, FLIGHT, HOME_SBY, AIRP_SBY, NOPS, SICK, LAYOVER, UNKNOWN
 }
 
 DUTY_NATURE getDutyNatureFromString(String natureString) {
@@ -100,7 +100,7 @@ class Duty {
         code.contains('HS3') ||
         code.contains('HS4')
       ) {
-      nature = DUTY_NATURE.STDBY;
+      nature = DUTY_NATURE.HOME_SBY;
     } else if (flightRegExp.hasMatch(code) || iobMap['Duty'] != '') {
       nature = DUTY_NATURE.FLIGHT;
     } else if (code.contains('NOPS')) {
@@ -154,7 +154,8 @@ class Duty {
       case DUTY_NATURE.GROUND: return 'GROUND'; break;
       case DUTY_NATURE.SIM: return 'SIM'; break;
       case DUTY_NATURE.FLIGHT: return 'FLIGHT'; break;
-      case DUTY_NATURE.STDBY: return 'STDBY'; break;
+      case DUTY_NATURE.HOME_SBY: return 'HOME_SBY'; break;
+      case DUTY_NATURE.AIRP_SBY: return 'AIRP_SBY'; break;
       case DUTY_NATURE.NOPS: return 'NOPS'; break;
       case DUTY_NATURE.SICK: return 'SICK'; break;
       case DUTY_NATURE.LAYOVER: return 'LAYOVER'; break;
@@ -164,6 +165,7 @@ class Duty {
   }
 
   bool get isFlight => _flights.length != 0;
+  bool get isStandby => nature == DUTY_NATURE.AIRP_SBY || nature == DUTY_NATURE.HOME_SBY;
   bool get isWorkingDuty {
     if (nature == DUTY_NATURE.FLIGHT ||
         nature == DUTY_NATURE.SIM ||

@@ -273,6 +273,7 @@ class LocalDatabase {
     if (earliestDutyDate == null) getDutiesAll();
 
     DateTime rolling = earliestDutyDate;
+    if (rolling == null) return aggregations;
     DateTime nowMonth = DateTime(DateTime.now().year, DateTime.now().month);
 
     while (rolling.compareTo(nowMonth) <= 0) {

@@ -16,7 +16,15 @@ class FTL {
   AwareDT standbyStart;
   STANDBY_TYPE standbyType;
 
-  FTL.fromDuty(Duty duty) {
+  FTL.fromDuty(Duty duty, {Duty previous}) {
+    // todo: add airport standby
+    if (previous != null && previous.nature == DUTY_NATURE.HOME_SBY) {
+      standbyStart = previous.startTime;
+      standbyType = STANDBY_TYPE.HOME;
+    } else if (previous != null && previous.nature == DUTY_NATURE.AIRP_SBY) {
+      standbyStart = previous.startTime;
+      standbyType = STANDBY_TYPE.AIRPORT;
+    }
     reporting = duty.startTime;
     if (duty.isFlight) {
       onBlocks = duty.lastFlight.endTime;
@@ -35,14 +43,30 @@ class FTL {
         TimeOfDay standbyStartTime,
         STANDBY_TYPE standbyType,
   }) {
+    // STAND BY
+    if (standbyStartTime != null) {
+      DateTime standbyStartLoc = reportingDate;
+      standbyStartLoc = standbyStartLoc.add(
+        Duration(hours: standbyStartTime.hour, minutes: standbyStartTime.minute));
+      DateTime standbyStartUtc = standbyStartLoc.subtract(reportingGMTDiff);
+      this.standbyStart = AwareDT.fromDateTimes(standbyStartLoc, standbyStartUtc);
+    }
+
+    if (standbyType != null) this.standbyType = standbyType;
+
+    // REPORTING
     DateTime reportingLoc = reportingDate;
     reportingLoc = reportingLoc.add(
         Duration(hours: reportingTime.hour, minutes: reportingTime.minute));
     DateTime reportingUtc = reportingLoc.subtract(reportingGMTDiff);
     this.reporting = AwareDT.fromDateTimes(reportingLoc, reportingUtc);
+    if (standbyStart != null && reporting < standbyStart)
+        reporting = reporting.add(Duration(hours: 24));
 
+    // NUMBER OF LANDINGS
     this.numberOfLandings = numberOfLandings;
 
+    // ON BLOCKS
     DateTime onBlocksLoc = reportingDate;
     onBlocksLoc = onBlocksLoc.add(
         Duration(hours: onBlocks?.hour, minutes: onBlocks.minute));
@@ -50,31 +74,25 @@ class FTL {
     this.onBlocks = AwareDT.fromDateTimes(onBlocksLoc, onBlocksUtc);
     if (this.reporting > this.onBlocks)
         this.onBlocks = this.onBlocks.add(Duration(hours: 24));
-    this.offDuty = this.onBlocks.add(Duration(minutes: 30));
 
-    if (isStandby) {
-      DateTime standbyStartLoc = reportingDate;
-      standbyStartLoc = standbyStartLoc.add(
-        Duration(hours: standbyStartTime.hour, minutes: standbyStartTime.minute)
-      );
-      DateTime standbyStartUtc = standbyStartLoc.subtract(reportingGMTDiff);
-      this.standbyStart = AwareDT.fromDateTimes(standbyStartLoc, standbyStartUtc);
-      if (this.reporting < this.standbyStart)
-          this.reporting.add(Duration(days: 1));
-      this.standbyType = standbyType;
-    }
+    this.offDuty = this.onBlocks.add(Duration(minutes: 30));
   }
 
   bool get isStandby => standbyStart != null;
 
-  /// returns additional duration in case of previous standby or null if none
+  /// returns additional duration in case of previous standby or Duration.zero
+  /// if none. Never returns null!
   Duration get addition {
-    Duration addition;
-    if (standbyStart != null && reporting.difference(standbyStart) > Duration(hours: 4)) {
+    Duration addition = Duration.zero;
+    if (standbyStart != null &&
+        reporting.difference(standbyStart) > Duration(hours: 4) &&
+        standbyType == STANDBY_TYPE.HOME) {
       int additionInMinutes = (reporting.difference(standbyStart) -
           Duration(hours: 4)).inMinutes;
       additionInMinutes = (additionInMinutes / 2).floor();
       addition = Duration(minutes: additionInMinutes);
+    } else if (standbyStart != null && standbyType == STANDBY_TYPE.AIRPORT) {
+      addition = reporting.difference(standbyStart);
     }
     return addition;
   }
@@ -93,7 +111,7 @@ class FTL {
 
   Rest get rest {
     if (!this.isComplete) return null;
-    if (offDuty != null) return Rest(reporting, offDuty);
+    if (reporting != null && offDuty != null) return Rest(reporting, offDuty, addition: addition);
     return Rest.fromFTLInputs(reporting, onBlocks);
   }
 
@@ -226,9 +244,10 @@ class FlightDutyPeriod extends Period {
 
 class Rest extends Period {
 
-  Rest(AwareDT dutyStart, AwareDT dutyEnd) {
+  Rest(AwareDT dutyStart, AwareDT dutyEnd, {Duration addition = Duration.zero}) {
     start = dutyEnd;
-    end = start.add(_getMinimumRestDuration(dutyEnd.difference(dutyStart)));
+    end = start.add(_getMinimumRestDuration(
+        dutyEnd.difference(dutyStart) + addition));
   }
 
   Rest.fromDuty(Duty duty) {
