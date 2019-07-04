@@ -82,19 +82,22 @@ class FTL {
 
   /// returns additional duration in case of previous standby or Duration.zero
   /// if none. Never returns null!
-  Duration get addition {
-    Duration addition = Duration.zero;
+  Duration get standbyCorrection {
+
+    int correctionInMinutes = 0;
+
     if (standbyStart != null &&
         reporting.difference(standbyStart) > Duration(hours: 4) &&
         standbyType == STANDBY_TYPE.HOME) {
-      int additionInMinutes = (reporting.difference(standbyStart) -
+      correctionInMinutes = (reporting.difference(standbyStart) -
           Duration(hours: 4)).inMinutes;
-      additionInMinutes = (additionInMinutes / 2).floor();
-      addition = Duration(minutes: additionInMinutes);
     } else if (standbyStart != null && standbyType == STANDBY_TYPE.AIRPORT) {
-      addition = reporting.difference(standbyStart);
+      correctionInMinutes = reporting.difference(standbyStart).inMinutes;
     }
-    return addition;
+
+    correctionInMinutes = (correctionInMinutes / 2).floor();
+    if (correctionInMinutes == 0) return Duration.zero;
+    return Duration(minutes: correctionInMinutes);
   }
 
   FlightDutyPeriod get flightDutyPeriod {
@@ -104,20 +107,20 @@ class FTL {
     return FlightDutyPeriod(
       reporting: this.reporting,
       onBlocks: this.onBlocks,
-      addition: this.addition,
+      correction: this.standbyCorrection,
       numberOfLandings: numberOfLandings
     );
   }
 
   Rest get rest {
     if (!this.isComplete) return null;
-    if (reporting != null && offDuty != null) return Rest(reporting, offDuty, addition: addition);
+    if (reporting != null && offDuty != null) return Rest(reporting, offDuty, addition: standbyCorrection);
     return Rest.fromFTLInputs(reporting, onBlocks);
   }
 
   DutyPeriod get dutyPeriod {
     if (!this.isComplete) return null;
-    return DutyPeriod(start: reporting, end: offDuty, addition: addition);
+    return DutyPeriod(start: reporting, end: offDuty, addition: standbyCorrection);
   }
 
   bool get isComplete {
@@ -161,12 +164,14 @@ class Period {
 class FlightDutyPeriod extends Period {
 
   int numberOfLandings;
+  Duration correction;
 
-  FlightDutyPeriod({AwareDT reporting, AwareDT onBlocks, int numberOfLandings, Duration addition}) {
+  FlightDutyPeriod({AwareDT reporting, AwareDT onBlocks, int numberOfLandings, Duration correction}) {
     this.start = reporting;
     this.end = onBlocks;
-    this.addition = addition;
+    this.addition = Duration.zero; // Particular...
     this.numberOfLandings = numberOfLandings;
+    this.correction = correction;
   }
 
   FlightDutyPeriod.fromDuty(Duty duty) {
@@ -181,7 +186,9 @@ class FlightDutyPeriod extends Period {
   AwareDT get reporting => this.start;
   AwareDT get onBlocks => this.end;
 
-  Duration get maxFlightDutyPeriodLength => this._getMaxFlightDutyLength();
+  Duration get maxFlightDutyPeriodLength {
+    return this._getMaxFlightDutyLength() - correction;
+  }
   AwareDT get maxFlightDutyPeriodEndTime =>
       this.start
           .add(this.maxFlightDutyPeriodLength)

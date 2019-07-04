@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:wyob/objects/FTL.dart';
-import 'package:wyob/utils/DateTimeUtils.dart';
+import 'package:wyob/widgets/DurationWidget.dart';
+import 'package:wyob/widgets/TimeWidgetInline.dart';
+import 'package:wyob/widgets/TimeWidgetStack.dart';
 
 class DutyPeriodWidget extends StatelessWidget {
   final FTL ftl;
@@ -22,13 +24,7 @@ class DutyPeriodWidget extends StatelessWidget {
                 'DUTY PERIOD:',
                 textScaleFactor: 1.5,
               )),
-              Center(
-                child: Text(
-                  ftl.dutyPeriod.durationString,
-                  textScaleFactor: 1.5,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
+              DurationWidget(ftl.dutyPeriod.duration)
             ],
           ),
         ),
@@ -47,12 +43,9 @@ class DutyPeriodWidget extends StatelessWidget {
                       textScaleFactor: 1.5,
                     ),
                   ),
-                  Text('from '),
-                  Text(ftl.dutyPeriod.start.localTimeString,
-                      textScaleFactor: 1.5),
-                  Text(' to '),
-                  Text(ftl.dutyPeriod.end.localTimeString,
-                      textScaleFactor: 1.5),
+                  TimeWidgetStack(ftl.dutyPeriod.start, 1.5),
+                  Icon(Icons.arrow_right),
+                  TimeWidgetStack(ftl.dutyPeriod.end, 1.5)
                 ],
               ),
             ],
@@ -83,13 +76,7 @@ class FlightDutyPeriodWidget extends StatelessWidget {
                   textScaleFactor: 1.5,
                 ),
               ),
-              Center(
-                child: Text(
-                  ftl.flightDutyPeriod.durationString,
-                  textScaleFactor: 1.5,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
+              DurationWidget(ftl.flightDutyPeriod.duration)
             ],
           ),
         ),
@@ -108,40 +95,26 @@ class FlightDutyPeriodWidget extends StatelessWidget {
                       textScaleFactor: 1.5,
                     ),
                   ),
-                  Text('from '),
-                  Text(ftl.flightDutyPeriod.start.localTimeString,
-                      textScaleFactor: 1.5),
-                  Text(' to '),
-                  Text(ftl.flightDutyPeriod.end.localTimeString,
-                      textScaleFactor: 1.5),
+                  TimeWidgetStack(ftl.flightDutyPeriod.start, 1.5),
+                  Icon(Icons.arrow_right),
+                  TimeWidgetStack(ftl.flightDutyPeriod.end, 1.5)
+                ],
+              ),
+              Divider(color: Colors.white, height: 5,),
+              Row(
+                children: <Widget>[
+                  Expanded(flex: 1, child: Text('MAX: ', textScaleFactor: 1.5,),),
+                  Expanded(flex: 3, child: DurationWidget(ftl.flightDutyPeriod.maxFlightDutyPeriodLength),),
+                  Icon(Icons.arrow_right),
+                  TimeWidgetInline(ftl.flightDutyPeriod.maxFlightDutyPeriodEndTime, 1.5,)
                 ],
               ),
               Row(
                 children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      'MAXIMUM: ' +
-                          durationToStringHM(
-                              ftl.flightDutyPeriod.maxFlightDutyPeriodLength),
-                      textScaleFactor: 1.5,
-                    ),
-                  ),
-                  Text('till: '),
-                  Text(ftl.flightDutyPeriod.maxFlightDutyPeriodEndTime.localTimeString, textScaleFactor: 1.5,)
-                ],
-              ),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      'EXTENDED: ' +
-                          durationToStringHM(
-                              ftl.flightDutyPeriod.extendedFlightDutyPeriodLength),
-                      textScaleFactor: 1.5,
-                    ),
-                  ),
-                  Text('till: '),
-                  Text(ftl.flightDutyPeriod.extendedFlightDutyPeriodEndTime.localTimeString, textScaleFactor: 1.5,)
+                  Expanded(flex: 1, child: Text('EXT: ', textScaleFactor: 1.5,),),
+                  Expanded(flex: 3, child: DurationWidget(ftl.flightDutyPeriod.extendedFlightDutyPeriodLength),),
+                  Icon(Icons.arrow_right),
+                  TimeWidgetInline(ftl.flightDutyPeriod.extendedFlightDutyPeriodEndTime, 1.5),
                 ],
               ),
             ],
@@ -172,13 +145,7 @@ class RestPeriodWidget extends StatelessWidget {
                   textScaleFactor: 1.5,
                 ),
               ),
-              Center(
-                child: Text(
-                  ftl.rest.durationString,
-                  textScaleFactor: 1.5,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
+              DurationWidget(ftl.rest.duration)
             ],
           ),
         ),
@@ -197,12 +164,9 @@ class RestPeriodWidget extends StatelessWidget {
                       textScaleFactor: 1.5,
                     ),
                   ),
-                  Text('from '),
-                  Text(ftl.rest.start.localTimeString,
-                      textScaleFactor: 1.5),
-                  Text(' to '),
-                  Text(ftl.rest.end.localTimeString,
-                      textScaleFactor: 1.5),
+                  TimeWidgetStack(ftl.rest.start, 1.5),
+                  Icon(Icons.arrow_right),
+                  TimeWidgetStack(ftl.rest.end, 1.5)
                 ],
               ),
             ],
