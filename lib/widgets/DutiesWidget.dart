@@ -88,7 +88,7 @@ class DutyWidget extends StatelessWidget {
           ReportingTimeWidget(_duty.startTime.localTimeString),
         ],
       );
-    } else if (_duty.isWorkingDuty) {
+    } else if (_duty.isWorkingDuty || _duty.isStandby) {
       return Row(
         children: <Widget>[
           _getLocalStartDayText(),
