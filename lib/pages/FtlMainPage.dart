@@ -92,8 +92,8 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
       _onBlocksTime = TimeOfDay.fromDateTime(widget._duty.lastFlight.endTime.loc);
       _onBlocksGMTDiff = widget._duty.lastFlight.endTime.gmtDiff;
     }
-
     if (widget._previous != null && widget._previous.isStandby) {
+      _isStandby = true;
       _reportingDate = widget._previous.startTime.loc;
       _standbyStartTime = TimeOfDay.fromDateTime(_reportingDate);
       _standbyType = widget._previous.nature == DUTY_NATURE.AIRP_SBY ? STANDBY_TYPE.AIRPORT : STANDBY_TYPE.HOME;
@@ -167,7 +167,7 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
           child: FtlDateWidget(dateWidgetTitle, this._reportingDate, this._setDate),
         ),
         Expanded(
-          child: StandbyToggleWidget('From StandBy?', _toggleStandby),
+          child: StandbyToggleWidget('From StandBy?', _toggleStandby, _isStandby),
         )
     ]),),);
 
