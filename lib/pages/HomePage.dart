@@ -344,7 +344,7 @@ class HomePageState extends State<HomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => FtlMainPage(null),
+                      builder: (context) => FtlMainPage(null, null),
                     )
                   );
                 },

@@ -10,8 +10,9 @@ import 'package:wyob/widgets/PeriodWidgets.dart';
 class FlightDutyScreen extends StatelessWidget {
 
   final Duty flightDuty;
+  final Duty previous;
 
-  FlightDutyScreen(this.flightDuty);
+  FlightDutyScreen(this.flightDuty, this.previous);
 
   String getTitle() {
     String returnValue = '';
@@ -62,7 +63,7 @@ class FlightDutyScreen extends StatelessWidget {
       result.add(flightWidget);
     }
 
-    FTL ftl = FTL.fromDuty(flightDuty);
+    FTL ftl = FTL.fromDuty(flightDuty, previous: previous);
 
     result.add(Divider(color: Colors.white, height: 15.0,));
     result.add(FlightDutyPeriodWidget(ftl));
@@ -93,7 +94,7 @@ class FlightDutyScreen extends StatelessWidget {
                 return Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => FtlMainPage(flightDuty)
+                    builder: (context) => FtlMainPage(flightDuty, previous)
                   )
                 );
               },

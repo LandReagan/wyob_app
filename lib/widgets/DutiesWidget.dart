@@ -8,29 +8,31 @@ import 'package:wyob/pages/FlightDutyScreen.dart';
 
 /// Widget containing the ListView of DutyWidgets, built from a List of
 /// Duties
-class DutiesWidget extends StatefulWidget {
+class DutiesWidget extends StatelessWidget {
 
   final List<Duty> duties;
 
   DutiesWidget(this.duties);
 
-  _DutiesWidgetState createState() => _DutiesWidgetState();
-}
-
-class _DutiesWidgetState extends State<DutiesWidget> {
-
   @override
   Widget build(BuildContext context) {
-
     return Expanded(
       flex: 7,
-      child: widget.duties == null ?
+      child: duties == null ?
         Container() :
         ListView.builder(
-          itemCount: widget.duties.length,
+          itemCount: duties.length,
           //itemExtent: 100.0,
           itemBuilder: (context, index) {
-            return DutyWidget(widget.duties[index]);
+            Duty current = duties[index];
+            Duty previous;
+            if (index > 0) {
+              previous = duties[index - 1];
+              if (!previous.isStandby || !previous.endTime.loc.isAtSameMomentAs(current.startTime.loc)) {
+                previous = null;
+              }
+            }
+            return DutyWidget(current, previous);
           },
       )
     );
@@ -40,8 +42,9 @@ class _DutiesWidgetState extends State<DutiesWidget> {
 class DutyWidget extends StatelessWidget {
 
   final Duty _duty;
+  final Duty _previous;
 
-  DutyWidget(this._duty);
+  DutyWidget(this._duty, this._previous);
 
   Text get sectorsText {
     if (_duty.isFlight) {
@@ -139,7 +142,7 @@ class DutyWidget extends StatelessWidget {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_context) => FlightDutyScreen(_duty),
+            builder: (_context) => FlightDutyScreen(_duty, _previous),
         ),
     );
   }

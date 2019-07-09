@@ -14,7 +14,8 @@ import 'package:wyob/widgets/StandbyTypeWidget.dart';
 class FtlMainPage extends StatefulWidget {
 
   final Duty _duty;
-  FtlMainPage(this._duty);
+  final Duty _previous;
+  FtlMainPage(this._duty, this._previous);
 
   _FtlMainPageState createState() => _FtlMainPageState();
 }
@@ -26,7 +27,7 @@ class _FtlMainPageState extends State<FtlMainPage> {
       appBar: AppBar(
         title: Text('FTL calculator'),
       ),
-      body: FtlMainWidget(widget._duty),
+      body: FtlMainWidget(widget._duty, widget._previous),
     );
   }
 }
@@ -34,8 +35,9 @@ class _FtlMainPageState extends State<FtlMainPage> {
 class FtlMainWidget extends StatefulWidget {
 
   final Duty _duty;
+  final Duty _previous;
 
-  FtlMainWidget(this._duty);
+  FtlMainWidget(this._duty, this._previous);
 
   _FtlMainWidgetState createState() => _FtlMainWidgetState();
 }
@@ -89,6 +91,12 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
       _numberOfLandings = widget._duty.flights.length;
       _onBlocksTime = TimeOfDay.fromDateTime(widget._duty.lastFlight.endTime.loc);
       _onBlocksGMTDiff = widget._duty.lastFlight.endTime.gmtDiff;
+    }
+
+    if (widget._previous != null && widget._previous.isStandby) {
+      _reportingDate = widget._previous.startTime.loc;
+      _standbyStartTime = TimeOfDay.fromDateTime(_reportingDate);
+      _standbyType = widget._previous.nature == DUTY_NATURE.AIRP_SBY ? STANDBY_TYPE.AIRPORT : STANDBY_TYPE.HOME;
     }
   }
 
