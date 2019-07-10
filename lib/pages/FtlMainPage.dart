@@ -96,6 +96,7 @@ class _FtlMainWidgetState extends State<FtlMainWidget> {
       _isStandby = true;
       _reportingDate = widget._previous.startTime.loc;
       _standbyStartTime = TimeOfDay.fromDateTime(_reportingDate);
+      _reportingDate = DateTime(_reportingDate.year, _reportingDate.month, _reportingDate.day);
       _standbyType = widget._previous.nature == DUTY_NATURE.AIRP_SBY ? STANDBY_TYPE.AIRPORT : STANDBY_TYPE.HOME;
     }
   }

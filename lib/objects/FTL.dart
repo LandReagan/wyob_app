@@ -76,6 +76,8 @@ class FTL {
         this.onBlocks = this.onBlocks.add(Duration(hours: 24));
 
     this.offDuty = this.onBlocks.add(Duration(minutes: 30));
+
+    print(toString());
   }
 
   bool get isStandby => standbyStart != null;
@@ -131,8 +133,10 @@ class FTL {
 
   String toString() {
     if (!this.isComplete) return 'INVALID FTL OBJECT';
-    return '|FTL data|\n==>' + flightDutyPeriod.toString() +
-      '\n==>' + rest.toString();
+    return '|FTL data|\n==>' +
+      'REPORTING: ' + reporting.toString() + '\n' +
+      'STANDBY: ' + standbyStart.toString() + '\n' +
+      'TYPE: ' + standbyType.toString();
   }
 }
 

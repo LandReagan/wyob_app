@@ -31,7 +31,7 @@ class HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     this._initialization();
-    Timer.periodic(Duration(seconds: 1), resetPage);
+    Timer.periodic(Duration(seconds: 30), resetPage);
   }
 
   void _initialization() async {
