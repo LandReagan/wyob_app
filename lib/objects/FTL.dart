@@ -76,8 +76,6 @@ class FTL {
         this.onBlocks = this.onBlocks.add(Duration(hours: 24));
 
     this.offDuty = this.onBlocks.add(Duration(minutes: 30));
-
-    print(toString());
   }
 
   bool get isStandby => standbyStart != null;

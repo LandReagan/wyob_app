@@ -175,7 +175,7 @@ class LocalDatabase {
       }
 
       // set duties
-      setDuties(duties);
+      if (duties.isNotEmpty) setDuties(duties);
 
       from = from.add(Duration(days: INTERVAL_DAYS));
     }
@@ -203,6 +203,7 @@ class LocalDatabase {
     // NEW LOGIC: Delete all duties falling in the date interval, from midnight
     // to midnight.
     newDuties.sort((duty1, duty2) => duty1.startTime.utc.compareTo(duty2.startTime.utc));
+    print(newDuties);
     DateTime start = DateTime(
         newDuties.first.startTime.loc.year,
         newDuties.first.startTime.loc.month,
