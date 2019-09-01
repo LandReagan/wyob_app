@@ -31,7 +31,6 @@ class HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     this._initialization();
-    Timer.periodic(Duration(seconds: 30), resetPage);
   }
 
   void _initialization() async {
@@ -97,20 +96,10 @@ class HomePageState extends State<HomePage> {
       int hours = sinceLastUpdate.inHours;
       sinceLastUpdate -= Duration(hours: sinceLastUpdate.inHours);
       int minutes = sinceLastUpdate.inMinutes;
-      return "LAST UPDATE: " +
-          _lastUpdate.toString().substring(0, 16) +
-          '\n' +
-          hours.toString() +
-          ' hours and ' +
-          minutes.toString() +
-          ' minutes ago';
+      return "LAST UPDATE: " + _lastUpdate.toString().substring(0, 16);
     } else {
       return "---";
     }
-  }
-
-  void resetPage(Timer timer) {
-    setState(() {});
   }
 
   Widget _getUpdateWidget() {

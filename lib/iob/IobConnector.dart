@@ -278,7 +278,9 @@ class IobConnector {
   void changeStatus(CONNECTOR_STATUS newStatus) {
     if (newStatus != null) {
       this.status = newStatus;
-      if (onStatusChanged != null) onStatusChanged.value = newStatus;
+      if (onStatusChanged != null) {
+        onStatusChanged.value = newStatus;
+      }
     }
     print(newStatus);
   }
