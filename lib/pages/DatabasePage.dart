@@ -16,21 +16,13 @@ class DatabasePage extends StatefulWidget {
 
 class _DatabasePageState extends State<DatabasePage> {
 
-  bool _updating = false;
-
   void _processData(Map<String, dynamic> data) async {
-    setState(() {
-      this._updating = true;
-    });
     try {
       await widget.database.updateFromGantt(
           fromParameter: data['from'], toParameter: data['to']);
-    } on WyobException { // We are probably Offline or IOB is down
-
+    } on WyobException {
+      // We are probably Offline or IOB is down. Shall we do something?
     }
-    setState(() {
-      this._updating = false;
-    });
   }
 
   Widget build(BuildContext context) {
@@ -61,7 +53,7 @@ class _DatabasePageState extends State<DatabasePage> {
         ],
       ),
       body: DatabaseByMonthWidget(widget.database),
-      bottomNavigationBar: this._updating ? IobStateWidget(widget.database.connector) : null,
+      bottomNavigationBar: IobStateWidget(widget.database.connector),
     );
   }
 }

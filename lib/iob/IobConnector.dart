@@ -65,6 +65,7 @@ class IobConnector {
   http.Client client;
   CONNECTOR_STATUS status;
   ValueNotifier<CONNECTOR_STATUS> onStatusChanged;
+  ValueNotifier<int> onNumberOfDutiesChanged;
 
   Map<String, String> crewSelectForm = {
     "org.apache.struts.taglib.html.TOKEN": "", // <= set token here
@@ -206,8 +207,6 @@ class IobConnector {
       await this.init();
     }
 
-    this.changeStatus(CONNECTOR_STATUS.CONNECTED);
-
     if (this.personId == null) {
       await this.getGanttMainTable();
     }
@@ -241,7 +240,8 @@ class IobConnector {
     return response.body;
   }
 
-  Future<String> getGanttDutyTripLocal(String personId, String persAllocId) {
+  Future<String> getGanttDutyTripLocal(int i, String personId, String persAllocId) {
+    this.onNumberOfDutiesChanged.value = i;
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Trip);
   }
 
@@ -249,7 +249,8 @@ class IobConnector {
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Utc, DUTY_TYPE.Trip);
   }
 
-  Future<String> getGanttDutyAcyLocal(String personId, String persAllocId) {
+  Future<String> getGanttDutyAcyLocal(int i, String personId, String persAllocId) {
+    this.onNumberOfDutiesChanged.value = i;
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Acy);
   }
 

@@ -65,8 +65,8 @@ void main() {
     for (var reference in references) {
       String rotationStringLocal =
         reference['type'] == 'Trip' ?
-          await connector.getGanttDutyTripLocal(reference['personId'], reference['persAllocId']) :
-          await connector.getGanttDutyAcyLocal(reference['personId'], reference['persAllocId']);
+          await connector.getGanttDutyTripLocal(1, reference['personId'], reference['persAllocId']) :
+          await connector.getGanttDutyAcyLocal(1, reference['personId'], reference['persAllocId']);
 
       String rotationStringUtc =
         reference['type'] == 'Trip' ?

@@ -25,7 +25,7 @@ class HomePageState extends State<HomePage> {
   List<Duty> _duties = [];
   DateTime _lastUpdate;
 
-  bool updating = false;
+  //bool updating = false;
   CONNECTOR_STATUS _connectorStatus = CONNECTOR_STATUS.OFF;
 
   void initState() {
@@ -38,12 +38,12 @@ class HomePageState extends State<HomePage> {
       await widget.database.connect();
       widget.database.connector.onStatusChanged
           .addListener(_handleConnectorStatusChange);
+      readDutiesFromDatabase();
+      await updateFromIob();
     } on WyobExceptionCredentials {
       showDialog(context: context, builder: (context) => LoginPopUp(context));
-      return;
+      this._initialization();
     }
-    readDutiesFromDatabase();
-    await updateFromIob();
   }
 
   @override
@@ -69,9 +69,6 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> updateFromIob() async {
-    setState(() {
-      updating = true;
-    });
 
     try {
       await widget.database.updateFromGantt();
@@ -85,20 +82,14 @@ class HomePageState extends State<HomePage> {
 
     readDutiesFromDatabase();
 
-    setState(() {
-      updating = false;
-    });
+    setState(() {});
   }
 
   String _getSinceLastUpdateMessage() {
     if (_lastUpdate != null) {
-      Duration sinceLastUpdate = DateTime.now().difference(_lastUpdate);
-      int hours = sinceLastUpdate.inHours;
-      sinceLastUpdate -= Duration(hours: sinceLastUpdate.inHours);
-      int minutes = sinceLastUpdate.inMinutes;
       return "LAST UPDATE: " + _lastUpdate.toString().substring(0, 16);
     } else {
-      return "---";
+      return "PLEASE UPDATE!";
     }
   }
 

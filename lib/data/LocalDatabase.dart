@@ -130,13 +130,14 @@ class LocalDatabase {
       List<Map<String, dynamic>> references = parseGanttMainTable(referencesString);
 
       List<Duty> duties = [];
-      for (var reference in references) {
+      for (int i = 0; i < references.length; i++) {
+        var reference = references[i];
         String rotationStringLocal =
         reference['type'] == 'Trip' ?
         await connector.getGanttDutyTripLocal(
-            reference['personId'], reference['persAllocId']) :
+            i, reference['personId'], reference['persAllocId']) :
         await connector.getGanttDutyAcyLocal(
-            reference['personId'], reference['persAllocId']);
+            i, reference['personId'], reference['persAllocId']);
 
         String rotationStringUtc =
         reference['type'] == 'Trip' ?
