@@ -108,6 +108,7 @@ class IobConnector {
 
   IobConnector(this.username, this.password) : status = CONNECTOR_STATUS.OFF {
     onStatusChanged = ValueNotifier<CONNECTOR_STATUS>(status);
+    onNumberOfDutiesChanged = ValueNotifier<int>(0);
   }
   
   /// Used for initial connection, set token and cookie for the session.
