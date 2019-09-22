@@ -14,6 +14,7 @@ class IobStateWidget extends StatefulWidget {
 class _IobStateWidgetState extends State<IobStateWidget> {
 
   CONNECTOR_STATUS _connectorStatus = CONNECTOR_STATUS.OFF;
+  int dutyNumber = 0;
   LocalDatabase database;
 
   @override

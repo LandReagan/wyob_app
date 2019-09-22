@@ -4,6 +4,7 @@ import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Flight.dart';
 import 'package:wyob/objects/FTL.dart';
 import 'package:wyob/pages/FtlMainPage.dart';
+import 'package:wyob/widgets/DurationWidget.dart';
 import 'package:wyob/widgets/PeriodWidgets.dart';
 
 
@@ -217,6 +218,17 @@ class FlightDutyWidget extends StatelessWidget {
               ],
             ),
           ),
+
+          // Fourth column with block time
+          Column(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(5.0),
+                child: Text("BLOCK:"),
+              ),
+              DurationWidget(_flight.duration)
+            ],
+          )
         ],
       ),
     );

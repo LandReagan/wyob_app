@@ -16,7 +16,7 @@ class Flight {
 
   Duration get duration => endTime.difference(startTime);
   String get durationString {
-    return durationToStringHM(duration);
+    return durationToString(duration);
   }
 
   Flight.fromMap(Map<String, dynamic> mapObject) {

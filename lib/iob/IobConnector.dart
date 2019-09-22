@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart' as http_io;
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/iob/IobDutyFactory.dart';
 
@@ -117,7 +120,7 @@ class IobConnector {
   Future<String> init() async {
     print("Connecting to IOB...");
     this.changeStatus(CONNECTOR_STATUS.CONNECTING);
-    client = new http.Client();
+    client = this.getBadClient();
     http.Response iobResponse;
 
     if (username == '' || password == '' || username == null ||
@@ -129,6 +132,7 @@ class IobConnector {
     try {
       iobResponse = await client.get(landingUrl);
     } on Exception catch (e) {
+      print(e);
       this.changeStatus(CONNECTOR_STATUS.OFFLINE);
       throw WyobExceptionOffline(
           'OFFLINE mode. For info, error: ' + e.toString());
@@ -243,6 +247,7 @@ class IobConnector {
 
   Future<String> getGanttDutyTripLocal(int i, String personId, String persAllocId) {
     this.onNumberOfDutiesChanged.value = i;
+    print("Duty: " + i.toString());
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Trip);
   }
 
@@ -252,6 +257,7 @@ class IobConnector {
 
   Future<String> getGanttDutyAcyLocal(int i, String personId, String persAllocId) {
     this.onNumberOfDutiesChanged.value = i;
+    print("Duty: " + i.toString());
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Acy);
   }
 
@@ -285,5 +291,15 @@ class IobConnector {
       }
     }
     print(newStatus);
+  }
+
+  bool _certificateCheck(X509Certificate cert, String host, int port) =>
+    host == 'fltops.omanair.com';
+
+  // Bad certificate client
+  http.Client getBadClient() {
+    var ioClient = new HttpClient()
+        ..badCertificateCallback = _certificateCheck;
+    return new http_io.IOClient(ioClient);
   }
 }

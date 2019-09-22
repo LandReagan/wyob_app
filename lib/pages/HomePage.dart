@@ -41,8 +41,7 @@ class HomePageState extends State<HomePage> {
       readDutiesFromDatabase();
       await updateFromIob();
     } on WyobExceptionCredentials {
-      showDialog(context: context, builder: (context) => LoginPopUp(context));
-      this._initialization();
+      await showDialog(context: context, builder: (context) => LoginPopUp(context));
     }
   }
 
