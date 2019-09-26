@@ -5,8 +5,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart' as http_io;
+
 import 'package:wyob/WyobException.dart';
+import 'package:wyob/iob/IobConnectorData.dart' as prefix0;
 import 'package:wyob/iob/IobDutyFactory.dart';
+import 'package:wyob/iob/IobConnectorData.dart';
 
 
 /// URLs
@@ -44,18 +47,6 @@ enum DUTY_TYPE {
   Acy
 }
 
-enum CONNECTOR_STATUS {
-  OFF,
-  CONNECTING,
-  OFFLINE,
-  LOGIN_FAILED,
-  CONNECTED,
-  AUTHENTIFIED,
-  FETCHING_GANTT_TABLE,
-  FETCHING_DUTIES,
-  ERROR,
-}
-
 class IobConnector {
 
   String username;
@@ -67,8 +58,7 @@ class IobConnector {
   String personId;
   http.Client client;
   CONNECTOR_STATUS status;
-  ValueNotifier<CONNECTOR_STATUS> onStatusChanged;
-  ValueNotifier<int> onNumberOfDutiesChanged;
+  ValueNotifier<IobConnectorData> onDataChange;
 
   Map<String, String> crewSelectForm = {
     "org.apache.struts.taglib.html.TOKEN": "", // <= set token here
@@ -110,8 +100,7 @@ class IobConnector {
   List<String> acknowledgeDutyIds = [];
 
   IobConnector(this.username, this.password) : status = CONNECTOR_STATUS.OFF {
-    onStatusChanged = ValueNotifier<CONNECTOR_STATUS>(status);
-    onNumberOfDutiesChanged = ValueNotifier<int>(0);
+    onDataChange = ValueNotifier<IobConnectorData>(IobConnectorData(CONNECTOR_STATUS.OFF))
   }
   
   /// Used for initial connection, set token and cookie for the session.
@@ -286,8 +275,8 @@ class IobConnector {
   void changeStatus(CONNECTOR_STATUS newStatus) {
     if (newStatus != null) {
       this.status = newStatus;
-      if (onStatusChanged != null) {
-        onStatusChanged.value = newStatus;
+      if (onDataChange != null) {
+        onDataChange.value.status = newStatus;
       }
     }
     print(newStatus);
