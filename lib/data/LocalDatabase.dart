@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/iob/IobConnector.dart';
+import 'package:wyob/iob/IobConnectorData.dart';
 import 'package:wyob/objects/MonthlyAggregation.dart';
 import 'package:wyob/objects/Statistics.dart';
 import 'package:wyob/utils/Parsers.dart';
@@ -135,9 +136,9 @@ class LocalDatabase {
         String rotationStringLocal =
         reference['type'] == 'Trip' ?
         await connector.getGanttDutyTripLocal(
-            i, reference['personId'], reference['persAllocId']) :
+            i, references.length, reference['personId'], reference['persAllocId']) :
         await connector.getGanttDutyAcyLocal(
-            i, reference['personId'], reference['persAllocId']);
+            i, references.length, reference['personId'], reference['persAllocId']);
 
         String rotationStringUtc =
         reference['type'] == 'Trip' ?

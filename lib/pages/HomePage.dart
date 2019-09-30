@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
-import 'package:wyob/iob/IobConnector.dart';
 
 import 'package:wyob/pages/DatabasePage.dart';
 import 'package:wyob/pages/FtlMainPage.dart';
 
 // Widgets
 import 'package:wyob/widgets/DutiesWidget.dart';
+import 'package:wyob/widgets/IobStateWidget.dart';
 import 'package:wyob/widgets/LoginPopUp.dart';
 
 // Objects
@@ -25,9 +25,6 @@ class HomePageState extends State<HomePage> {
   List<Duty> _duties = [];
   DateTime _lastUpdate;
 
-  //bool updating = false;
-  CONNECTOR_STATUS _connectorStatus = CONNECTOR_STATUS.OFF;
-
   void initState() {
     super.initState();
     this._initialization();
@@ -36,8 +33,6 @@ class HomePageState extends State<HomePage> {
   void _initialization() async {
     try {
       await widget.database.connect();
-      widget.database.connector.onStatusChanged
-          .addListener(_handleConnectorStatusChange);
       readDutiesFromDatabase();
       await updateFromIob();
     } on WyobExceptionCredentials {
@@ -47,15 +42,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    widget.database.connector.onStatusChanged
-        .removeListener(this._handleConnectorStatusChange);
     super.dispose();
-  }
-
-  void _handleConnectorStatusChange() {
-    setState(() {
-      this._connectorStatus = widget.database.connector.status;
-    });
   }
 
   void readDutiesFromDatabase() {
@@ -89,188 +76,6 @@ class HomePageState extends State<HomePage> {
       return "LAST UPDATE: " + _lastUpdate.toString().substring(0, 16);
     } else {
       return "PLEASE UPDATE!";
-    }
-  }
-
-  Widget _getUpdateWidget() {
-    switch (_connectorStatus) {
-      case CONNECTOR_STATUS.OFF:
-        return Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                _getSinceLastUpdateMessage(),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            FlatButton(
-              child: Text('UPDATE'),
-              onPressed: updateFromIob,
-            ),
-          ],
-        );
-        break;
-
-      case CONNECTOR_STATUS.CONNECTING:
-        return Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                'CONNECTING',
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(5.0),
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-              ),
-            )
-          ],
-        );
-        break;
-
-      case CONNECTOR_STATUS.CONNECTED:
-        return Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                'CONNECTED',
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Container(
-              child: Text(' \n'),
-              padding: EdgeInsets.all(5.0),
-            )
-          ],
-        );
-        break;
-
-      case CONNECTOR_STATUS.AUTHENTIFIED:
-        return Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                'AUTHENTIFIED',
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Container(
-              child: Text(' \n'),
-              padding: EdgeInsets.all(5.0),
-            )
-          ],
-        );
-        break;
-
-      case CONNECTOR_STATUS.FETCHING_GANTT_TABLE:
-        return Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                'FETCHING GANTT TABLE',
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(5.0),
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-              ),
-            )
-          ],
-        );
-        break;
-
-      case CONNECTOR_STATUS.FETCHING_DUTIES:
-        return Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                'FETCHING GANTT DUTIES',
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(5.0),
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-              ),
-            )
-          ],
-        );
-        break;
-
-      case CONNECTOR_STATUS.OFFLINE:
-        return Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                _getSinceLastUpdateMessage(),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            FlatButton(
-              child: Text('UPDATE'),
-              onPressed: updateFromIob,
-            ),
-          ],
-        );
-        break;
-
-      case CONNECTOR_STATUS.LOGIN_FAILED:
-        return Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                'LOGIN TO IOB FAILED!',
-                textAlign: TextAlign.center,
-              ),
-            ),
-            FlatButton(
-                child: Text('LOGIN'),
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (context) => LoginPopUp(context));
-                }),
-          ],
-        );
-        break;
-
-      case CONNECTOR_STATUS.ERROR:
-        return Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                'ERROR!',
-                textAlign: TextAlign.center,
-              ),
-            ),
-            FlatButton(
-              child: Text('RETRY'),
-              onPressed: updateFromIob,
-            ),
-          ],
-        );
-        break;
-
-      default:
-        return Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                _getSinceLastUpdateMessage(),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            FlatButton(
-              child: Text('UPDATE'),
-              onPressed: updateFromIob,
-            ),
-          ],
-        );
     }
   }
 
@@ -337,7 +142,7 @@ class HomePageState extends State<HomePage> {
         body: HomeWidget(_duties),
         bottomNavigationBar: BottomAppBar(
           color: Colors.orange,
-          child: _getUpdateWidget(),
+          child: IobStateWidget(widget.database.connector),
         ),
       ),
     );

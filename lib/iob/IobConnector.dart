@@ -100,7 +100,7 @@ class IobConnector {
   List<String> acknowledgeDutyIds = [];
 
   IobConnector(this.username, this.password) : status = CONNECTOR_STATUS.OFF {
-    onDataChange = ValueNotifier<IobConnectorData>(IobConnectorData(CONNECTOR_STATUS.OFF))
+    onDataChange = ValueNotifier<IobConnectorData>(IobConnectorData(CONNECTOR_STATUS.OFF));
   }
   
   /// Used for initial connection, set token and cookie for the session.
@@ -223,8 +223,6 @@ class IobConnector {
       "&todtm=" + todtm +
       "&command=Go";
 
-    this.changeStatus(CONNECTOR_STATUS.FETCHING_DUTIES);
-
     http.Response response = await client.get(
         url, headers: {"Cookie": cookie + ";" + bigCookie});
 
@@ -234,9 +232,17 @@ class IobConnector {
     return response.body;
   }
 
-  Future<String> getGanttDutyTripLocal(int i, String personId, String persAllocId) {
-    this.onNumberOfDutiesChanged.value = i;
-    print("Duty: " + i.toString());
+  Future<String> getGanttDutyTripLocal(
+      int dutyIndex,
+      int dutyTotalNumber,
+      String personId,
+      String persAllocId) {
+
+    this.onDataChange.value = IobConnectorData(
+        CONNECTOR_STATUS.FETCHING_DUTY, dutyIndex, dutyTotalNumber);
+
+    print("Duty: " + dutyIndex.toString() + dutyTotalNumber.toString());
+
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Trip);
   }
 
@@ -244,9 +250,17 @@ class IobConnector {
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Utc, DUTY_TYPE.Trip);
   }
 
-  Future<String> getGanttDutyAcyLocal(int i, String personId, String persAllocId) {
-    this.onNumberOfDutiesChanged.value = i;
-    print("Duty: " + i.toString());
+  Future<String> getGanttDutyAcyLocal(
+      int dutyIndex,
+      int dutyTotalNumber,
+      String personId,
+      String persAllocId) {
+
+    this.onDataChange.value = IobConnectorData(
+        CONNECTOR_STATUS.FETCHING_DUTY, dutyIndex, dutyTotalNumber);
+
+    print("Duty: " + dutyIndex.toString() + dutyTotalNumber.toString());
+
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Acy);
   }
 
@@ -256,9 +270,6 @@ class IobConnector {
 
   Future<String> _getGanttDuty(String personId, String persAllocId,
       TIME_ZONE tz, DUTY_TYPE dt) async {
-
-    if (this.status != CONNECTOR_STATUS.FETCHING_DUTIES)
-      this.changeStatus(CONNECTOR_STATUS.FETCHING_DUTIES);
 
     String url = (dt == DUTY_TYPE.Trip ? ganttDutyTripUrl : ganttDutyAcyUrl)
         .replaceAll("REPLACEPERSONID", personId)
