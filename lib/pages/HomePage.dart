@@ -142,7 +142,7 @@ class HomePageState extends State<HomePage> {
         body: HomeWidget(_duties),
         bottomNavigationBar: BottomAppBar(
           color: Colors.orange,
-          child: IobStateWidget(widget.database.connector),
+          child: IobStateWidget(widget.database),
         ),
       ),
     );

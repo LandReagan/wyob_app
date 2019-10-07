@@ -135,6 +135,18 @@ class Duty {
 
   String get id => nature.toString() + '_' + startTime.localDayString;
 
+  DateTime get startDayMuscatTime {
+    DateTime time = startTime.utc.add(Duration(hours: 4));
+    time = DateTime(time.year, time.month, time.day);
+    return time;
+  }
+
+  DateTime get endDayMuscatTime {
+    DateTime time = endTime.utc.add(Duration(hours: 4));
+    time = DateTime(time.year, time.month, time.day);
+    return time;
+  }
+
   Duration get duration {
     if (endTime == null || startTime == null) { return new Duration(); }
     return endTime.difference(startTime);

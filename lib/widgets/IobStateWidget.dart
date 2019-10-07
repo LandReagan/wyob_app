@@ -1,12 +1,14 @@
+import 'package:async/async.dart';
+
 import 'package:flutter/material.dart';
-import 'package:wyob/iob/IobConnector.dart';
+import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/iob/IobConnectorData.dart';
 
 class IobStateWidget extends StatefulWidget {
 
-  final IobConnector connector;
+  final LocalDatabase database;
 
-  IobStateWidget(this.connector);
+  IobStateWidget(this.database);
 
   _IobStateWidgetState createState() => _IobStateWidgetState();
 }
@@ -18,7 +20,7 @@ class _IobStateWidgetState extends State<IobStateWidget> {
   @override
   void initState() {
     super.initState();
-    onConnectorData = widget.connector.onDataChange;
+    onConnectorData = widget.database.connector.onDataChange;
   }
 
   FlatButton getButton() {
@@ -38,11 +40,18 @@ class _IobStateWidgetState extends State<IobStateWidget> {
     if (updateButtonStates.contains(onConnectorData.value.status)) {
       return FlatButton(
         child: Text("UPDATE"),
-        onPressed: () => null,
+        onPressed: () {
+          widget.database.updateFromGantt();
+        },
       );
     } else if (stopButtonStates.contains(onConnectorData.value.status)) {
       return FlatButton(
         child: Text("STOP"),
+        onPressed: () => null,
+      );
+    } else {
+      return FlatButton(
+        child: Text("?!?"),
         onPressed: () => null,
       );
     }

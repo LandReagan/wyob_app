@@ -2,18 +2,18 @@ import 'package:wyob/objects/Duty.dart';
 
 class Statistics {
 
-  final Duty _duty;
+  final DateTime _day;
 
-  Statistics(this._duty);
+  Duration sevenDaysDutyAccumulation = Duration.zero;
+  Duration twentyEightDaysDutyAccumulation = Duration.zero;
+  Duration oneYearDutyDaysAccumulation = Duration.zero;
 
-  String get dutyID => _duty.id;
+  Duration twentyEightDaysBlockAccumulation = Duration.zero;
+  Duration oneYearBlockAccumulation = Duration.zero;
 
-  Duration sevenDaysDutyAccumulation;
-  Duration twentyEightDaysDutyAccumulation;
-  Duration oneYearDutyDaysAccumulation;
+  Statistics(this._day);
 
-  Duration twentyEightDaysBlockAccumulation;
-  Duration oneYearBlockAccumulation;
+  DateTime get day => _day;
 
   // Setters from LocalDatabase.buildStatistics method
 

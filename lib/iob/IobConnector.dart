@@ -198,11 +198,15 @@ class IobConnector {
   Future<String> getFromToGanttDuties(DateTime from, DateTime to) async {
 
     if (this.cookie == null || this.bigCookie == null) {
-      await this.init();
+      await init();
+    } else {
+      changeStatus(CONNECTOR_STATUS.CONNECTED);
     }
 
     if (this.personId == null) {
-      await this.getGanttMainTable();
+      await getGanttMainTable();
+    } else {
+      changeStatus(CONNECTOR_STATUS.FETCHING_GANTT_TABLE);
     }
 
     String today = DateFormat('dMMMy').format(DateTime.now());
@@ -241,7 +245,7 @@ class IobConnector {
     this.onDataChange.value = IobConnectorData(
         CONNECTOR_STATUS.FETCHING_DUTY, dutyIndex, dutyTotalNumber);
 
-    print("Duty: " + dutyIndex.toString() + dutyTotalNumber.toString());
+    print("Duty: " + dutyIndex.toString() + "/" + dutyTotalNumber.toString());
 
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Trip);
   }
@@ -259,7 +263,7 @@ class IobConnector {
     this.onDataChange.value = IobConnectorData(
         CONNECTOR_STATUS.FETCHING_DUTY, dutyIndex, dutyTotalNumber);
 
-    print("Duty: " + dutyIndex.toString() + dutyTotalNumber.toString());
+    print("Duty: " + dutyIndex.toString() + "/" + dutyTotalNumber.toString());
 
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Acy);
   }

@@ -53,7 +53,7 @@ class _DatabasePageState extends State<DatabasePage> {
         ],
       ),
       body: DatabaseByMonthWidget(widget.database),
-      bottomNavigationBar: IobStateWidget(widget.database.connector),
+      bottomNavigationBar: IobStateWidget(widget.database),
     );
   }
 }

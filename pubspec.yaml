@@ -9,6 +9,8 @@ dependencies:
 
   # cloud_firestore: ^0.8.2+3
 
+  async: ^2.2.0
+
   intl: ^0.15.8
 
   http: ^0.12.0

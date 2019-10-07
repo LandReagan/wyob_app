@@ -1,8 +1,10 @@
-import 'dart:io' show File;
 import 'dart:convert' show json;
 import 'dart:io';
 
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:async/async.dart';
+
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/iob/IobConnector.dart';
 import 'package:wyob/iob/IobConnectorData.dart';
@@ -26,6 +28,8 @@ class LocalDatabase {
   DateTime earliestDutyDate;
 
   IobConnector _connector;
+
+  CancelableOperation updateOperation;
   
   static const String DEFAULT_FILE_NAME = 'database.json';
 
@@ -210,9 +214,9 @@ class LocalDatabase {
         newDuties.first.startTime.loc.month,
         newDuties.first.startTime.loc.day);
     DateTime end = DateTime(
-        newDuties.last.startTime.loc.year,
-        newDuties.last.startTime.loc.month,
-        newDuties.last.startTime.loc.day);
+        newDuties.last.endTime.loc.year,
+        newDuties.last.endTime.loc.month,
+        newDuties.last.endTime.loc.day);
 
     allDuties.removeWhere((duty) {
       return duty.endTime.loc.isAfter(start) && duty.startTime.loc.isBefore(end);
@@ -262,7 +266,7 @@ class LocalDatabase {
       result.add(
         {
           'duty': duty,
-          'stat': statistics.firstWhere((stat) => stat.dutyID == duty.id),
+          'stat': statistics.firstWhere((stat) => stat.day == duty.endDayMuscatTime),
         }
       );
     });
@@ -293,6 +297,36 @@ class LocalDatabase {
   List<Statistics> buildStatistics() {
     var result = <Statistics>[];
     List<Duty> duties = getDutiesAll();
+
+    // Time frame, Base time
+    Duty firstDuty = duties.first;
+    Duty lastDuty = duties.last;
+    DateTime firstDay = DateTime(
+        firstDuty.startTime.loc.year,
+        firstDuty.startTime.loc.month,
+        firstDuty.startTime.loc.day);
+    DateTime lastDay = DateTime( // assuming a duty end at Base!
+        lastDuty.endTime.loc.year,
+        lastDuty.endTime.loc.month,
+        lastDuty.endTime.loc.day);
+
+    // Create a Statistics object for each day.
+    DateTime day = firstDay;
+    result.add(Statistics(day));
+    do {
+      day = day.add(Duration(days: 1));
+      result.add(Statistics(day));
+    } while (!day.isAtSameMomentAs(lastDay));
+
+    for (Duty duty in duties) {
+      if (duty.startDayMuscatTime.isAtSameMomentAs(duty.endDayMuscatTime)) {
+        
+      } else {
+
+      }
+    }
+
+    /*
     for (int i = 0; i < duties.length; i++) { // for all duties...
       Duty duty = duties[i];
       Statistics stat = Statistics(duty);
@@ -346,6 +380,7 @@ class LocalDatabase {
       }
       result.add(stat);
     }
+     */
     return result;
   }
 
