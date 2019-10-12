@@ -23,6 +23,8 @@ class LocalDatabase {
   bool _ready = true;
   String _fileName = DEFAULT_FILE_NAME;
 
+  List<Statistics> _statistics;
+
   DateTime earliestDutyDate;
 
   IobConnector _connector;
@@ -58,6 +60,12 @@ class LocalDatabase {
 
   IobConnector get connector {
     return _connector;
+  }
+
+  List<Statistics> get statistics {
+    if (_statistics != null) return _statistics;
+    _statistics = buildStatistics();
+    return _statistics;
   }
 
   Future<void> connect() async {
@@ -185,7 +193,7 @@ class LocalDatabase {
   /// It set a batch of new or updated duties in the database by overwriting
   /// existing duties using times: any overlapping duty will be erased by the
   /// new one. The list of duties is then sorted on ascending start time...
-  void setDuties(List<Duty> newDuties) {
+  Future<void> setDuties(List<Duty> newDuties) async {
     List<Duty> allDuties = getDutiesAll();
     /* OLD LOGIC, NOT CONVENIENT!
     newDuties.forEach((newDuty) {
@@ -222,7 +230,8 @@ class LocalDatabase {
         allDuties.map((duty) => duty.toMap()).toList();
 
     _root['duties'] = newRawDuties;
-    _writeLocalData();
+    await _writeLocalData();
+    _statistics = buildStatistics();
   }
 
   List<Duty> getDutiesAll() {
