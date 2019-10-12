@@ -259,8 +259,8 @@ class LocalDatabase {
     duties.forEach((duty) {
       result.add({
         'duty': duty,
-        'stat':
-            statistics.firstWhere((stat) => stat.day == duty.dutyEndingDayMuscatTime),
+        'stat': statistics
+            .firstWhere((stat) => stat.day == duty.dutyEndingDayMuscatTime),
       });
     });
     return result;
@@ -291,21 +291,48 @@ class LocalDatabase {
     var statistics = <Statistics>[];
     List<Duty> duties = getDutiesAll();
 
-    // Time frame, Base time
-    Duty firstDuty = duties.first;
-    Duty lastDuty = duties.last;
-    DateTime firstDay = firstDuty.dutyStartingDayMuscatTime;
-    DateTime lastDay = lastDuty.dutyEndingDayMuscatTime;
-
-    // Create a Statistics object for each day.
+    // Build all Statistics objects
+    DateTime firstDay = duties.first.statistics.first['day'];
+    DateTime lastDay = duties.last.statistics.last['day'];
     for (var day = firstDay;
-         !day.isAtSameMomentAs(lastDay.add(Duration(days: 1)));
-         day = day.add(Duration(days: 1))) {
+        day != lastDay.add(Duration(days: 1));
+        day = day.add(Duration(days: 1))) {
       statistics.add(Statistics(day));
     }
 
-    for (Duty duty in duties) {
+    // Add accumulated values to each impacted day
+    int length = statistics.length;
+    for (var duty in duties) {
+      for (var data in duty.statistics) {
+        int startIndex = statistics.indexWhere((stat) {
+          return stat.day == data['day'];
+        });
 
+        // 7 days duty
+        for (int index = startIndex; index < length && index < startIndex + 7; index++) {
+          statistics[index].sevenDaysDutyAccumulation += data['duty'];
+        }
+
+        // 28 days duty
+        for (int index = startIndex; index < length && index < startIndex + 28; index++) {
+          statistics[index].sevenDaysDutyAccumulation += data['duty'];
+        }
+
+        // 365 days duty
+        for (int index = startIndex; index < length && index < startIndex + 365; index++) {
+          statistics[index].sevenDaysDutyAccumulation += data['duty'];
+        }
+
+        // 28 days block
+        for (int index = startIndex; index < length && index < startIndex + 28; index++) {
+          statistics[index].sevenDaysDutyAccumulation += data['block'];
+        }
+
+        // 365 days block
+        for (int index = startIndex; index < length && index < startIndex + 365; index++) {
+          statistics[index].sevenDaysDutyAccumulation += data['block'];
+        }
+      }
     }
 
     return statistics;
