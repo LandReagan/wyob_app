@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
+import 'package:wyob/objects/Statistics.dart';
 
 import 'package:wyob/pages/DatabasePage.dart';
 import 'package:wyob/pages/FtlMainPage.dart';
@@ -23,6 +24,7 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   List<Duty> _duties = [];
+  List<Statistics> _statistics = [];
   DateTime _lastUpdate;
 
   void initState() {
@@ -51,6 +53,7 @@ class HomePageState extends State<HomePage> {
           DateTime.now().subtract(Duration(days: 3)),
           DateTime.now().add(Duration(days: 40)));
       _lastUpdate = widget.database.updateTimeLoc;
+      _statistics = widget.database.statistics;
     });
   }
 
@@ -139,7 +142,7 @@ class HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: Text("WYOB v0.2 beta"),
         ),
-        body: HomeWidget(_duties),
+        body: HomeWidget(_duties, _statistics),
         bottomNavigationBar: BottomAppBar(
           color: Colors.orange,
           child: IobStateWidget(widget.database),
@@ -151,15 +154,16 @@ class HomePageState extends State<HomePage> {
 
 class HomeWidget extends StatelessWidget {
   final List<Duty> duties;
+  final List<Statistics> statistics;
 
-  HomeWidget(this.duties);
+  HomeWidget(this.duties, this.statistics);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        DutiesWidget(duties),
+        DutiesWidget(duties, statistics),
       ],
     );
   }

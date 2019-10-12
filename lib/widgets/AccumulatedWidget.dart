@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wyob/objects/Statistics.dart';
+import 'package:wyob/widgets/DurationWidget.dart';
 
 class AccumulatedWidget extends StatelessWidget {
 
@@ -26,7 +27,71 @@ class AccumulatedWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return null;
+    return Column(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.all(5.0),
+          decoration: BoxDecoration(color: Colors.purpleAccent),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  'ACCUMULATED TIMES:',
+                  textScaleFactor: 1.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(5.0),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.purpleAccent, width: 3.0),
+          ),
+          child: Column(
+            children: <Widget>[
+              Text('DUTY (last X days)', textScaleFactor: 1.5,),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Row(
+                      children: <Widget>[
+                        Text('7 :', textScaleFactor: 1.5,),
+                        DurationWidget(duty7Days),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      children: <Widget>[
+                        Text('28 :', textScaleFactor: 1.5,),
+                        DurationWidget(duty28Days),
+                      ],
+                    ),
+                  ),
+                  Text('365: ', textScaleFactor: 1.5,),
+                  DurationWidget(duty365Days)
+                ],
+              ),
+              Text('BLOCK (last X days)', textScaleFactor: 1.5,),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Row(
+                      children: <Widget>[
+                        Text('28 :', textScaleFactor: 1.5,),
+                        DurationWidget(block28Days),
+                      ],
+                    ),
+                  ),
+                  Text('365: ', textScaleFactor: 1.5,),
+                  DurationWidget(block365Days)
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

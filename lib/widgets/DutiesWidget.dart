@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:wyob/objects/Duty.dart' show Duty;
+import 'package:wyob/objects/Statistics.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
 import 'WidgetUtils.dart';
 import 'package:wyob/pages/FlightDutyScreen.dart';
@@ -11,8 +12,9 @@ import 'package:wyob/pages/FlightDutyScreen.dart';
 class DutiesWidget extends StatelessWidget {
 
   final List<Duty> duties;
+  final List<Statistics> statistics;
 
-  DutiesWidget(this.duties);
+  DutiesWidget(this.duties, this.statistics);
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,12 @@ class DutiesWidget extends StatelessWidget {
                 previous = null;
               }
             }
-            return DutyWidget(current, previous);
+            DateTime endDayMuscatTime = current.endTime.utc.add(Duration(hours: 4));
+            endDayMuscatTime = DateTime(endDayMuscatTime.year, endDayMuscatTime.month, endDayMuscatTime.day);
+            Statistics stat = statistics.firstWhere((stat) {
+              return stat.day.isAtSameMomentAs(endDayMuscatTime);
+            });
+            return DutyWidget(current, previous, stat);
           },
       )
     );
@@ -43,8 +50,9 @@ class DutyWidget extends StatelessWidget {
 
   final Duty _duty;
   final Duty _previous;
+  final Statistics _statistics;
 
-  DutyWidget(this._duty, this._previous);
+  DutyWidget(this._duty, this._previous, this._statistics);
 
   Text get sectorsText {
     if (_duty.isFlight) {
@@ -142,7 +150,7 @@ class DutyWidget extends StatelessWidget {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_context) => FlightDutyScreen(_duty, _previous),
+            builder: (_context) => FlightDutyScreen(_duty, _previous, _statistics),
         ),
     );
   }

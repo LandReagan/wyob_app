@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Flight.dart';
 import 'package:wyob/objects/FTL.dart';
+import 'package:wyob/objects/Statistics.dart';
 import 'package:wyob/pages/FtlMainPage.dart';
+import 'package:wyob/widgets/AccumulatedWidget.dart';
 import 'package:wyob/widgets/DurationWidget.dart';
 import 'package:wyob/widgets/PeriodWidgets.dart';
 
@@ -12,8 +14,9 @@ class FlightDutyScreen extends StatelessWidget {
 
   final Duty flightDuty;
   final Duty previous;
+  final Statistics statistics;
 
-  FlightDutyScreen(this.flightDuty, this.previous);
+  FlightDutyScreen(this.flightDuty, this.previous, this.statistics);
 
   String getTitle() {
     String returnValue = '';
@@ -58,22 +61,24 @@ class FlightDutyScreen extends StatelessWidget {
       },
     );
 
-    List<Widget> result = [reportingWidget];
+    List<Widget> widgets = [reportingWidget];
 
     for (Widget flightWidget in flightWidgets) {
-      result.add(flightWidget);
+      widgets.add(flightWidget);
     }
 
     FTL ftl = FTL.fromDuty(flightDuty, previous: previous);
 
-    result.add(Divider(color: Colors.white, height: 15.0,));
-    result.add(FlightDutyPeriodWidget(ftl));
-    result.add(Divider(color: Colors.white, height: 3.0,));
-    result.add(DutyPeriodWidget(ftl));
-    result.add(Divider(color: Colors.white, height: 3.0,));
-    result.add(RestPeriodWidget(ftl));
+    widgets.add(Divider(color: Colors.white, height: 15.0,));
+    widgets.add(FlightDutyPeriodWidget(ftl));
+    widgets.add(Divider(color: Colors.white, height: 3.0,));
+    widgets.add(DutyPeriodWidget(ftl));
+    widgets.add(Divider(color: Colors.white, height: 3.0,));
+    widgets.add(RestPeriodWidget(ftl));
+    widgets.add(Divider(color: Colors.white, height: 3.0,));
+    widgets.add(AccumulatedWidget.fromStatistics(statistics));
 
-    return result;
+    return widgets;
   }
 
   @override
