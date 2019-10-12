@@ -260,7 +260,7 @@ class LocalDatabase {
       result.add({
         'duty': duty,
         'stat': statistics
-            .firstWhere((stat) => stat.day == duty.dutyEndingDayMuscatTime),
+            .firstWhere((stat) => stat.day == duty.endTime.utc.add(Duration(hours: 4))),
       });
     });
     return result;
