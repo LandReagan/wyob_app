@@ -19,7 +19,6 @@ import 'package:wyob/utils/DateTimeUtils.dart';
 
 /// Singleton class for our database.
 class LocalDatabase {
-
   Map<String, dynamic> _root;
   bool _ready = true;
   String _fileName = DEFAULT_FILE_NAME;
@@ -33,10 +32,7 @@ class LocalDatabase {
   static const String DEFAULT_FILE_NAME = 'database.json';
 
   static const Map<String, dynamic> EMPTY_DATABASE_STRUCTURE = {
-    "user_data": {
-      "username": null,
-      "password": null
-    },
+    "user_data": {"username": null, "password": null},
     "app_settings": {},
     "last_update": null,
     "duties": []
@@ -80,8 +76,8 @@ class LocalDatabase {
     _ready = true;
   }
 
-  Future<void> setCredentials(String username, String password,
-      String rank) async {
+  Future<void> setCredentials(
+      String username, String password, String rank) async {
     _ready = false;
     try {
       _root = await _readLocalData();
@@ -110,52 +106,50 @@ class LocalDatabase {
   /// - [WYOBException] if another error occured.
   Future<void> updateFromGantt(
       {DateTime fromParameter, DateTime toParameter}) async {
-    DateTime from = (fromParameter != null ? fromParameter : DateTime.now()
-        .subtract(Duration(days: 3)));
-    DateTime to = (toParameter != null ? toParameter : DateTime.now().add(
-        Duration(days: 30)));
+    DateTime from = (fromParameter != null
+        ? fromParameter
+        : DateTime.now().subtract(Duration(days: 3)));
+    DateTime to = (toParameter != null
+        ? toParameter
+        : DateTime.now().add(Duration(days: 30)));
 
     from = DateTime(from.year, from.month, from.day);
     to = DateTime(to.year, to.month, to.day, 23, 59);
 
     const int INTERVAL_DAYS = 25;
     while (from.isBefore(to)) {
-      print('Fetching from: ' + from.toString() +
-          ' to: ' + from.add(Duration(days: INTERVAL_DAYS)).toString());
+      print('Fetching from: ' +
+          from.toString() +
+          ' to: ' +
+          from.add(Duration(days: INTERVAL_DAYS)).toString());
       // get Gantt duties from 'from' to 'to'
       // Get the references...
 
       String referencesString = await connector.getFromToGanttDuties(
-          from,
-          from.add(Duration(days: INTERVAL_DAYS))
-      );
+          from, from.add(Duration(days: INTERVAL_DAYS)));
 
-      List<Map<String, dynamic>> references = parseGanttMainTable(
-          referencesString);
+      List<Map<String, dynamic>> references =
+          parseGanttMainTable(referencesString);
 
       List<Duty> duties = [];
       for (int i = 0; i < references.length; i++) {
         var reference = references[i];
-        String rotationStringLocal =
-        reference['type'] == 'Trip' ?
-        await connector.getGanttDutyTripLocal(
-            i, references.length, reference['personId'],
-            reference['persAllocId']) :
-        await connector.getGanttDutyAcyLocal(
-            i, references.length, reference['personId'],
-            reference['persAllocId']);
+        String rotationStringLocal = reference['type'] == 'Trip'
+            ? await connector.getGanttDutyTripLocal(i, references.length,
+                reference['personId'], reference['persAllocId'])
+            : await connector.getGanttDutyAcyLocal(i, references.length,
+                reference['personId'], reference['persAllocId']);
 
-        String rotationStringUtc =
-        reference['type'] == 'Trip' ?
-        await connector.getGanttDutyTripUtc(
-            reference['personId'], reference['persAllocId']) :
-        await connector.getGanttDutyAcyUtc(
-            reference['personId'], reference['persAllocId']);
+        String rotationStringUtc = reference['type'] == 'Trip'
+            ? await connector.getGanttDutyTripUtc(
+                reference['personId'], reference['persAllocId'])
+            : await connector.getGanttDutyAcyUtc(
+                reference['personId'], reference['persAllocId']);
 
-        List<Map<String, dynamic>> rotationDutiesDataLocal = parseGanttDuty(
-            rotationStringLocal);
-        List<Map<String, dynamic>> rotationDutiesDataUtc = parseGanttDuty(
-            rotationStringUtc);
+        List<Map<String, dynamic>> rotationDutiesDataLocal =
+            parseGanttDuty(rotationStringLocal);
+        List<Map<String, dynamic>> rotationDutiesDataUtc =
+            parseGanttDuty(rotationStringUtc);
 
         List<Duty> rotationDuties = GanttDutyFactory.run(
             rotationDutiesDataLocal, rotationDutiesDataUtc);
@@ -165,19 +159,17 @@ class LocalDatabase {
       for (int i = 0; i < duties.length - 1; i++) {
         Duty current = duties[i];
         Duty next = duties[i + 1];
-        if (
-        current.isFlight && next.isFlight &&
-            current.endPlace.IATA != 'MCT' && next.startPlace.IATA != 'MCT' &&
-            next.startTime.difference(current.endTime) >= Duration(hours: 10)
-        ) {
+        if (current.isFlight &&
+            next.isFlight &&
+            current.endPlace.IATA != 'MCT' &&
+            next.startPlace.IATA != 'MCT' &&
+            next.startTime.difference(current.endTime) >= Duration(hours: 10)) {
           duties.insert(
               i + 1,
               Duty.layover(
                   startTime: current.endTime,
                   endTime: next.startTime,
-                  airport: current.endPlace
-              )
-          );
+                  airport: current.endPlace));
         }
       }
 
@@ -209,16 +201,12 @@ class LocalDatabase {
 
     // NEW LOGIC: Delete all duties falling in the date interval, from midnight
     // to midnight.
-    newDuties.sort((duty1, duty2) =>
-        duty1.startTime.utc.compareTo(duty2.startTime.utc));
-    DateTime start = DateTime(
-        newDuties.first.startTime.loc.year,
-        newDuties.first.startTime.loc.month,
-        newDuties.first.startTime.loc.day);
-    DateTime end = DateTime(
-        newDuties.last.endTime.loc.year,
-        newDuties.last.endTime.loc.month,
-        newDuties.last.endTime.loc.day);
+    newDuties.sort(
+        (duty1, duty2) => duty1.startTime.utc.compareTo(duty2.startTime.utc));
+    DateTime start = DateTime(newDuties.first.startTime.loc.year,
+        newDuties.first.startTime.loc.month, newDuties.first.startTime.loc.day);
+    DateTime end = DateTime(newDuties.last.endTime.loc.year,
+        newDuties.last.endTime.loc.month, newDuties.last.endTime.loc.day);
 
     allDuties.removeWhere((duty) {
       return duty.endTime.loc.isAfter(start) &&
@@ -227,11 +215,11 @@ class LocalDatabase {
 
     allDuties.addAll(newDuties);
 
-    allDuties.sort((duty1, duty2) =>
-        duty1.startTime.utc.compareTo(duty2.startTime.utc));
+    allDuties.sort(
+        (duty1, duty2) => duty1.startTime.utc.compareTo(duty2.startTime.utc));
 
-    List<Map<String, dynamic>> newRawDuties = allDuties.map((duty) =>
-        duty.toMap()).toList();
+    List<Map<String, dynamic>> newRawDuties =
+        allDuties.map((duty) => duty.toMap()).toList();
 
     _root['duties'] = newRawDuties;
     _writeLocalData();
@@ -240,7 +228,7 @@ class LocalDatabase {
   List<Duty> getDutiesAll() {
     if (_root['duties'].length > 0) {
       List<Map<String, dynamic>> allRawDuties =
-      List<Map<String, dynamic>>.from(_root['duties']);
+          List<Map<String, dynamic>>.from(_root['duties']);
       List<Duty> allDuties = allRawDuties.map((rawDuty) {
         return Duty.fromMap(rawDuty);
       }).toList();
@@ -263,19 +251,17 @@ class LocalDatabase {
   }
 
   /// Returns aggregation of duties and statistics in a list of Maps.
-  List<Map<String, dynamic>> getDutiesAndStatistics(DateTime from,
-      DateTime to) {
+  List<Map<String, dynamic>> getDutiesAndStatistics(
+      DateTime from, DateTime to) {
     var result = <Map<String, dynamic>>[];
     List<Duty> duties = getDuties(from, to);
     List<Statistics> statistics = buildStatistics();
     duties.forEach((duty) {
-      result.add(
-          {
-            'duty': duty,
-            'stat': statistics.firstWhere((stat) =>
-            stat.day == duty.endDayMuscatTime),
-          }
-      );
+      result.add({
+        'duty': duty,
+        'stat':
+            statistics.firstWhere((stat) => stat.day == duty.dutyEndingDayMuscatTime),
+      });
     });
     return result;
   }
@@ -287,11 +273,7 @@ class LocalDatabase {
 
     DateTime rolling = earliestDutyDate;
     if (rolling == null) return aggregations;
-    DateTime nowMonth = DateTime(DateTime
-        .now()
-        .year, DateTime
-        .now()
-        .month);
+    DateTime nowMonth = DateTime(DateTime.now().year, DateTime.now().month);
 
     while (rolling.compareTo(nowMonth) <= 0) {
       aggregations.add(MonthlyAggregation(rolling, this));
@@ -306,134 +288,27 @@ class LocalDatabase {
   }
 
   List<Statistics> buildStatistics() {
-    var result = <Statistics>[];
+    var statistics = <Statistics>[];
     List<Duty> duties = getDutiesAll();
 
     // Time frame, Base time
     Duty firstDuty = duties.first;
     Duty lastDuty = duties.last;
-    DateTime firstDay = DateTime(
-        firstDuty.startTime.loc.year,
-        firstDuty.startTime.loc.month,
-        firstDuty.startTime.loc.day);
-    DateTime lastDay = DateTime( // assuming a duty end at Base!
-        lastDuty.endTime.loc.year,
-        lastDuty.endTime.loc.month,
-        lastDuty.endTime.loc.day);
+    DateTime firstDay = firstDuty.dutyStartingDayMuscatTime;
+    DateTime lastDay = lastDuty.dutyEndingDayMuscatTime;
 
     // Create a Statistics object for each day.
-    DateTime day = firstDay;
-    result.add(Statistics(day));
-    do {
-      day = day.add(Duration(days: 1));
-      result.add(Statistics(day));
-    } while (!day.isAtSameMomentAs(lastDay));
+    for (var day = firstDay;
+         !day.isAtSameMomentAs(lastDay.add(Duration(days: 1)));
+         day = day.add(Duration(days: 1))) {
+      statistics.add(Statistics(day));
+    }
 
     for (Duty duty in duties) {
-      // Find the good statistics object. Should never be null, but...
-      int startDayStatisticsIndex = result.indexWhere((stat) {
-        return stat.day.isAtSameMomentAs(duty.startDayMuscatTime);
-      });
-      Statistics startDayStatistics = result[startDayStatisticsIndex];
-      // In the case of a duty fully contained in one day:
-      if (duty.startDayMuscatTime.isAtSameMomentAs(duty.endDayMuscatTime) &&
-          startDayStatistics != null) {
-        // For duty accumulation:
-        if (duty.isWorkingDuty) {
-          for (int i = 0; i < 7 && startDayStatisticsIndex + i <
-              result.length; i++) { // 7 days accumulation
-            result[startDayStatisticsIndex + i].sevenDaysDutyAccumulation +=
-                duty.duration;
-          }
-          for (int i = 0; i < 28 && startDayStatisticsIndex + i <
-              result.length; i++) { // 28 days accumulation
-            result[startDayStatisticsIndex + i]
-                .twentyEightDaysDutyAccumulation += duty.duration;
-          }
-          for (int i = 0; i < 365 && startDayStatisticsIndex + i <
-              result.length; i++) { // 365 days accumulation
-            result[startDayStatisticsIndex + i].oneYearDutyDaysAccumulation +=
-                duty.duration;
-          }
-        }
-        // For block time accumulation:
-        if (duty.isFlight) {
-          for (int i = 0; i < 28 && startDayStatisticsIndex + i <
-              result.length; i++) { // 28 days accumulation
-            result[startDayStatisticsIndex + i]
-                .twentyEightDaysBlockAccumulation += duty.totalBlockTime;
-          }
-          for (int i = 0; i < 365 && startDayStatisticsIndex + i <
-              result.length; i++) { // 365 days accumulation
-            result[startDayStatisticsIndex + i].oneYearBlockAccumulation +=
-                duty.totalBlockTime;
-          }
-        }
-        // In the case of a duty overlapping 2 days:
-      } else {
-        int endDayStatisticsIndex = result.indexWhere((stat) {
-          return stat.day.isAtSameMomentAs(duty.endDayMuscatTime);
-        });
-        Statistics endDayStatistics = result[endDayStatisticsIndex];
-      }
+
     }
 
-    /*
-    for (int i = 0; i < duties.length; i++) { // for all duties...
-      Duty duty = duties[i];
-      Statistics stat = Statistics(duty);
-
-      if (duty.isWorkingDuty) {
-        stat.sevenDaysDutyAccumulation = duty.duration;
-        stat.twentyEightDaysDutyAccumulation = duty.duration;
-        stat.oneYearDutyDaysAccumulation = duty.duration;
-      } else {
-        stat.sevenDaysDutyAccumulation = Duration.zero;
-        stat.twentyEightDaysDutyAccumulation = Duration.zero;
-        stat.oneYearDutyDaysAccumulation = Duration.zero;
-      }
-
-      if (duty.isFlight) {
-        stat.twentyEightDaysBlockAccumulation = duty.totalBlockTime;
-        stat.oneYearBlockAccumulation = duty.totalBlockTime;
-      } else {
-        stat.twentyEightDaysBlockAccumulation = Duration.zero;
-        stat.oneYearBlockAccumulation = Duration.zero;
-      }
-
-      DateTime sevenDaysBeforeDutyEnd = DateTime(
-          duty.endTime.loc.year, duty.endTime.loc.month, duty.endTime.loc.day)
-          .subtract(Duration(days: 6));
-      DateTime twentyEightDaysBeforeDutyEnd = DateTime(
-          duty.endTime.loc.year, duty.endTime.loc.month, duty.endTime.loc.day)
-          .subtract(Duration(days: 27));
-      DateTime oneYearBeforeDutyEnd = DateTime(
-          duty.endTime.loc.year, duty.endTime.loc.month, duty.endTime.loc.day)
-          .subtract(Duration(days: 364));
-
-      for (int j = 0; j < i; j++) { // for all previous duties
-        Duty previousDuty = duties[j];
-
-        if (previousDuty.isWorkingDuty &&
-              previousDuty.endTime.loc.isAfter(sevenDaysBeforeDutyEnd))
-            stat.sevenDaysDutyAccumulation += previousDuty.duration;
-
-        if (previousDuty.isWorkingDuty &&
-            previousDuty.endTime.loc.isAfter(twentyEightDaysBeforeDutyEnd)) {
-          stat.twentyEightDaysDutyAccumulation += previousDuty.duration;
-          stat.twentyEightDaysBlockAccumulation += previousDuty.totalBlockTime;
-        }
-
-        if (previousDuty.isWorkingDuty &&
-            previousDuty.endTime.loc.isAfter(oneYearBeforeDutyEnd)) {
-          stat.oneYearDutyDaysAccumulation += previousDuty.duration;
-          stat.oneYearBlockAccumulation += previousDuty.totalBlockTime;
-        }
-      }
-      result.add(stat);
-    }
-     */
-    return result;
+    return statistics;
   }
 
   RANK getRank() {
@@ -495,7 +370,8 @@ class LocalDatabase {
     String rootPath = "";
     try {
       rootPath = (await getApplicationDocumentsDirectory()).path;
-    } on Exception { // probable cause is we are testing...
+    } on Exception {
+      // probable cause is we are testing...
       rootPath = "test";
     }
     return rootPath;
@@ -516,10 +392,7 @@ class LocalDatabase {
       throw WyobExceptionCredentials('Credentials empty in the database!');
     }
 
-    return {
-      'username': userData['username'],
-      'password': userData['password']
-    };
+    return {'username': userData['username'], 'password': userData['password']};
   }
 
   /// Checks database integrity in terms of available fields, lists, sets...
