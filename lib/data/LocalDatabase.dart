@@ -1,7 +1,6 @@
 import 'dart:convert' show json;
 import 'dart:io';
 
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
 
@@ -30,7 +29,7 @@ class LocalDatabase {
   IobConnector _connector;
 
   CancelableOperation updateOperation;
-  
+
   static const String DEFAULT_FILE_NAME = 'database.json';
 
   static const Map<String, dynamic> EMPTY_DATABASE_STRUCTURE = {
@@ -48,23 +47,20 @@ class LocalDatabase {
   factory LocalDatabase() {
     return _instance;
   }
-  LocalDatabase._private();
+
+  LocalDatabase._private() {
+    _connector = IobConnector();
+  }
 
   Map<String, dynamic> get rootData => _root;
+
   bool get ready => _ready;
+
   DateTime get updateTimeLoc => _getUpdateTime()?.loc;
+
   DateTime get updateTimeUtc => _getUpdateTime()?.utc;
 
   IobConnector get connector {
-    /*
-    if (_connector == null) {
-      print("connector is null...");
-      try {
-        await this.connect();
-      } on WyobException catch (e) {
-        print("Exception: " + e.toString());
-      }
-    }*/
     return _connector;
   }
 
@@ -72,10 +68,8 @@ class LocalDatabase {
     _root = await _readLocalData();
     try {
       _checkIntegrity();
-      _connector = IobConnector(
-        _getCredentials()['username'],
-        _getCredentials()['password']
-      );
+      _connector.setCredentials(
+          _getCredentials()['username'], _getCredentials()['password']);
     } on WyobExceptionCredentials catch (e) {
       print('No credentials...');
       _ready = true;
@@ -86,7 +80,8 @@ class LocalDatabase {
     _ready = true;
   }
 
-  Future<void> setCredentials(String username, String password, String rank) async {
+  Future<void> setCredentials(String username, String password,
+      String rank) async {
     _ready = false;
     try {
       _root = await _readLocalData();
@@ -97,11 +92,12 @@ class LocalDatabase {
       _ready = true;
     } on Exception catch (e) {
       _ready = true;
-      throw WyobException('File system problem, most likely... Error thrown: ' + e.toString());
+      throw WyobException(
+          'File system problem, most likely... Error thrown: ' + e.toString());
     }
     _ready = true;
   }
-  
+
   /// LocalDatabase inner method to update duties from the IOB system. Takes 2
   /// DateTimes [fromParameter] and [toParameter] as time interval. It updates
   /// the [_updateTime] field as well
@@ -112,10 +108,12 @@ class LocalDatabase {
   /// Throws:
   /// - [WyobExceptionCredentials] if credentials are missing,
   /// - [WYOBException] if another error occured.
-  Future<void> updateFromGantt({DateTime fromParameter, DateTime toParameter}) async {
-
-    DateTime from = (fromParameter != null ? fromParameter : DateTime.now().subtract(Duration(days: 3)));
-    DateTime to = (toParameter != null ? toParameter : DateTime.now().add(Duration(days: 30)));
+  Future<void> updateFromGantt(
+      {DateTime fromParameter, DateTime toParameter}) async {
+    DateTime from = (fromParameter != null ? fromParameter : DateTime.now()
+        .subtract(Duration(days: 3)));
+    DateTime to = (toParameter != null ? toParameter : DateTime.now().add(
+        Duration(days: 30)));
 
     from = DateTime(from.year, from.month, from.day);
     to = DateTime(to.year, to.month, to.day, 23, 59);
@@ -123,7 +121,7 @@ class LocalDatabase {
     const int INTERVAL_DAYS = 25;
     while (from.isBefore(to)) {
       print('Fetching from: ' + from.toString() +
-            ' to: ' + from.add(Duration(days: INTERVAL_DAYS)).toString());
+          ' to: ' + from.add(Duration(days: INTERVAL_DAYS)).toString());
       // get Gantt duties from 'from' to 'to'
       // Get the references...
 
@@ -132,7 +130,8 @@ class LocalDatabase {
           from.add(Duration(days: INTERVAL_DAYS))
       );
 
-      List<Map<String, dynamic>> references = parseGanttMainTable(referencesString);
+      List<Map<String, dynamic>> references = parseGanttMainTable(
+          referencesString);
 
       List<Duty> duties = [];
       for (int i = 0; i < references.length; i++) {
@@ -140,9 +139,11 @@ class LocalDatabase {
         String rotationStringLocal =
         reference['type'] == 'Trip' ?
         await connector.getGanttDutyTripLocal(
-            i, references.length, reference['personId'], reference['persAllocId']) :
+            i, references.length, reference['personId'],
+            reference['persAllocId']) :
         await connector.getGanttDutyAcyLocal(
-            i, references.length, reference['personId'], reference['persAllocId']);
+            i, references.length, reference['personId'],
+            reference['persAllocId']);
 
         String rotationStringUtc =
         reference['type'] == 'Trip' ?
@@ -208,7 +209,8 @@ class LocalDatabase {
 
     // NEW LOGIC: Delete all duties falling in the date interval, from midnight
     // to midnight.
-    newDuties.sort((duty1, duty2) => duty1.startTime.utc.compareTo(duty2.startTime.utc));
+    newDuties.sort((duty1, duty2) =>
+        duty1.startTime.utc.compareTo(duty2.startTime.utc));
     DateTime start = DateTime(
         newDuties.first.startTime.loc.year,
         newDuties.first.startTime.loc.month,
@@ -219,23 +221,26 @@ class LocalDatabase {
         newDuties.last.endTime.loc.day);
 
     allDuties.removeWhere((duty) {
-      return duty.endTime.loc.isAfter(start) && duty.startTime.loc.isBefore(end);
+      return duty.endTime.loc.isAfter(start) &&
+          duty.startTime.loc.isBefore(end);
     });
 
     allDuties.addAll(newDuties);
 
-    allDuties.sort((duty1, duty2) => duty1.startTime.utc.compareTo(duty2.startTime.utc));
+    allDuties.sort((duty1, duty2) =>
+        duty1.startTime.utc.compareTo(duty2.startTime.utc));
 
-    List<Map<String, dynamic>> newRawDuties = allDuties.map((duty) => duty.toMap()).toList();
+    List<Map<String, dynamic>> newRawDuties = allDuties.map((duty) =>
+        duty.toMap()).toList();
 
     _root['duties'] = newRawDuties;
     _writeLocalData();
   }
-  
+
   List<Duty> getDutiesAll() {
     if (_root['duties'].length > 0) {
-      List<Map<String, dynamic>> allRawDuties = 
-          List<Map<String, dynamic>>.from(_root['duties']);
+      List<Map<String, dynamic>> allRawDuties =
+      List<Map<String, dynamic>>.from(_root['duties']);
       List<Duty> allDuties = allRawDuties.map((rawDuty) {
         return Duty.fromMap(rawDuty);
       }).toList();
@@ -246,28 +251,30 @@ class LocalDatabase {
   }
 
   List<Duty> getDuties(DateTime from, DateTime to) {
-
     List<Duty> allDuties = getDutiesAll();
     allDuties.removeWhere((duty) {
       return duty.startTime.loc.isAfter(to) || duty.endTime.loc.isBefore(from);
     });
     allDuties.forEach((duty) {
-      if (connector.acknowledgeDutyIds.contains(duty.id)) duty.acknowledge = true;
+      if (connector.acknowledgeDutyIds.contains(duty.id))
+        duty.acknowledge = true;
     });
     return allDuties;
   }
 
   /// Returns aggregation of duties and statistics in a list of Maps.
-  List<Map<String, dynamic>> getDutiesAndStatistics(DateTime from, DateTime to) {
+  List<Map<String, dynamic>> getDutiesAndStatistics(DateTime from,
+      DateTime to) {
     var result = <Map<String, dynamic>>[];
     List<Duty> duties = getDuties(from, to);
     List<Statistics> statistics = buildStatistics();
     duties.forEach((duty) {
       result.add(
-        {
-          'duty': duty,
-          'stat': statistics.firstWhere((stat) => stat.day == duty.endDayMuscatTime),
-        }
+          {
+            'duty': duty,
+            'stat': statistics.firstWhere((stat) =>
+            stat.day == duty.endDayMuscatTime),
+          }
       );
     });
     return result;
@@ -280,7 +287,11 @@ class LocalDatabase {
 
     DateTime rolling = earliestDutyDate;
     if (rolling == null) return aggregations;
-    DateTime nowMonth = DateTime(DateTime.now().year, DateTime.now().month);
+    DateTime nowMonth = DateTime(DateTime
+        .now()
+        .year, DateTime
+        .now()
+        .month);
 
     while (rolling.compareTo(nowMonth) <= 0) {
       aggregations.add(MonthlyAggregation(rolling, this));
@@ -319,10 +330,51 @@ class LocalDatabase {
     } while (!day.isAtSameMomentAs(lastDay));
 
     for (Duty duty in duties) {
-      if (duty.startDayMuscatTime.isAtSameMomentAs(duty.endDayMuscatTime)) {
-        
+      // Find the good statistics object. Should never be null, but...
+      int startDayStatisticsIndex = result.indexWhere((stat) {
+        return stat.day.isAtSameMomentAs(duty.startDayMuscatTime);
+      });
+      Statistics startDayStatistics = result[startDayStatisticsIndex];
+      // In the case of a duty fully contained in one day:
+      if (duty.startDayMuscatTime.isAtSameMomentAs(duty.endDayMuscatTime) &&
+          startDayStatistics != null) {
+        // For duty accumulation:
+        if (duty.isWorkingDuty) {
+          for (int i = 0; i < 7 && startDayStatisticsIndex + i <
+              result.length; i++) { // 7 days accumulation
+            result[startDayStatisticsIndex + i].sevenDaysDutyAccumulation +=
+                duty.duration;
+          }
+          for (int i = 0; i < 28 && startDayStatisticsIndex + i <
+              result.length; i++) { // 28 days accumulation
+            result[startDayStatisticsIndex + i]
+                .twentyEightDaysDutyAccumulation += duty.duration;
+          }
+          for (int i = 0; i < 365 && startDayStatisticsIndex + i <
+              result.length; i++) { // 365 days accumulation
+            result[startDayStatisticsIndex + i].oneYearDutyDaysAccumulation +=
+                duty.duration;
+          }
+        }
+        // For block time accumulation:
+        if (duty.isFlight) {
+          for (int i = 0; i < 28 && startDayStatisticsIndex + i <
+              result.length; i++) { // 28 days accumulation
+            result[startDayStatisticsIndex + i]
+                .twentyEightDaysBlockAccumulation += duty.totalBlockTime;
+          }
+          for (int i = 0; i < 365 && startDayStatisticsIndex + i <
+              result.length; i++) { // 365 days accumulation
+            result[startDayStatisticsIndex + i].oneYearBlockAccumulation +=
+                duty.totalBlockTime;
+          }
+        }
+        // In the case of a duty overlapping 2 days:
       } else {
-
+        int endDayStatisticsIndex = result.indexWhere((stat) {
+          return stat.day.isAtSameMomentAs(duty.endDayMuscatTime);
+        });
+        Statistics endDayStatistics = result[endDayStatisticsIndex];
       }
     }
 
@@ -388,19 +440,24 @@ class LocalDatabase {
     Map<String, dynamic> userData = _root['user_data'];
     String rankString = userData['rank'];
     switch (rankString) {
-      case 'CPT': return RANK.CPT;
-      case 'FO': return RANK.FO;
-      case 'CD': return RANK.CD;
-      case 'CC / PGC': return RANK.CC;
-      default: return null;
+      case 'CPT':
+        return RANK.CPT;
+      case 'FO':
+        return RANK.FO;
+      case 'CD':
+        return RANK.CD;
+      case 'CC / PGC':
+        return RANK.CC;
+      default:
+        return null;
     }
   }
-  
+
   Future<void> _setUpdateTime(AwareDT time) async {
     _root['last_update'] = time.toString();
     await _writeLocalData();
   }
-  
+
   AwareDT _getUpdateTime() {
     if (_root['last_update'] == null || _root['last_update'] == '') return null;
     return AwareDT.fromString(_root['last_update']);
@@ -435,7 +492,6 @@ class LocalDatabase {
   }
 
   static Future<String> _getRootPath() async {
-
     String rootPath = "";
     try {
       rootPath = (await getApplicationDocumentsDirectory()).path;
@@ -449,7 +505,6 @@ class LocalDatabase {
   /// not ready, or [WyobExceptionCredentials] if 'username' or 'password' are
   /// set to empty string.
   Map<String, dynamic> _getCredentials() {
-
     if (!ready) {
       throw WyobException('In LocalDatabase object, _getCredentials was called'
           'with database not ready!');
@@ -475,10 +530,12 @@ class LocalDatabase {
     }
 
     if (_root['user_data'] == null) {
-      throw WyobExceptionDatabaseIntegrity('Database User Data ("user_data") not found!');
+      throw WyobExceptionDatabaseIntegrity(
+          'Database User Data ("user_data") not found!');
     }
 
-    if (_root['user_data']['username'] == null || _root['user_data']['password'] == null) {
+    if (_root['user_data']['username'] == null ||
+        _root['user_data']['password'] == null) {
       throw WyobExceptionCredentials(
           'Database User Data ("user_data") incorrect, with username or password set to null!');
     }

@@ -9,7 +9,6 @@ import 'package:wyob/objects/Rank.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
 
 class DatabaseByMonthWidget extends StatefulWidget {
-
   final LocalDatabase database;
 
   DatabaseByMonthWidget(this.database);
@@ -18,33 +17,27 @@ class DatabaseByMonthWidget extends StatefulWidget {
 }
 
 class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
-
   Widget getMonthWidget(MonthlyAggregation aggregation) {
     List<Map<String, dynamic>> aggregDataList = aggregation.dutiesAndStatistics;
 
     var days = <DateTime>[];
-    for (
-    DateTime dt = aggregation.monthStart;
-    dt.isBefore(aggregation.monthEnd);
-    dt = dt.add(Duration(days: 1))) {
+    for (DateTime dt = aggregation.monthStart;
+        dt.isBefore(aggregation.monthEnd);
+        dt = dt.add(Duration(days: 1))) {
       days.add(dt);
     }
+
     aggregDataList.forEach((data) {
       Duty duty = data['duty'];
       days.removeWhere((day) =>
-          day.day >= duty.startTime.loc.day &&
-          day.day <= duty.endTime.loc.day
-      );
+          day.day >= duty.startTime.loc.day || day.day <= duty.endTime.loc.day);
     });
 
-    List<Widget> dayWidgets = List.generate(
-        aggregDataList.length,
-            (int index) {
-          Duty duty = aggregDataList[index]['duty'];
-          Statistics stat = aggregDataList[index]['stat'];
-          return RawDutyWidget(duty, stat);
-        }
-    );
+    List<Widget> dayWidgets = List.generate(aggregDataList.length, (int index) {
+      Duty duty = aggregDataList[index]['duty'];
+      Statistics stat = aggregDataList[index]['stat'];
+      return RawDutyWidget(duty, stat);
+    });
 
     days.forEach((dt) {
       dayWidgets.add(BlankDayWidget(dt));
@@ -67,7 +60,10 @@ class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
     });
 
     return ExpansionTile(
-      title: Text(aggregation.titleString, textScaleFactor: 1.3,),
+      title: Text(
+        aggregation.titleString,
+        textScaleFactor: 1.3,
+      ),
       children: dayWidgets,
     );
   }
@@ -75,7 +71,8 @@ class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
   List<Widget> _getMonthTiles() {
     var widgets = <Widget>[];
     widget.database.getAllMonthlyAggregations().forEach((aggregation) {
-      widgets.add(MonthlyStatisticsWidget(aggregation, widget.database.getRank()));
+      widgets
+          .add(MonthlyStatisticsWidget(aggregation, widget.database.getRank()));
       widgets.add(getMonthWidget(aggregation));
     });
     return widgets.reversed.toList();
@@ -99,24 +96,27 @@ class BlankDayWidget extends StatelessWidget {
     return Column(
       children: <Widget>[
         Container(
-          decoration: BoxDecoration(
-            color: Colors.limeAccent,
-          ),
-          child: Row(
-            children: <Widget>[
+            decoration: BoxDecoration(
+              color: Colors.limeAccent,
+            ),
+            child: Row(children: <Widget>[
               Text(dateToString(date)),
-              Expanded(child: Text('BLANK DAY!', textAlign: TextAlign.center,),),
-            ]
-          )
+              Expanded(
+                child: Text(
+                  'BLANK DAY!',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ])),
+        Divider(
+          color: Colors.black,
         ),
-        Divider(color: Colors.black,),
       ],
     );
   }
 }
 
 class RawDutyWidget extends StatelessWidget {
-
   final Duty duty;
   final Statistics statistics;
 
@@ -132,27 +132,37 @@ class RawDutyWidget extends StatelessWidget {
     widgets.add(Expanded(child: Text(duty.startTime.localDayString)));
     if (duty.isWorkingDuty) {
       widgets.add(Text('REPORTING: '));
-      widgets.add(
-          Expanded(child: Text(duty.startTime.localTimeString, style: BOLD,)));
+      widgets.add(Expanded(
+          child: Text(
+        duty.startTime.localTimeString,
+        style: BOLD,
+      )));
     }
 
-    return Row(
-        children: widgets
-    );
+    return Row(children: widgets);
   }
 
   Widget getEndDateWidget() {
     var widgets = <Widget>[];
     if (duty.startTime.localDayString != duty.endTime.localDayString) {
-      widgets.add(Expanded(child: Text(duty.endTime.localDayString),),);
+      widgets.add(
+        Expanded(
+          child: Text(duty.endTime.localDayString),
+        ),
+      );
     } else {
-      widgets.add(Expanded(child: Text(''),));
+      widgets.add(Expanded(
+        child: Text(''),
+      ));
     }
 
     if (duty.isWorkingDuty) {
       widgets.add(Text('OFF DUTY: '));
-      widgets.add(
-          Expanded(child: Text(duty.endTime.localTimeString, style: BOLD,)));
+      widgets.add(Expanded(
+          child: Text(
+        duty.endTime.localTimeString,
+        style: BOLD,
+      )));
     }
 
     return Row(
@@ -165,11 +175,26 @@ class RawDutyWidget extends StatelessWidget {
     if (duty.isLayover) dutyNature += ' ' + duty.startPlace.IATA;
     return Row(
       children: <Widget>[
-        Expanded(child: Text(dutyNature ?? '', style: BOLD,),),
+        Expanded(
+          child: Text(
+            dutyNature ?? '',
+            style: BOLD,
+          ),
+        ),
         Text('CODE: '),
-        Expanded(child: Text(duty.code ?? '---', style: BOLD,),),
+        Expanded(
+          child: Text(
+            duty.code ?? '---',
+            style: BOLD,
+          ),
+        ),
         Text('STATUS: '),
-        Expanded(child: Text(duty.statusAsString ?? '', style: BOLD,),),
+        Expanded(
+          child: Text(
+            duty.statusAsString ?? '',
+            style: BOLD,
+          ),
+        ),
       ],
     );
   }
@@ -177,27 +202,45 @@ class RawDutyWidget extends StatelessWidget {
   List<Widget> getFlightsWidgets() {
     List<Widget> flightWidgets = [];
     duty.flights.forEach((flight) {
-      flightWidgets.add(
-          Container(
-            decoration: BoxDecoration(
-                color: PALE_GREY
+      flightWidgets.add(Container(
+        decoration: BoxDecoration(color: PALE_GREY),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                flight.flightNumber ?? '',
+                style: BOLD,
+              ),
             ),
-            child: Row(
-              children: <Widget>[
-                Expanded(child: Text(flight.flightNumber ?? '', style: BOLD,),),
-                Text(flight.startPlace.IATA + ' ', style: BOLD,),
-                Text(flight.startTime.localTimeString + ' ', style: BOLD),
-                Expanded(
-                  child: Text(flight.startTime.utcTimeString, style: ITALIC),),
-                Text(flight.endPlace.IATA + ' ', style: BOLD,),
-                Text(flight.endTime.localTimeString + ' ', style: BOLD,),
-                Expanded(
-                  child: Text(flight.endTime.utcTimeString, style: ITALIC,),),
-                Text(flight.durationString, style: BOLD,),
-              ],
+            Text(
+              flight.startPlace.IATA + ' ',
+              style: BOLD,
             ),
-          )
-      );
+            Text(flight.startTime.localTimeString + ' ', style: BOLD),
+            Expanded(
+              child: Text(flight.startTime.utcTimeString, style: ITALIC),
+            ),
+            Text(
+              flight.endPlace.IATA + ' ',
+              style: BOLD,
+            ),
+            Text(
+              flight.endTime.localTimeString + ' ',
+              style: BOLD,
+            ),
+            Expanded(
+              child: Text(
+                flight.endTime.utcTimeString,
+                style: ITALIC,
+              ),
+            ),
+            Text(
+              flight.durationString,
+              style: BOLD,
+            ),
+          ],
+        ),
+      ));
     });
     return flightWidgets;
   }
@@ -205,10 +248,26 @@ class RawDutyWidget extends StatelessWidget {
   Widget getStandByWidget() {
     return Row(
       children: <Widget>[
-        Text('from:', style: ITALIC,),
-        Expanded(child: Text(duty.startTime.localTimeString, style: BOLD,),),
-        Text('to:', style: ITALIC,),
-        Expanded(child: Text(duty.endTime.localTimeString, style: BOLD,),),
+        Text(
+          'from:',
+          style: ITALIC,
+        ),
+        Expanded(
+          child: Text(
+            duty.startTime.localTimeString,
+            style: BOLD,
+          ),
+        ),
+        Text(
+          'to:',
+          style: ITALIC,
+        ),
+        Expanded(
+          child: Text(
+            duty.endTime.localTimeString,
+            style: BOLD,
+          ),
+        ),
       ],
     );
   }
@@ -217,41 +276,50 @@ class RawDutyWidget extends StatelessWidget {
     FlightDutyPeriod fdp = duty.ftl.flightDutyPeriod;
     var widgets = <Widget>[];
 
-    widgets.add(
-        Row(
-          children: <Widget>[
-            Text('FDP start: '),
-            Expanded(
-              child: Text(
-                fdp.start.localDayString + ' ' + fdp.start.localTimeString,
-                style: ITALIC,
-              ),
-            ),
-            Text('end: '),
-            Expanded(
-              child: Text(
-                fdp.end.localDayString + ' ' + fdp.end.localTimeString,
-                style: ITALIC,
-              ),
-            ),
-          ],
-        )
-    );
+    widgets.add(Row(
+      children: <Widget>[
+        Text('FDP start: '),
+        Expanded(
+          child: Text(
+            fdp.start.localDayString + ' ' + fdp.start.localTimeString,
+            style: ITALIC,
+          ),
+        ),
+        Text('end: '),
+        Expanded(
+          child: Text(
+            fdp.end.localDayString + ' ' + fdp.end.localTimeString,
+            style: ITALIC,
+          ),
+        ),
+      ],
+    ));
 
-    widgets.add(
-        Row(
-          children: <Widget>[
-            Text('ACT: '),
-            Expanded(child: Text(fdp.durationString, style: BOLD,),),
-            Text('MAX: '),
-            Expanded(child: Text(
-              fdp.maxFlightDutyPeriod.durationString, style: BOLD,),),
-            Text('EXT: '),
-            Expanded(child: Text(
-              fdp.extendedFlightDutyPeriod.durationString, style: BOLD,),),
-          ],
-        )
-    );
+    widgets.add(Row(
+      children: <Widget>[
+        Text('ACT: '),
+        Expanded(
+          child: Text(
+            fdp.durationString,
+            style: BOLD,
+          ),
+        ),
+        Text('MAX: '),
+        Expanded(
+          child: Text(
+            fdp.maxFlightDutyPeriod.durationString,
+            style: BOLD,
+          ),
+        ),
+        Text('EXT: '),
+        Expanded(
+          child: Text(
+            fdp.extendedFlightDutyPeriod.durationString,
+            style: BOLD,
+          ),
+        ),
+      ],
+    ));
 
     return widgets;
   }
@@ -260,11 +328,25 @@ class RawDutyWidget extends StatelessWidget {
     return Row(
       children: <Widget>[
         Text('REST: '),
-        Expanded(child: Text(duty.rest.durationString, style: BOLD,),),
+        Expanded(
+          child: Text(
+            duty.rest.durationString,
+            style: BOLD,
+          ),
+        ),
         Text('ends: '),
         Expanded(
-          child: Text(duty.rest.end.localDayString + ' ', style: BOLD,),),
-        Expanded(child: Text(duty.rest.end.localTimeString, style: BOLD,),),
+          child: Text(
+            duty.rest.end.localDayString + ' ',
+            style: BOLD,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            duty.rest.end.localTimeString,
+            style: BOLD,
+          ),
+        ),
       ],
     );
   }
@@ -274,30 +356,70 @@ class RawDutyWidget extends StatelessWidget {
       children: <Widget>[
         Row(
           children: <Widget>[
-            Expanded(child: Text('DUTY ACCUMULATED (PREVIOUS X DAYS):', textAlign: TextAlign.center,),)
+            Expanded(
+              child: Text(
+                'DUTY ACCUMULATED (PREVIOUS X DAYS):',
+                textAlign: TextAlign.center,
+              ),
+            )
           ],
         ),
         Row(
           children: <Widget>[
-            Text('7: ', style: TextStyle(fontWeight: FontWeight.bold),),
-            Expanded(child: Text(durationToStringHM(statistics.sevenDaysDutyAccumulation)),),
-            Text('28: ', style: TextStyle(fontWeight: FontWeight.bold),),
-            Expanded(child: Text(durationToStringHM(statistics.twentyEightDaysDutyAccumulation)),),
-            Text('365: ', style: TextStyle(fontWeight: FontWeight.bold),),
-            Expanded(child: Text(durationToStringHM(statistics.oneYearDutyDaysAccumulation)),),
+            Text(
+              '7: ',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child: Text(
+                  durationToStringHM(statistics.sevenDaysDutyAccumulation)),
+            ),
+            Text(
+              '28: ',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child: Text(durationToStringHM(
+                  statistics.twentyEightDaysDutyAccumulation)),
+            ),
+            Text(
+              '365: ',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child: Text(
+                  durationToStringHM(statistics.oneYearDutyDaysAccumulation)),
+            ),
           ],
         ),
         Row(
           children: <Widget>[
-            Expanded(child: Text('BLOCK ACCUMULATED (PREVIOUS X DAYS):', textAlign: TextAlign.center,),)
+            Expanded(
+              child: Text(
+                'BLOCK ACCUMULATED (PREVIOUS X DAYS):',
+                textAlign: TextAlign.center,
+              ),
+            )
           ],
         ),
         Row(
           children: <Widget>[
-            Text('28: ', style: TextStyle(fontWeight: FontWeight.bold),),
-            Expanded(child: Text(durationToStringHM(statistics.twentyEightDaysBlockAccumulation)),),
-            Text('365: ', style: TextStyle(fontWeight: FontWeight.bold),),
-            Expanded(child: Text(durationToStringHM(statistics.oneYearBlockAccumulation)),),
+            Text(
+              '28: ',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child: Text(durationToStringHM(
+                  statistics.twentyEightDaysBlockAccumulation)),
+            ),
+            Text(
+              '365: ',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child:
+                  Text(durationToStringHM(statistics.oneYearBlockAccumulation)),
+            ),
           ],
         ),
       ],
@@ -314,23 +436,22 @@ class RawDutyWidget extends StatelessWidget {
     if (getEndDateWidget() != null) widgets.add(getEndDateWidget());
     if (duty.nature == DUTY_NATURE.FLIGHT) widgets.addAll(getFDPWidgets());
     if (duty.isWorkingDuty) widgets.add(getRestWidget());
-    if (!duty.isLayover)widgets.add(getStatisticsWidget());
-    widgets.add(Divider(color: Colors.black,));
+    if (!duty.isLayover) widgets.add(getStatisticsWidget());
+    widgets.add(Divider(
+      color: Colors.black,
+    ));
 
     return Container(
       padding: EdgeInsets.all(3.0),
       decoration: BoxDecoration(
-        //todo
-      ),
-      child: Column(
-          children: widgets
-      ),
+          //todo
+          ),
+      child: Column(children: widgets),
     );
   }
 }
 
 class MonthlyStatisticsWidget extends StatelessWidget {
-
   final MonthlyAggregation aggregation;
   final RANK rank;
 
@@ -339,23 +460,32 @@ class MonthlyStatisticsWidget extends StatelessWidget {
   int nbrOfFlights = 0;
 
   String get flyingAllowanceString {
-
     if (rank == null) return '? OMR';
 
     double allowance = 0.0;
     var amounts = <double>[];
 
     switch (rank) {
-      case RANK.CPT: amounts.addAll([6.0, 9.0, 35.0]); break;
-      case RANK.FO: amounts.addAll([4.0, 6.0, 25.0]); break;
-      case RANK.CD: amounts.addAll([2.0, 2.5, 3.0, 6.0]); break;
-      case RANK.CC: amounts.addAll([1.0, 1.5, 2.0, 5.0]); break;
+      case RANK.CPT:
+        amounts.addAll([6.0, 9.0, 35.0]);
+        break;
+      case RANK.FO:
+        amounts.addAll([4.0, 6.0, 25.0]);
+        break;
+      case RANK.CD:
+        amounts.addAll([2.0, 2.5, 3.0, 6.0]);
+        break;
+      case RANK.CC:
+        amounts.addAll([1.0, 1.5, 2.0, 5.0]);
+        break;
     }
 
     Duration time;
-    if (amounts.length == 3) { // Flight crew rule, block time
+    if (amounts.length == 3) {
+      // Flight crew rule, block time
       time = blockTime;
-    } else if (amounts.length == 4) { // Cabin Crew rule, duty time
+    } else if (amounts.length == 4) {
+      // Cabin Crew rule, duty time
       time = dutyTime;
     }
 
@@ -377,7 +507,7 @@ class MonthlyStatisticsWidget extends StatelessWidget {
   }
 
   MonthlyStatisticsWidget(this.aggregation, this.rank) {
-    aggregation.dutiesAndStatistics.forEach((Map<String, dynamic>data) {
+    aggregation.dutiesAndStatistics.forEach((Map<String, dynamic> data) {
       Duty duty = data['duty'];
       if (duty.isFlight) {
         blockTime += duty.totalBlockTime;
@@ -396,17 +526,21 @@ class MonthlyStatisticsWidget extends StatelessWidget {
   }
 
   Widget _getStatItem(String title, String value, VoidCallback callback) {
-
     List<Widget> widgets = [];
-    widgets.add(Expanded(child: Text(title),));
-    widgets.add(Text(value, textAlign: TextAlign.center,));
+    widgets.add(Expanded(
+      child: Text(title),
+    ));
+    widgets.add(Text(
+      value,
+      textAlign: TextAlign.center,
+    ));
     if (callback != null) {
-      widgets.add(
-        IconButton(
-          icon: Icon(Icons.info),
-          onPressed: () { callback(); },
-        )
-      );
+      widgets.add(IconButton(
+        icon: Icon(Icons.info),
+        onPressed: () {
+          callback();
+        },
+      ));
     }
 
     return Container(
@@ -424,7 +558,8 @@ class MonthlyStatisticsWidget extends StatelessWidget {
       ),
       children: <Widget>[
         _getStatItem('BLOCK TIME: ', durationToStringHM(blockTime), null),
-        _getStatItem('FLYING ALLOWANCE: (' + rankString(rank) + ')', flyingAllowanceString, null),
+        _getStatItem('FLYING ALLOWANCE: (' + rankString(rank) + ')',
+            flyingAllowanceString, null),
         _getStatItem('DUTY TIME: ', durationToStringHM(dutyTime), null),
         _getStatItem('FLIGHTS: ', nbrOfFlights.toString(), null),
       ],

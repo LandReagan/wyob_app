@@ -7,7 +7,6 @@ import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart' as http_io;
 
 import 'package:wyob/WyobException.dart';
-import 'package:wyob/iob/IobConnectorData.dart' as prefix0;
 import 'package:wyob/iob/IobDutyFactory.dart';
 import 'package:wyob/iob/IobConnectorData.dart';
 
@@ -99,8 +98,9 @@ class IobConnector {
 
   List<String> acknowledgeDutyIds = [];
 
-  IobConnector(this.username, this.password) : status = CONNECTOR_STATUS.OFF {
-    onDataChange = ValueNotifier<IobConnectorData>(IobConnectorData(CONNECTOR_STATUS.OFF));
+  IobConnector() : status = CONNECTOR_STATUS.OFF {
+    onDataChange =
+        ValueNotifier<IobConnectorData>(IobConnectorData(CONNECTOR_STATUS.OFF));
   }
   
   /// Used for initial connection, set token and cookie for the session.
@@ -163,6 +163,11 @@ class IobConnector {
     this.acknowledgeDutyIds = IobDutyFactory.getAcknowledgeDutyIds(checkinList);
 
     return checkinList;
+  }
+
+  void setCredentials(String username, String password) {
+    this.username = username;
+    this.password = password;
   }
 
   Future<String> getGanttMainTable() async {
