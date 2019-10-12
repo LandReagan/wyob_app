@@ -253,8 +253,8 @@ class Duty {
       // returns untouched duty and block times
       statisticsData.add({
         'day': startDayMuscat,
-        'duty': duration,
-        'block': totalBlockTime
+        'duty': isWorkingDuty ? duration : Duration.zero,
+        'block': isFlight ? totalBlockTime : Duration.zero
       });
       return statisticsData;
     }
@@ -263,13 +263,13 @@ class Duty {
 
     statisticsData.add({ // first day
       'day': startDayMuscat,
-      'duty': midnightMuscat.difference(startTimeMuscat),
+      'duty': isWorkingDuty ? midnightMuscat.difference(startTimeMuscat) : Duration.zero,
       'block': Duration.zero
     });
 
     statisticsData.add({ // second day
       'day': endDayMuscat,
-      'duty': endTimeMuscat.difference(midnightMuscat),
+      'duty': isWorkingDuty ? endTimeMuscat.difference(midnightMuscat) : Duration.zero,
       'block': Duration.zero
     });
 
