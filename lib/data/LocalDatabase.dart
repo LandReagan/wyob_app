@@ -143,9 +143,9 @@ class LocalDatabase {
       for (int i = 0; i < references.length; i++) {
         var reference = references[i];
         String rotationStringLocal = reference['type'] == 'Trip'
-            ? await connector.getGanttDutyTripLocal(i, references.length,
+            ? await connector.getGanttDutyTripLocal(i + 1, references.length,
                 reference['personId'], reference['persAllocId'])
-            : await connector.getGanttDutyAcyLocal(i, references.length,
+            : await connector.getGanttDutyAcyLocal(i + 1, references.length,
                 reference['personId'], reference['persAllocId']);
 
         String rotationStringUtc = reference['type'] == 'Trip'
@@ -195,20 +195,7 @@ class LocalDatabase {
   /// new one. The list of duties is then sorted on ascending start time...
   Future<void> setDuties(List<Duty> newDuties) async {
     List<Duty> allDuties = getDutiesAll();
-    /* OLD LOGIC, NOT CONVENIENT!
-    newDuties.forEach((newDuty) {
-      allDuties.removeWhere((oldDuty) {
-        return (newDuty.startTime.utc.compareTo(oldDuty.startTime.utc) >= 0
-              && newDuty.startTime.utc.compareTo(oldDuty.endTime.utc) < 0)
-            || (newDuty.endTime.utc.compareTo(oldDuty.startTime.utc) > 0
-              && newDuty.endTime.utc.compareTo(oldDuty.endTime.utc) <= 0);
-      });
-      allDuties.add(newDuty);
-    });
-     */
 
-    // NEW LOGIC: Delete all duties falling in the date interval, from midnight
-    // to midnight.
     newDuties.sort(
         (duty1, duty2) => duty1.startTime.utc.compareTo(duty2.startTime.utc));
     DateTime start = DateTime(newDuties.first.startTime.loc.year,
