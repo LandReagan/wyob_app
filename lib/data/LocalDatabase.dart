@@ -182,11 +182,10 @@ class LocalDatabase {
       }
 
       // set duties
-      if (duties.isNotEmpty) setDuties(duties);
+      if (duties.isNotEmpty) await setDuties(duties);
 
       from = from.add(Duration(days: INTERVAL_DAYS));
     }
-    connector.changeStatus(CONNECTOR_STATUS.OFF);
     await _setUpdateTime(AwareDT.now());
   }
 
@@ -217,7 +216,7 @@ class LocalDatabase {
         allDuties.map((duty) => duty.toMap()).toList();
 
     _root['duties'] = newRawDuties;
-    await _writeLocalData();
+    _writeLocalData();
     _statistics = buildStatistics();
   }
 
@@ -251,7 +250,7 @@ class LocalDatabase {
       DateTime from, DateTime to) {
     var result = <Map<String, dynamic>>[];
     List<Duty> duties = getDuties(from, to);
-    List<Statistics> statistics = buildStatistics();
+    List<Statistics> statistics = _statistics;
     duties.forEach((duty) {
       DateTime correspondingDay = duty.endTime.utc.add(Duration(hours: 4));
       correspondingDay = DateTime(
@@ -269,7 +268,7 @@ class LocalDatabase {
 
     if (earliestDutyDate == null) getDutiesAll();
 
-    DateTime rolling = earliestDutyDate;
+    DateTime rolling = DateTime(earliestDutyDate.year, earliestDutyDate.month);
     if (rolling == null) return aggregations;
     DateTime nowMonth = DateTime(DateTime.now().year, DateTime.now().month);
 
