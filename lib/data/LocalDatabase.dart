@@ -186,6 +186,8 @@ class LocalDatabase {
 
       from = from.add(Duration(days: INTERVAL_DAYS));
     }
+    //todo: Get it better, it's shit
+    connector.changeStatus(CONNECTOR_STATUS.OFF);
     await _setUpdateTime(AwareDT.now());
   }
 

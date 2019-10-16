@@ -238,6 +238,8 @@ class IobConnector {
     response = await client.get(
         ganttUrl, headers: {"Cookie": cookie + ";" + bigCookie, "referer": url});
 
+    changeStatus(CONNECTOR_STATUS.OFF);
+
     return response.body;
   }
 
@@ -289,6 +291,8 @@ class IobConnector {
     http.Response response = await client.get(
         url, headers: {"Cookie": cookie + ";" + bigCookie});
 
+    //changeStatus(CONNECTOR_STATUS.OFF);
+
     return response.body;
   }
 
@@ -296,7 +300,7 @@ class IobConnector {
     if (newStatus != null) {
       this.status = newStatus;
       if (onDataChange != null) {
-        onDataChange.value.status = newStatus;
+        onDataChange.value = IobConnectorData(newStatus);
       }
     }
     print(newStatus);

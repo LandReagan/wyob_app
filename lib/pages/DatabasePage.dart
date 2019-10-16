@@ -20,6 +20,7 @@ class _DatabasePageState extends State<DatabasePage> {
     try {
       await widget.database.updateFromGantt(
           fromParameter: data['from'], toParameter: data['to']);
+      setState(() {}); // Just to rebuild the page and get the new duties
     } on WyobException {
       // We are probably Offline or IOB is down. Shall we do something?
     }
