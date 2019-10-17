@@ -1,4 +1,5 @@
 name: wyob
+version: 0.3.0
 description: To make IOB use easy!
 
 dependencies:
@@ -7,6 +8,8 @@ dependencies:
     sdk: flutter
 
   # cloud_firestore: ^0.8.2+3
+
+  async: ^2.2.0
 
   intl: ^0.15.8
 
@@ -19,7 +22,6 @@ dependencies:
   test: ^1.5.1+1
 
   mockito: ^4.0.0
-    #path: mockito-4.0.0
 
   flutter_test:
     sdk: flutter
@@ -31,6 +33,13 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  flutter_launcher_icons: ^0.7.2
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "graphics/icons/WYOB_app_logo.png"
 
 
 # For information on the generic Dart part of this file, see the
