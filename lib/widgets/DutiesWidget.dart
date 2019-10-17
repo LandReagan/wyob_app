@@ -1,28 +1,46 @@
 import 'package:flutter/material.dart';
 
 import 'package:wyob/objects/Duty.dart' show Duty;
+import 'package:wyob/objects/Statistics.dart';
+import 'package:wyob/utils/DateTimeUtils.dart';
 import 'WidgetUtils.dart';
 import 'package:wyob/pages/FlightDutyScreen.dart';
 
+
 /// Widget containing the ListView of DutyWidgets, built from a List of
 /// Duties
-///
-///
 class DutiesWidget extends StatelessWidget {
 
   final List<Duty> duties;
+  final List<Statistics> statistics;
 
-  DutiesWidget(this.duties);
+  DutiesWidget(this.duties, this.statistics);
 
   @override
   Widget build(BuildContext context) {
-    return new Expanded(
+    return Expanded(
       flex: 7,
-      child: duties == null ? new Container() : new ListView.builder(
-        itemCount: duties.length,
-        itemBuilder: (context, index) {
-          return DutyWidget(duties[index]);
-        }
+      child: duties == null ?
+        Container() :
+        ListView.builder(
+          itemCount: duties.length,
+          //itemExtent: 100.0,
+          itemBuilder: (context, index) {
+            Duty current = duties[index];
+            Duty previous;
+            if (index > 0) {
+              previous = duties[index - 1];
+              if (!previous.isStandby || !previous.endTime.loc.isAtSameMomentAs(current.startTime.loc)) {
+                previous = null;
+              }
+            }
+            DateTime endDayMuscatTime = current.endTime.utc.add(Duration(hours: 4));
+            endDayMuscatTime = DateTime(endDayMuscatTime.year, endDayMuscatTime.month, endDayMuscatTime.day);
+            Statistics stat = statistics.firstWhere((stat) {
+              return stat.day.isAtSameMomentAs(endDayMuscatTime);
+            });
+            return DutyWidget(current, previous, stat);
+          },
       )
     );
   }
@@ -30,50 +48,32 @@ class DutiesWidget extends StatelessWidget {
 
 class DutyWidget extends StatelessWidget {
 
-  BuildContext _context;
-  
   final Duty _duty;
+  final Duty _previous;
+  final Statistics _statistics;
 
-  Text _sectorsText;
+  DutyWidget(this._duty, this._previous, this._statistics);
 
-  DutyWidget(this._duty) {
-
-    if (_duty.nature == 'FLIGHT') {
-
+  Text get sectorsText {
+    if (_duty.isFlight) {
       String stringSectors = _duty.flights[0].startPlace.IATA;
       for (int i = 0; i < _duty.flights.length; i++) {
         stringSectors += ' - ' + _duty.flights[i].endPlace.IATA;
       }
-      _sectorsText = Text(stringSectors, textScaleFactor: 1.2,);
-    } else if (_duty.nature == 'STDBY') {
-      _sectorsText = Text(_duty.code, textScaleFactor: 1.2,);
-    }
-
-    // Text building
-    String sText = "";
-    String sSubText = "";
-    sText += _duty.startTime.localDayString;
-    sText += " ";
-
-    if (_duty.nature == "FLIGHT") {
-      sText += "report " + _duty.startTime.localTimeString;
-      sSubText += _duty.startPlace.IATA + ' ';
-      sSubText += _duty.flights[0].startTime.localTimeString;
-      sSubText += '  to  ' + _duty.endPlace.IATA + ' ' + _duty.endTime.localTimeString;
-    }
-
-    if (_duty.nature == "STDBY") {
-      sSubText += _duty.startTime.localTimeString
-      + ' to ' + _duty.endTime.localTimeString;
+      return Text(stringSectors, textScaleFactor: 1.2,);
+    } else if (_duty.isLayover) {
+      return Text(_duty.code + ' ' + _duty.startPlace.IATA, textScaleFactor: 1.2,);
+    } else {
+      return Text(_duty.code, textScaleFactor: 1.2,);
     }
   }
 
-  Widget getTrailingIcon() {
-    if (_duty.nature == "FLIGHT") {
+  Widget _getTrailingIcon(BuildContext context) {
+    if (_duty.isFlight) {
       return IconButton(
         icon: Icon(Icons.arrow_forward_ios),
         onPressed: () {
-          _goToFlightDutyScreen();
+          _goToFlightDutyScreen(context);
         },
       );
     } else {
@@ -81,67 +81,76 @@ class DutyWidget extends StatelessWidget {
     }
   }
 
-  Widget getLocalDayText() {
+  Widget _getLocalStartDayText() {
     return Text(_duty.startTime.localDayString, textScaleFactor: 0.9);
   }
 
-  Widget getUpperRow() {
+  Widget _getLocalEndDayText() {
+    return Text(_duty.endTime.localDayString, textScaleFactor: 0.9);
+  }
+
+  Widget _getUpperRow() {
     // If reporting time is relevant
-    if (_duty.nature == 'FLIGHT') {
+    if (_duty.isFlight) {
       return Row(
         children: <Widget>[
-          getLocalDayText(),
+          _getLocalStartDayText(),
           Spacer(),
           ReportingTimeWidget(_duty.startTime.localTimeString),
         ],
       );
-    } else if (_duty.nature == 'STDBY') {
+    } else if (_duty.isWorkingDuty || _duty.isStandby) {
       return Row(
         children: <Widget>[
-          getLocalDayText(),
+          _getLocalStartDayText(),
           Spacer(),
           StandbyTimesWidget(
-            _duty.startTime.localTimeString,
-            _duty.endTime.localTimeString
+              _duty.startTime.localTimeString,
+              _duty.endTime.localTimeString
           ),
         ],
       );
+    } else if (_duty.isLayover) {
+      return LayoverTimingWidget(durationToStringHM(_duty.duration));
     } else {
       return Row(
         children: <Widget>[
-          getLocalDayText(),
+          _getLocalStartDayText(),
           Spacer(),
         ],
       );
     }
   }
 
-  Widget getCentralWidget() {
-    if (getUpperRow() != null) {
-      return Column(
-        children: <Widget>[
-          getUpperRow(),
-          Center(
-            child: _sectorsText,
-          )
-        ],
-      );
-    } else {
-      return Column(
-        children: <Widget>[
-          Center(
-            child: _sectorsText,
-          )
-        ],
-      );
+  Widget _getLowerRow() {
+    if (_duty.isLayover) return null; // No day on Layovers
+    if (_duty.startTime.localDayString != _duty.endTime.localDayString) {
+      return Row(children: <Widget>[_getLocalEndDayText()],);
     }
+    return null;
   }
 
-  void _goToFlightDutyScreen() {
+  Widget _getCentralWidget() {
+    var widgets = <Widget>[];
+
+    Widget upperRow = _getUpperRow();
+    Widget centerText = Center(child: this.sectorsText,);
+    Widget lowerRow = _getLowerRow();
+
+    if (upperRow != null) widgets.add(upperRow);
+    widgets.add(centerText);
+    if (lowerRow != null) widgets.add(lowerRow);
+
+    return Column(
+      children: widgets,
+    );
+  }
+
+  void _goToFlightDutyScreen(context) {
     Navigator.push(
-        _context,
+        context,
         MaterialPageRoute(
-            builder: (_context) => FlightDutyScreen(_duty),
+            builder: (_context) => FlightDutyScreen(_duty, _previous, _statistics),
         ),
     );
   }
@@ -151,11 +160,13 @@ class DutyWidget extends StatelessWidget {
       return Colors.grey;
     } // TODO: color for "acknowledge" duties
 
+    if (_duty.acknowledge) return Colors.redAccent;
+
     return Colors.white;
   }
 
+  @override
   Widget build(BuildContext context) {
-    _context = context;
     return Container(
       decoration: BoxDecoration(
         color: _getDutyColor(),
@@ -166,11 +177,11 @@ class DutyWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             WidgetUtils.getIconFromDutyNature(_duty.nature),
-            Text(_duty.nature)
+            //Text(_duty.natureAsString)
           ],
         ),
-        title: getCentralWidget(),
-        trailing: getTrailingIcon(),
+        title: _getCentralWidget(),
+        trailing: _getTrailingIcon(context),
       ),
     );
   }
@@ -207,6 +218,22 @@ class StandbyTimesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       'from ' + startTime + ' to ' + endTime,
+      textScaleFactor: 0.9,
+      style: TextStyle(color: Colors.redAccent),
+    );
+  }
+}
+
+class LayoverTimingWidget extends StatelessWidget {
+
+  final String durationString;
+
+  LayoverTimingWidget(this.durationString);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      durationString,
       textScaleFactor: 0.9,
       style: TextStyle(color: Colors.redAccent),
     );

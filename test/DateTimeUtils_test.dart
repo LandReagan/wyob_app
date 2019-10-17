@@ -6,13 +6,13 @@ void main() {
   group("DateTimeToString function test", () {
     test("Basic", () {
       DateTime datetime = new DateTime(1978, 11, 15, 3, 40);
-      String result = DateTimeToString(datetime);
+      String result = dateTimeToString(datetime);
       expect(result, equals("15Nov1978 03:40"));
     });
 
     test("With all leading zeros", () {
       DateTime datetime = new DateTime(1978, 1, 3, 3, 6);
-      String result = DateTimeToString(datetime);
+      String result = dateTimeToString(datetime);
       expect(result, equals("03Jan1978 03:06"));
     });
   });
@@ -21,22 +21,27 @@ void main() {
     test("Basic", () {
       String txt = "15Nov1978 03:40";
       DateTime datetime = new DateTime(1978, 11, 15, 3, 40);
-      expect(StringToDateTime(txt), equals(datetime));
+      expect(stringToDateTime(txt), equals(datetime));
     });
   });
 
   group("StringToDuration and DurationToString functions tests", () {
     test("Basic 1", () {
       String test1 = "+01:35";
-      Duration duration1 = StringToDuration(test1);
-      expect(test1, equals(DurationToString(duration1)));
+      Duration duration1 = stringToDuration(test1);
+      expect(test1, equals(durationToString(duration1)));
     });
 
     test("Basic 2", () {
       String test1 = "-09:01";
-      Duration duration1 = StringToDuration(test1);
-      expect(test1, equals(DurationToString(duration1)));
+      Duration duration1 = stringToDuration(test1);
+      expect(test1, equals(durationToString(duration1)));
     });
+  });
+
+  test('durationToDouble function test', () {
+    Duration duration = Duration(hours: 1, minutes: 30);
+    expect(durationToDouble(duration), 1.5);
   });
 
   group("AwareDT class tests", () {
@@ -71,7 +76,7 @@ void main() {
       String txt = "15Nov1978 03:40 +01:00";
       AwareDT awareDT = new AwareDT.fromString(txt);
       print(awareDT.toString());
-      expect(awareDT.utc, equals(StringToDateTime("15Nov1978 02:40")));
+      expect(awareDT.utc, equals(stringToDateTime("15Nov1978 02:40")));
     });
 
     test('Comparison operators', () {

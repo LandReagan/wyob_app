@@ -1,7 +1,14 @@
 import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart' as http_io;
+
 import 'package:wyob/WyobException.dart';
+import 'package:wyob/iob/IobDutyFactory.dart';
+import 'package:wyob/iob/IobConnectorData.dart';
 
 
 /// URLs
@@ -41,13 +48,16 @@ enum DUTY_TYPE {
 
 class IobConnector {
 
-  final String username;
-  final String password;
+  String username;
+  String password;
+
   String token;
   String cookie;
   String bigCookie;
   String personId;
   http.Client client;
+  CONNECTOR_STATUS status;
+  ValueNotifier<IobConnectorData> onDataChange;
 
   Map<String, String> crewSelectForm = {
     "org.apache.struts.taglib.html.TOKEN": "", // <= set token here
@@ -86,26 +96,38 @@ class IobConnector {
     "hidActivity": "",
   };
 
-  IobConnector(this.username, this.password);
+  List<String> acknowledgeDutyIds = [];
+
+  IobConnector() : status = CONNECTOR_STATUS.OFF {
+    onDataChange =
+        ValueNotifier<IobConnectorData>(IobConnectorData(CONNECTOR_STATUS.OFF));
+  }
   
   /// Used for initial connection, set token and cookie for the session.
   /// Returns the check-in list in a String to be parsed (see Parsers.dart)
   /// In the case of any failure, throws a WyobException subclass.
   Future<String> init() async {
     print("Connecting to IOB...");
-    client = new http.Client();
+    this.changeStatus(CONNECTOR_STATUS.CONNECTING);
+    client = this.getBadClient();
     http.Response iobResponse;
 
-    if (username == '' || password == '' || username == null || password == null)
+    if (username == '' || password == '' || username == null ||
+        password == null) {
+      this.changeStatus(CONNECTOR_STATUS.ERROR);
       throw WyobExceptionCredentials('Credentials not set in IobConnector');
+    }
 
     try {
       iobResponse = await client.get(landingUrl);
     } on Exception catch (e) {
+      print(e);
+      this.changeStatus(CONNECTOR_STATUS.OFFLINE);
       throw WyobExceptionOffline(
           'OFFLINE mode. For info, error: ' + e.toString());
     }
 
+    this.changeStatus(CONNECTOR_STATUS.CONNECTED);
     print("Connected with status code: " + iobResponse.statusCode.toString());
     String landingBodyWithToken = iobResponse.body;
     this.token = tokenRegExp.firstMatch(landingBodyWithToken).group(1);
@@ -121,7 +143,8 @@ class IobConnector {
         )
       ).headers.toString();
       this.cookie = cookieRegExp.firstMatch(loginHeaders).group(1);
-    } on Exception catch (e) {
+    } on Exception {
+      this.changeStatus(CONNECTOR_STATUS.LOGIN_FAILED);
       throw WyobExceptionLogIn('IobConnector failed to log in');
     }
 
@@ -131,15 +154,26 @@ class IobConnector {
       await client.get(checkinListUrl, headers: {"Cookie": cookie});
     this.bigCookie = checkinListResponse.headers["set-cookie"];
 
+    this.changeStatus(CONNECTOR_STATUS.AUTHENTIFIED);
+
     print('Big Cookie: ' + this.bigCookie);
 
     String checkinList = checkinListResponse.body;
 
+    this.acknowledgeDutyIds = IobDutyFactory.getAcknowledgeDutyIds(checkinList);
+
     return checkinList;
+  }
+
+  void setCredentials(String username, String password) {
+    this.username = username;
+    this.password = password;
   }
 
   Future<String> getGanttMainTable() async {
     /// gets the GANTT  main table data and change it into a String to be parsed.
+
+    this.changeStatus(CONNECTOR_STATUS.FETCHING_GANTT_TABLE);
 
     crewSelectForm['org.apache.struts.taglib.html.TOKEN'] = this.token;
     crewSelectForm['action'] = 'fastcrewonly';
@@ -164,15 +198,20 @@ class IobConnector {
     return response.body;
   }
 
+  // Gets the Gantt duties references between [from] and [to],
+  // MAX 30 DAYS !!!
   Future<String> getFromToGanttDuties(DateTime from, DateTime to) async {
-    // Gets the Gantt duties references between [from] and [to],
-    // MAX 30 DAYS !!!
+
     if (this.cookie == null || this.bigCookie == null) {
-      await this.init();
+      await init();
+    } else {
+      changeStatus(CONNECTOR_STATUS.CONNECTED);
     }
 
     if (this.personId == null) {
-      await this.getGanttMainTable();
+      await getGanttMainTable();
+    } else {
+      changeStatus(CONNECTOR_STATUS.FETCHING_GANTT_TABLE);
     }
 
     String today = DateFormat('dMMMy').format(DateTime.now());
@@ -193,19 +232,28 @@ class IobConnector {
       "&todtm=" + todtm +
       "&command=Go";
 
-    String oldurl = fromToGanttUrl + 'fromdtm=' + fromdtm + '&todtm=' + todtm +
-        '&persons=' + personId + ',&mlt.baseStation=MCT&mlt.utcLocal=Utc';
-
     http.Response response = await client.get(
         url, headers: {"Cookie": cookie + ";" + bigCookie});
 
     response = await client.get(
         ganttUrl, headers: {"Cookie": cookie + ";" + bigCookie, "referer": url});
 
+    changeStatus(CONNECTOR_STATUS.OFF);
+
     return response.body;
   }
 
-  Future<String> getGanttDutyTripLocal(String personId, String persAllocId) {
+  Future<String> getGanttDutyTripLocal(
+      int dutyIndex,
+      int dutyTotalNumber,
+      String personId,
+      String persAllocId) {
+
+    this.onDataChange.value = IobConnectorData(
+        CONNECTOR_STATUS.FETCHING_DUTY, dutyIndex, dutyTotalNumber);
+
+    print("Duty: " + dutyIndex.toString() + "/" + dutyTotalNumber.toString());
+
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Trip);
   }
 
@@ -213,7 +261,17 @@ class IobConnector {
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Utc, DUTY_TYPE.Trip);
   }
 
-  Future<String> getGanttDutyAcyLocal(String personId, String persAllocId) {
+  Future<String> getGanttDutyAcyLocal(
+      int dutyIndex,
+      int dutyTotalNumber,
+      String personId,
+      String persAllocId) {
+
+    this.onDataChange.value = IobConnectorData(
+        CONNECTOR_STATUS.FETCHING_DUTY, dutyIndex, dutyTotalNumber);
+
+    print("Duty: " + dutyIndex.toString() + "/" + dutyTotalNumber.toString());
+
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Acy);
   }
 
@@ -233,6 +291,28 @@ class IobConnector {
     http.Response response = await client.get(
         url, headers: {"Cookie": cookie + ";" + bigCookie});
 
+    //changeStatus(CONNECTOR_STATUS.OFF);
+
     return response.body;
+  }
+
+  void changeStatus(CONNECTOR_STATUS newStatus) {
+    if (newStatus != null) {
+      this.status = newStatus;
+      if (onDataChange != null) {
+        onDataChange.value = IobConnectorData(newStatus);
+      }
+    }
+    print(newStatus);
+  }
+
+  bool _certificateCheck(X509Certificate cert, String host, int port) =>
+    host == 'fltops.omanair.com';
+
+  // Bad certificate client
+  http.Client getBadClient() {
+    var ioClient = new HttpClient()
+        ..badCertificateCallback = _certificateCheck;
+    return new http_io.IOClient(ioClient);
   }
 }

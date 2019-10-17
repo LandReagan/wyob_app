@@ -1,7 +1,5 @@
 import 'dart:io' show File;
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 
 import 'package:test/test.dart';
 import 'package:wyob/data/LocalDatabase.dart';
@@ -67,8 +65,8 @@ void main() {
     for (var reference in references) {
       String rotationStringLocal =
         reference['type'] == 'Trip' ?
-          await connector.getGanttDutyTripLocal(reference['personId'], reference['persAllocId']) :
-          await connector.getGanttDutyAcyLocal(reference['personId'], reference['persAllocId']);
+          await connector.getGanttDutyTripLocal(1, reference['personId'], reference['persAllocId']) :
+          await connector.getGanttDutyAcyLocal(1, reference['personId'], reference['persAllocId']);
 
       String rotationStringUtc =
         reference['type'] == 'Trip' ?
@@ -85,7 +83,6 @@ void main() {
   });
 
   test('Get the duties from nothing (first connection)', () async {
-    IobConnector connector = IobConnector('93429', '93429iob');
     LocalDatabase database = LocalDatabase();
     await database.connect();
     database.getDuties(DateTime.now(), DateTime.now().add(Duration(days: 5)));

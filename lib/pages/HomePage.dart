@@ -3,81 +3,73 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
+import 'package:wyob/objects/Statistics.dart';
 
-// High level packages
-import 'package:wyob/iob/IobConnector.dart';
-import 'package:wyob/iob/IobDutyFactory.dart';
-
-// Pages
-import 'package:wyob/pages/UserSettingsPage.dart';
-import 'package:wyob/pages/DirectoryPage.dart';
-import 'package:wyob/pages/LoginPage.dart';
+import 'package:wyob/pages/DatabasePage.dart';
 import 'package:wyob/pages/FtlMainPage.dart';
 
 // Widgets
 import 'package:wyob/widgets/DutiesWidget.dart';
+import 'package:wyob/widgets/IobStateWidget.dart';
 import 'package:wyob/widgets/LoginPopUp.dart';
 
 // Objects
 import 'package:wyob/objects/Duty.dart';
 
-// Utils
-import 'package:wyob/utils/DateTimeUtils.dart';
-
-
 class HomePage extends StatefulWidget {
-
   final LocalDatabase database = LocalDatabase();
 
-  HomePageState createState() => new HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
 class HomePageState extends State<HomePage> {
-
   List<Duty> _duties = [];
+  List<Statistics> _statistics = [];
   DateTime _lastUpdate;
-  Timer _timer;
-
-  bool updating = false;
 
   void initState() {
     super.initState();
     this._initialization();
-    _timer = Timer.periodic(Duration(seconds: 1), resetPage);
   }
 
   void _initialization() async {
     try {
-      await this.widget.database.connect();
-    } on WyobExceptionCredentials catch (e) {
-      showDialog(context: context, builder: (context) => LoginPopUp(context));
+      await widget.database.connect();
+      readDutiesFromDatabase();
+      await updateFromIob();
+    } on WyobExceptionCredentials {
+      await showDialog(context: context, builder: (context) => LoginPopUp(context));
     }
-    readDutiesFromDatabase();
-    await updateFromIob();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void refresh() {
+    setState(() {
+      readDutiesFromDatabase();
+    });
   }
 
   void readDutiesFromDatabase() {
-
     setState(() {
       _duties = widget.database.getDuties(
-          DateTime.now().subtract(Duration(days: 5)),
-          DateTime.now().add(Duration(days: 30))
-      );
+          DateTime.now().subtract(Duration(days: 3)),
+          DateTime.now().add(Duration(days: 40)));
       _lastUpdate = widget.database.updateTimeLoc;
+      _statistics = widget.database.statistics;
     });
   }
 
   Future<void> updateFromIob() async {
 
-    setState(() {
-      updating = true;
-    });
-
     try {
       await widget.database.updateFromGantt();
-    } on WyobExceptionCredentials catch (e) {
+    } on WyobExceptionCredentials {
       print('Credentials not in database');
-    } on WyobExceptionOffline catch (e) {
+    } on WyobExceptionOffline {
       print('OFFLINE MODE.');
     } on Exception catch (e) {
       print('Unhandled exception caught: ' + e.toString());
@@ -85,125 +77,81 @@ class HomePageState extends State<HomePage> {
 
     readDutiesFromDatabase();
 
-    setState(() {
-      updating = false;
-    });
+    setState(() {});
   }
 
-  String getSinceLastUpdateMessage() {
+  String _getSinceLastUpdateMessage() {
     if (_lastUpdate != null) {
-      Duration sinceLastUpdate = DateTime.now().difference(_lastUpdate);
-      int hours = sinceLastUpdate.inHours;
-      sinceLastUpdate -= Duration(hours: sinceLastUpdate.inHours);
-      int minutes = sinceLastUpdate.inMinutes;
-      return "LAST UPDATE: " + _lastUpdate.toString().substring(0, 16) + '\n' +
-        hours.toString() + ' hours and ' + minutes.toString() + ' minutes ago';
+      return "LAST UPDATE: " + _lastUpdate.toString().substring(0, 16);
     } else {
-      return "---";
+      return "PLEASE UPDATE!";
     }
-  }
-
-  void resetPage(Timer timer) {
-    setState(() {
-
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'WYOB',
-      home: new Scaffold(
-        drawer: new Drawer(
-            child: new ListView(
-              padding: EdgeInsets.zero,
-              children: <Widget>[
-                new DrawerHeader(
-                  //TODO Harmonize style
-                  child: new Text("Menu", style: TextStyle(fontSize: 20.0)),
-                ),
-                new GestureDetector(
-                  child: ListTile(
-                      contentPadding: EdgeInsets.all(10.0),
-                      leading: Icon(Icons.insert_emoticon),
-                      title: Text("User")
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => UserSettingsPage(),
-                        )
-                    );
-                  },
-                ),
-                /* Directory
-                new GestureDetector(
-                  child: ListTile(
-                      contentPadding: EdgeInsets.all(10.0),
-                      leading: Icon(Icons.phone),
-                      title: Text("Directory")
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DirectoryPage(),
-                        )
-                    );
-                  },
-                ),
-                */
-                new GestureDetector(
-                  child: ListTile(
-                      contentPadding: EdgeInsets.all(10.0),
-                      leading: Icon(Icons.lock_outline),
-                      title: Text("Login credentials")
-                  ),
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return LoginPopUp(context);
-                      }
-                    );
-                  },
-                ),
-                new GestureDetector(
-                  child: ListTile(
-                      contentPadding: EdgeInsets.all(10.0),
-                      leading: Icon(Icons.access_time),
-                      title: Text("FTL Calculator")
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FtlMainPage(),
-                        )
-                    );
-                  },
-                )
-              ],
-            )
-        ),
-        appBar: new AppBar(
-          title: new Text("WYOB v0.1 alpha"),
-        ),
-        body: new HomeWidget(_duties),
-        bottomNavigationBar: BottomAppBar(
-          color: Colors.orange,
-          child: Row(
+      home: Scaffold(
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
             children: <Widget>[
-              Expanded(
-                child: Text(getSinceLastUpdateMessage(), textAlign: TextAlign.center,),
+              DrawerHeader(
+                child: Text("Menu", style: TextStyle(fontSize: 20.0)),
               ),
-              FlatButton(
-                child: updating ? CircularProgressIndicator() : Text('UPDATE'),
-                onPressed: updateFromIob,
+              GestureDetector(
+                child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    leading: Icon(Icons.lock_outline),
+                    title: Text("Login credentials")),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return LoginPopUp(context);
+                    }
+                  );
+                },
+              ),
+              GestureDetector(
+                child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    leading: Icon(Icons.keyboard),
+                    title: Text("Database")),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DatabasePage(),
+                    )
+                  ).then((value) => this.setState(() {}));
+                },
+              ),
+              GestureDetector(
+                child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    leading: Icon(Icons.av_timer),
+                    title: Text("FTL Calculator")),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FtlMainPage(null, null),
+                    )
+                  );
+                },
               ),
             ],
-          ),
+          )
+        ),
+        appBar: AppBar(
+          title: Text("WYOB v0.2 beta"),
+        ),
+        body: HomeWidget(_duties, _statistics),
+        bottomNavigationBar: BottomAppBar(
+          color: Colors.orange,
+          child: IobStateWidget(widget.database, refresh),
         ),
       ),
     );
@@ -211,20 +159,17 @@ class HomePageState extends State<HomePage> {
 }
 
 class HomeWidget extends StatelessWidget {
-
   final List<Duty> duties;
+  final List<Statistics> statistics;
 
-  HomeWidget(this.duties);
+  HomeWidget(this.duties, this.statistics);
 
   @override
   Widget build(BuildContext context) {
-    return new Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        new Container(
-            child: Text("Duties:")
-        ),
-        new DutiesWidget(duties),
+        DutiesWidget(duties, statistics),
       ],
     );
   }

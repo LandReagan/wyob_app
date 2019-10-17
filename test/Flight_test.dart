@@ -20,6 +20,7 @@ void main() {
       Flight flight = new Flight.fromJson(jsonFlight);
       String flightJson = flight.toJson();
       expect(flightJson.length, equals(jsonFlight.length));
+      expect(flight.startPlace.IATA, "MRS");
     });
   });
 

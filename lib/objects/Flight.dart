@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:wyob/utils/DateTimeUtils.dart';
+
 import 'Airport.dart' show Airport;
-import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT, DurationToString;
+import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT, durationToString;
 
 /// This class represents a flight
 class Flight {
@@ -13,27 +15,23 @@ class Flight {
   String flightNumber;
 
   Duration get duration => endTime.difference(startTime);
-
-  Flight.fromMap(Map<String, dynamic> map) {
-    startTime = new AwareDT.fromString(map['startTime']);
-    endTime = new AwareDT.fromString(map['endTime']);
-    startPlace = new Airport.fromIata(map['startPlace']);
-    endPlace = new Airport.fromIata(map['endPlace']);
-    flightNumber = map['flightNumber'];
+  String get durationString {
+    return durationToString(duration);
   }
 
-  Flight.fromJson(String jsonString) {
-
-    Map<String, dynamic> jsonObject = json.decode(jsonString);
-
-    startTime = new AwareDT.fromString(jsonObject['startTime']);
-    endTime = new AwareDT.fromString(jsonObject['endTime']);
-    startPlace = new Airport.fromIata(jsonObject['startPlace']);
-    endPlace = new Airport.fromIata(jsonObject['endPlace']);
-    flightNumber = jsonObject['flightNumber'];
+  Flight.fromMap(Map<String, dynamic> mapObject) {
+    startTime = new AwareDT.fromString(mapObject['startTime']);
+    endTime = new AwareDT.fromString(mapObject['endTime']);
+    startPlace = new Airport.fromIata(mapObject['startPlace']);
+    endPlace = new Airport.fromIata(mapObject['endPlace']);
+    flightNumber = mapObject['flightNumber'];
   }
 
-  Flight.fromIobMap(Map<String, String> iobMap) {
+  factory Flight.fromJson(String jsonString) {
+    return Flight.fromMap(jsonDecode(jsonString));
+  }
+
+  Flight.fromIobMap(Map<String, dynamic> iobMap) {
     startTime = new AwareDT.fromIobString(iobMap['Start']);
     endTime = new AwareDT.fromIobString(iobMap['End']);
     startPlace = new Airport.fromIata(iobMap['From']);
@@ -45,8 +43,8 @@ class Flight {
     return json.encode(this.toMap());
   }
 
-  Map<String, String> toMap() {
-    Map<String, String> flightMap = {
+  Map<String, dynamic> toMap() {
+    Map<String, dynamic> flightMap = {
       'startTime': startTime.toString(),
       'endTime': endTime.toString(),
       'startPlace': startPlace.IATA,
@@ -67,7 +65,7 @@ class Flight {
     endPlace == null ? result += 'XXX|' : result += endPlace.IATA + '|';
     endTime == null ?
     result += 'DDMMMYYYY HH:MM|' : result += endTime.toString() + '|';
-    result += DurationToString(duration) + '|';
+    result += durationToString(duration) + '|';
 
     return result;
   }

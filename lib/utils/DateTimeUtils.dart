@@ -2,10 +2,18 @@ List<String> months = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+String dateToString(DateTime datetime) {
+  String day = datetime.day.toString();
+  if (day.length < 2) { day = "0" + day; }
+  String month = months[datetime.month - 1];
+  String year = datetime.year.toString();
+  return day + ' ' + month + ' ' + year;
+}
+
 /// This function returns a properly formatted DateTime.
 /// Format: DDMmmYYYY HH:MM
 /// with month as the standard 3 letters (e.g. JAN, FEB, MAR, etc.).
-String DateTimeToString(DateTime datetime) {
+String dateTimeToString(DateTime datetime) {
 
   String day = datetime.day.toString();
   if (day.length < 2) { day = "0" + day; }
@@ -22,7 +30,7 @@ String DateTimeToString(DateTime datetime) {
 /// This function returns a DateTime object out of a String.
 /// Format: DDMmmYYYY HH:MM
 /// with month as the standard 3 letters (e.g. JAN, FEB, MAR, etc.).
-DateTime StringToDateTime(String txt) {
+DateTime stringToDateTime(String txt) {
 
   RegExp regexp = new RegExp(
     r'(\d{2})(\w{3})(\d{4})\s(\d{2}):(\d{2})'
@@ -40,18 +48,36 @@ DateTime StringToDateTime(String txt) {
   return new DateTime(year, month, day, hour, minute);
 }
 
-String DurationToString(Duration duration) {
+String durationToString(Duration duration) {
 
   String sign = duration.isNegative ? "-" : "+";
   String hours = duration.abs().inHours.toString();
   String minutes = (duration.abs().inMinutes % 60).toString();
-  hours.length < 2 ? hours = "0" + hours : null;
-  minutes.length < 2 ? minutes = "0" + minutes : null;
+  if (hours.length < 2) hours = "0" + hours;
+  if (minutes.length < 2) minutes = "0" + minutes;
 
   return sign + hours + ":" + minutes;
 }
 
-Duration StringToDuration(String txt) {
+String durationToStringHM(Duration duration) {
+  if (duration == null) return null;
+  String result = '';
+  duration >= Duration.zero ? result += '' : result += '-';
+  if (duration.inHours.abs() < 10) result += '0';
+  result += duration.inHours.abs().toString() + 'h';
+  int minutes = duration.inMinutes.abs() - duration.inHours.abs() * 60;
+  if (minutes < 10) result += '0';
+  result += minutes.toString() + 'm';
+  return result;
+}
+
+double durationToDouble(Duration duration) {
+  double result = 0.0;
+  result += duration.inMinutes / 60;
+  return result;
+}
+
+Duration stringToDuration(String txt) {
 
   RegExp durationRegExp = new RegExp(
     r"([\+|-])(\d{2}):(\d{2})"
@@ -67,6 +93,26 @@ Duration StringToDuration(String txt) {
   if (match.group(1) == '-') { duration *= -1; }
 
   return duration;
+}
+
+String getMonthFullString(int number) {
+  /// January == 1, February == 2, etc.
+  assert (number > 0 && number <= 12);
+  switch (number) {
+    case 1: return 'January'; break;
+    case 2: return 'February'; break;
+    case 3: return 'March'; break;
+    case 4: return 'April'; break;
+    case 5: return 'May'; break;
+    case 6: return 'June'; break;
+    case 7: return 'July'; break;
+    case 8: return 'August'; break;
+    case 9: return 'September'; break;
+    case 10: return 'October'; break;
+    case 11: return 'November'; break;
+    case 12: return 'December'; break;
+    default: return null;
+  }
 }
 
 class AwareDT extends Object{
@@ -93,8 +139,8 @@ class AwareDT extends Object{
 
     var match = txtRegExp.firstMatch(txt);
 
-    _loc = StringToDateTime(match.group(1));
-    _utc = _loc.subtract(StringToDuration(match.group(2)));
+    _loc = stringToDateTime(match.group(1));
+    _utc = _loc.subtract(stringToDuration(match.group(2)));
   }
 
   /// Special constructor with an IOB string.
@@ -149,7 +195,7 @@ class AwareDT extends Object{
     if (hour.length < 2) { hour = "0" + hour; }
     String minute = _loc.minute.toString();
     if (minute.length < 2) { minute = "0" + minute; }
-    return hour + ":" + minute + " loc";
+    return hour + ":" + minute;
   }
 
   String get utcDayString {
@@ -168,9 +214,24 @@ class AwareDT extends Object{
     return hour + ":" + minute + "z";
   }
 
-
   Duration difference (AwareDT before) {
     return _utc.difference(before.utc);
+  }
+
+  Duration timeZoneDifference(AwareDT other) {
+    return this.gmtDiff - other.gmtDiff;
+  }
+
+  AwareDT add(Duration duration) {
+    DateTime locDT = this._loc.add(duration);
+    DateTime utcDT = this._utc.add(duration);
+    return AwareDT.fromDateTimes(locDT, utcDT);
+  }
+
+  AwareDT subtract(Duration duration) {
+    DateTime locDT = this._loc.subtract(duration);
+    DateTime utcDT = this._utc.subtract(duration);
+    return AwareDT.fromDateTimes(locDT, utcDT);
   }
 
   // Operators
@@ -194,8 +255,8 @@ class AwareDT extends Object{
   @override
   String toString() {
 
-    String locDateTimeString = DateTimeToString(_loc);
-    String gmtDiffString = DurationToString(gmtDiff);
+    String locDateTimeString = dateTimeToString(_loc);
+    String gmtDiffString = durationToString(gmtDiff);
 
     return locDateTimeString + " " + gmtDiffString;
   }

@@ -2,15 +2,21 @@ import 'package:flutter/material.dart';
 
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Flight.dart';
-import 'package:wyob/objects/Rest.dart';
+import 'package:wyob/objects/FTL.dart';
+import 'package:wyob/objects/Statistics.dart';
+import 'package:wyob/pages/FtlMainPage.dart';
+import 'package:wyob/widgets/AccumulatedWidget.dart';
+import 'package:wyob/widgets/DurationWidget.dart';
+import 'package:wyob/widgets/PeriodWidgets.dart';
 
 
 class FlightDutyScreen extends StatelessWidget {
 
   final Duty flightDuty;
-  final Rest rest;
+  final Duty previous;
+  final Statistics statistics;
 
-  FlightDutyScreen(this.flightDuty) : rest = Rest.fromDuty(flightDuty);
+  FlightDutyScreen(this.flightDuty, this.previous, this.statistics);
 
   String getTitle() {
     String returnValue = '';
@@ -27,25 +33,22 @@ class FlightDutyScreen extends StatelessWidget {
     Widget reportingWidget = Container(
       padding: EdgeInsets.all(10.0),
       decoration: BoxDecoration(
-        color: Colors.grey,
+        color: Color.fromRGBO(220, 220, 220, 1.0),
       ),
       child: Row(
         children: <Widget>[
           Expanded(
-            child: Text("Reporting:", style: TextStyle(fontStyle: FontStyle.italic),),
+            child: Text("Reporting:", style: TextStyle(fontStyle: FontStyle.italic),textScaleFactor: 1.5,),
           ),
           Expanded(
             child: Text(
-              flightDuty.startTime.localDayString,
+              flightDuty.startTime.localDayString + ' ',textScaleFactor: 1.5,
               style: TextStyle(color: Colors.red),
             ),
           ),
-  
-          Expanded(
-            child: Text(
-              flightDuty.startTime.localTimeString,
-              style: TextStyle(color: Colors.red),
-            ),
+       Text(
+            flightDuty.startTime.localTimeString,textScaleFactor: 1.5,
+            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -58,19 +61,24 @@ class FlightDutyScreen extends StatelessWidget {
       },
     );
 
-    List<Widget> result = [reportingWidget];
+    List<Widget> widgets = [reportingWidget];
 
     for (Widget flightWidget in flightWidgets) {
-      result.add(flightWidget);
-      result.add(Divider(
-        height: 5.0,
-        color: Colors.black,
-      ));
+      widgets.add(flightWidget);
     }
 
-    result.add(RestWidget(rest));
+    FTL ftl = FTL.fromDuty(flightDuty, previous: previous);
 
-    return result;
+    widgets.add(Divider(color: Colors.white, height: 15.0,));
+    widgets.add(FlightDutyPeriodWidget(ftl));
+    widgets.add(Divider(color: Colors.white, height: 3.0,));
+    widgets.add(DutyPeriodWidget(ftl));
+    widgets.add(Divider(color: Colors.white, height: 3.0,));
+    widgets.add(RestPeriodWidget(ftl));
+    widgets.add(Divider(color: Colors.white, height: 3.0,));
+    widgets.add(AccumulatedWidget.fromStatistics(statistics));
+
+    return widgets;
   }
 
   @override
@@ -78,63 +86,31 @@ class FlightDutyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(getTitle()),
-      ),
-      body: DefaultTextStyle(
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 20.0,
-          fontWeight: FontWeight.bold
-        ),
-        child: Column(
-          children: getFlightWidgets(),
-        ),
-      ),
-    );
-  }
-}
-
-class RestWidget extends StatelessWidget {
-
-  final Rest _rest;
-
-  RestWidget(this._rest);
-
-  String getMinimumRestDuration() {
-    int hours = _rest.duration.inHours;
-    int minutes = _rest.duration.inMinutes - hours * 60;
-    return hours.toString() + ' hours ' +
-        (minutes.toString() == '0' ? '' : minutes.toString() + ' minutes');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTextStyle(
-      style: TextStyle(
-        color: Colors.black,
-        fontSize: 20.0,
-        fontWeight: FontWeight.normal
-      ),
-      child: Row(
-        children: <Widget>[
-          Padding(
+        actions: <Widget>[
+          Container(
             padding: EdgeInsets.all(10.0),
-            child: Icon(Icons.hotel, size: 40.0,),
-          ),
-          Expanded(
-              child: Column(
-                children: <Widget>[
-                  Text('Minimum rest:', textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.bold),),
-                  Text(getMinimumRestDuration()),
-                  Text('ends: ' + _rest.endTime.localDayString + ' ' +
-                      _rest.endTime.localTimeString,
-                    style: TextStyle(color: Colors.redAccent),
+            child: OutlineButton(
+              child: Text('FTL >'),
+              textColor: Colors.white,
+              borderSide: BorderSide(color: Colors.white),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5.0)),
+              ),
+              onPressed: () {
+                return Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FtlMainPage(flightDuty, previous)
                   )
-                ],
-              )
-          )
+                );
+              },
+            ),
+          ),
         ],
       ),
+      body: ListView(
+          children: getFlightWidgets(),
+        ),
     );
   }
 }
@@ -247,6 +223,17 @@ class FlightDutyWidget extends StatelessWidget {
               ],
             ),
           ),
+
+          // Fourth column with block time
+          Column(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(5.0),
+                child: Text("BLOCK:"),
+              ),
+              DurationWidget(_flight.duration)
+            ],
+          )
         ],
       ),
     );
