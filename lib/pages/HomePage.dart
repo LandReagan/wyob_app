@@ -47,6 +47,12 @@ class HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  void refresh() {
+    setState(() {
+      readDutiesFromDatabase();
+    });
+  }
+
   void readDutiesFromDatabase() {
     setState(() {
       _duties = widget.database.getDuties(
@@ -145,7 +151,7 @@ class HomePageState extends State<HomePage> {
         body: HomeWidget(_duties, _statistics),
         bottomNavigationBar: BottomAppBar(
           color: Colors.orange,
-          child: IobStateWidget(widget.database),
+          child: IobStateWidget(widget.database, refresh),
         ),
       ),
     );

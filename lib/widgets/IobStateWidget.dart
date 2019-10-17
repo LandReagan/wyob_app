@@ -6,9 +6,10 @@ import 'package:wyob/iob/IobConnectorData.dart';
 
 class IobStateWidget extends StatefulWidget {
 
-  final LocalDatabase database;
+  final LocalDatabase _database;
+  final VoidCallback _refreshDutiesCallback;
 
-  IobStateWidget(this.database);
+  IobStateWidget(this._database, this._refreshDutiesCallback);
 
   _IobStateWidgetState createState() => _IobStateWidgetState();
 }
@@ -20,7 +21,7 @@ class _IobStateWidgetState extends State<IobStateWidget> {
   @override
   void initState() {
     super.initState();
-    onConnectorData = widget.database.connector.onDataChange;
+    onConnectorData = widget._database.connector.onDataChange;
   }
 
   FlatButton getButton() {
@@ -41,7 +42,7 @@ class _IobStateWidgetState extends State<IobStateWidget> {
       return FlatButton(
         child: Text("UPDATE"),
         onPressed: () {
-          widget.database.updateFromGantt();
+          widget._database.updateFromGantt(callback: widget._refreshDutiesCallback);
         },
       );
     } else if (stopButtonStates.contains(onConnectorData.value.status)) {

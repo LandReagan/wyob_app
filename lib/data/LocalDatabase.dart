@@ -1,6 +1,7 @@
 import 'dart:convert' show json;
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
 
@@ -113,7 +114,7 @@ class LocalDatabase {
   /// - [WyobExceptionCredentials] if credentials are missing,
   /// - [WYOBException] if another error occured.
   Future<void> updateFromGantt(
-      {DateTime fromParameter, DateTime toParameter}) async {
+      {DateTime fromParameter, DateTime toParameter, VoidCallback callback}) async {
     DateTime from = (fromParameter != null
         ? fromParameter
         : DateTime.now().subtract(Duration(days: 3)));
@@ -186,6 +187,7 @@ class LocalDatabase {
 
       from = from.add(Duration(days: INTERVAL_DAYS));
     }
+    if (callback != null) callback();
     //todo: Get it better, it's shit
     connector.changeStatus(CONNECTOR_STATUS.OFF);
     await _setUpdateTime(AwareDT.now());
