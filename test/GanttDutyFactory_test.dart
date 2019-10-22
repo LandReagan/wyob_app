@@ -128,38 +128,53 @@ void main() {
     String folderPath = "test/HTML files/jp/";
 
     test("Activity 1", () {
-      String content = File(folderPath + "jpg_gantt_activity_1_loc.html")
+      String contentLoc = File(folderPath + "jpg_gantt_activity_1_loc.html")
           .readAsStringSync();
-      List<Map<String, dynamic>> result = parseGanttDuty(content);
-      
+      List<Map<String, dynamic>> rawDutyLoc = parseGanttDuty(contentLoc);
+      String contentUtc = File(folderPath + "jpg_gantt_activity_1_utc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> rawDutyUtc = parseGanttDuty(contentUtc);
+      print(GanttDutyFactory.run(rawDutyLoc, rawDutyUtc));
     });
 
     test("Activity 2", () {
-      String content = File(folderPath + "jpg_gantt_activity_2_loc.html")
+      String contentLoc = File(folderPath + "jpg_gantt_activity_2_loc.html")
           .readAsStringSync();
-      List<Map<String, dynamic>> result = parseGanttDuty(content);
-      print(result);
+      List<Map<String, dynamic>> rawDutyLoc = parseGanttDuty(contentLoc);
+      String contentUtc = File(folderPath + "jpg_gantt_activity_2_utc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> rawDutyUtc = parseGanttDuty(contentUtc);
+      print(GanttDutyFactory.run(rawDutyLoc, rawDutyUtc));
     });
 
     test("Activity 3", () {
-      String content = File(folderPath + "jpg_gantt_activity_3_loc.html")
+      String contentLoc = File(folderPath + "jpg_gantt_activity_3_loc.html")
           .readAsStringSync();
-      List<Map<String, dynamic>> result = parseGanttDuty(content);
-      print(result);
+      List<Map<String, dynamic>> rawDutyLoc = parseGanttDuty(contentLoc);
+      String contentUtc = File(folderPath + "jpg_gantt_activity_3_utc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> rawDutyUtc = parseGanttDuty(contentUtc);
+      print(GanttDutyFactory.run(rawDutyLoc, rawDutyUtc));
     });
 
     test("Activity 4", () {
-      String content = File(folderPath + "jpg_gantt_activity_4_loc.html")
+      String contentLoc = File(folderPath + "jpg_gantt_activity_4_loc.html")
           .readAsStringSync();
-      List<Map<String, dynamic>> result = parseGanttDuty(content);
-      print(result);
+      List<Map<String, dynamic>> rawDutyLoc = parseGanttDuty(contentLoc);
+      String contentUtc = File(folderPath + "jpg_gantt_activity_4_utc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> rawDutyUtc = parseGanttDuty(contentUtc);
+      print(GanttDutyFactory.run(rawDutyLoc, rawDutyUtc));
     });
 
     test("Activity 5", () {
-      String content = File(folderPath + "jpg_gantt_activity_5_loc.html")
+      String contentLoc = File(folderPath + "jpg_gantt_activity_5_loc.html")
           .readAsStringSync();
-      List<Map<String, dynamic>> result = parseGanttDuty(content);
-      print(result);
+      List<Map<String, dynamic>> rawDutyLoc = parseGanttDuty(contentLoc);
+      String contentUtc = File(folderPath + "jpg_gantt_activity_5_utc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> rawDutyUtc = parseGanttDuty(contentUtc);
+      print(GanttDutyFactory.run(rawDutyLoc, rawDutyUtc));
     });
   });
 }
