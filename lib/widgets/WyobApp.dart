@@ -7,10 +7,8 @@ import 'package:wyob/pages/HomePage.dart';
 class WyobApp extends StatelessWidget {
 
   Widget build(BuildContext context) {
-    return LogConsoleOnShake(
-      child: MaterialApp(
+    return MaterialApp(
         home: HomePage(),
-      ),
     );
   }
 }

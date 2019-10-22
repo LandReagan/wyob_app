@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:logger_flutter/logger_flutter.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/objects/Statistics.dart';
@@ -149,9 +150,11 @@ class HomePageState extends State<HomePage> {
           )
         ),
         appBar: AppBar(
-          title: Text("WYOB v0.3 beta"),
+          title: Text("WYOB v0.3.1 beta"),
         ),
-        body: HomeWidget(_duties, _statistics),
+        body: LogConsoleOnShake(
+          child: HomeWidget(_duties, _statistics),
+        ),
         bottomNavigationBar: BottomAppBar(
           color: Colors.orange,
           child: IobStateWidget(widget.database, refresh),
