@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/objects/Statistics.dart';
@@ -29,6 +30,8 @@ class HomePageState extends State<HomePage> {
 
   void initState() {
     super.initState();
+    var logger = Logger();
+    logger.d("Logger starts...");
     this._initialization();
   }
 
@@ -68,11 +71,11 @@ class HomePageState extends State<HomePage> {
     try {
       await widget.database.updateFromGantt();
     } on WyobExceptionCredentials {
-      print('Credentials not in database');
+      Logger().w('Credentials not in database');
     } on WyobExceptionOffline {
-      print('OFFLINE MODE.');
+      Logger().i('OFFLINE MODE.');
     } on Exception catch (e) {
-      print('Unhandled exception caught: ' + e.toString());
+      Logger().e('Unhandled exception caught: ' + e.toString());
     }
 
     readDutiesFromDatabase();

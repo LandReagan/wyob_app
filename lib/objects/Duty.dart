@@ -1,6 +1,7 @@
 import 'dart:convert' show json;
 
 import 'package:flutter/cupertino.dart';
+import 'package:logger/logger.dart';
 import 'package:wyob/objects/Airport.dart' show Airport;
 import 'package:wyob/objects/FTL.dart';
 import 'package:wyob/objects/Flight.dart' show Flight;
@@ -104,7 +105,7 @@ class Duty {
     } else if (code.contains('330SD') || code.contains('330SC')) {
       nature = DUTY_NATURE.SIM;
     } else {
-      print('[WARNING]: Unknown code [$code]');
+      Logger().w('[WARNING]: Unknown code [$code]');
       nature = DUTY_NATURE.UNKNOWN;
     }
 

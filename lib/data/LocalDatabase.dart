@@ -2,6 +2,7 @@ import 'dart:convert' show json;
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
 
@@ -76,7 +77,7 @@ class LocalDatabase {
       _connector.setCredentials(
           _getCredentials()['username'], _getCredentials()['password']);
     } on WyobExceptionCredentials catch (e) {
-      print('No credentials...');
+      Logger().w('No credentials...');
       _ready = true;
       throw e;
     } on WyobExceptionDatabaseIntegrity {
@@ -127,7 +128,7 @@ class LocalDatabase {
 
     const int INTERVAL_DAYS = 25;
     while (from.isBefore(to)) {
-      print('Fetching from: ' +
+      Logger().i('Fetching from: ' +
           from.toString() +
           ' to: ' +
           from.add(Duration(days: INTERVAL_DAYS)).toString());

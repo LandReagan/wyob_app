@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart' as http_io;
+import 'package:logger/logger.dart';
 
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/iob/IobDutyFactory.dart';
@@ -107,7 +108,7 @@ class IobConnector {
   /// Returns the check-in list in a String to be parsed (see Parsers.dart)
   /// In the case of any failure, throws a WyobException subclass.
   Future<String> init() async {
-    print("Connecting to IOB...");
+    Logger().i("Connecting to IOB...");
     this.changeStatus(CONNECTOR_STATUS.CONNECTING);
     client = this.getBadClient();
     http.Response iobResponse;
@@ -121,17 +122,16 @@ class IobConnector {
     try {
       iobResponse = await client.get(landingUrl);
     } on Exception catch (e) {
-      print(e);
       this.changeStatus(CONNECTOR_STATUS.OFFLINE);
       throw WyobExceptionOffline(
           'OFFLINE mode. For info, error: ' + e.toString());
     }
 
     this.changeStatus(CONNECTOR_STATUS.CONNECTED);
-    print("Connected with status code: " + iobResponse.statusCode.toString());
+    Logger().d("Connected with status code: " + iobResponse.statusCode.toString());
     String landingBodyWithToken = iobResponse.body;
     this.token = tokenRegExp.firstMatch(landingBodyWithToken).group(1);
-    print('Token: ' + token);
+    Logger().d('Token: ' + token);
 
 
     String loginHeaders;
@@ -148,7 +148,7 @@ class IobConnector {
       throw WyobExceptionLogIn('IobConnector failed to log in');
     }
 
-    print('Cookie: ' + this.cookie);
+    Logger().d('Cookie: ' + this.cookie);
 
     http.Response checkinListResponse =
       await client.get(checkinListUrl, headers: {"Cookie": cookie});
@@ -156,7 +156,7 @@ class IobConnector {
 
     this.changeStatus(CONNECTOR_STATUS.AUTHENTIFIED);
 
-    print('Big Cookie: ' + this.bigCookie);
+    Logger().d('Big Cookie: ' + this.bigCookie);
 
     String checkinList = checkinListResponse.body;
 
@@ -252,7 +252,7 @@ class IobConnector {
     this.onDataChange.value = IobConnectorData(
         CONNECTOR_STATUS.FETCHING_DUTY, dutyIndex, dutyTotalNumber);
 
-    print("Duty: " + dutyIndex.toString() + "/" + dutyTotalNumber.toString());
+    Logger().i("Duty: " + dutyIndex.toString() + "/" + dutyTotalNumber.toString());
 
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Trip);
   }
@@ -270,7 +270,7 @@ class IobConnector {
     this.onDataChange.value = IobConnectorData(
         CONNECTOR_STATUS.FETCHING_DUTY, dutyIndex, dutyTotalNumber);
 
-    print("Duty: " + dutyIndex.toString() + "/" + dutyTotalNumber.toString());
+    Logger().i("Duty: " + dutyIndex.toString() + "/" + dutyTotalNumber.toString());
 
     return _getGanttDuty(personId, persAllocId, TIME_ZONE.Local, DUTY_TYPE.Acy);
   }
@@ -303,7 +303,7 @@ class IobConnector {
         onDataChange.value = IobConnectorData(newStatus);
       }
     }
-    print(newStatus);
+    Logger().i(newStatus);
   }
 
   bool _certificateCheck(X509Certificate cert, String host, int port) =>
