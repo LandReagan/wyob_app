@@ -123,4 +123,43 @@ void main() {
       expect(duties.length, 2);
     });
   });
+
+  group("TRI's duties", () {
+    String folderPath = "test/HTML files/jp/";
+
+    test("Activity 1", () {
+      String content = File(folderPath + "jpg_gantt_activity_1_loc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> result = parseGanttDuty(content);
+      
+    });
+
+    test("Activity 2", () {
+      String content = File(folderPath + "jpg_gantt_activity_2_loc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> result = parseGanttDuty(content);
+      print(result);
+    });
+
+    test("Activity 3", () {
+      String content = File(folderPath + "jpg_gantt_activity_3_loc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> result = parseGanttDuty(content);
+      print(result);
+    });
+
+    test("Activity 4", () {
+      String content = File(folderPath + "jpg_gantt_activity_4_loc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> result = parseGanttDuty(content);
+      print(result);
+    });
+
+    test("Activity 5", () {
+      String content = File(folderPath + "jpg_gantt_activity_5_loc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> result = parseGanttDuty(content);
+      print(result);
+    });
+  });
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:test/test.dart';
 import 'dart:io';
 
@@ -62,6 +64,52 @@ void main() {
 
     test("should parse date", () {
       expect(result[0]['date'], '26Apr2019');
+    });
+  });
+
+  group("TRI's duties tests", () {
+    String folderPath = "test/HTML files/jp/";
+
+    test("GANTT Table", () {
+      String content = File(folderPath + "jpg_gantt_table.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> result = parseGanttMainTable(content);
+      expect(result.length, 29);
+    });
+
+    test("Activity 1", () {
+      String content = File(folderPath + "jpg_gantt_activity_1_loc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> result = parseGanttDuty(content);
+      print(result);
+    });
+
+    test("Activity 2", () {
+      String content = File(folderPath + "jpg_gantt_activity_2_loc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> result = parseGanttDuty(content);
+      print(result);
+    });
+
+    test("Activity 3", () {
+      String content = File(folderPath + "jpg_gantt_activity_3_loc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> result = parseGanttDuty(content);
+      print(result);
+    });
+
+    test("Activity 4", () {
+      String content = File(folderPath + "jpg_gantt_activity_4_loc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> result = parseGanttDuty(content);
+      print(result);
+    });
+
+    test("Activity 5", () {
+      String content = File(folderPath + "jpg_gantt_activity_5_loc.html")
+          .readAsStringSync();
+      List<Map<String, dynamic>> result = parseGanttDuty(content);
+      print(result);
     });
   });
 }

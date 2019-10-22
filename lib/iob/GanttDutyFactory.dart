@@ -85,6 +85,8 @@ class GanttDutyFactory {
         duty.code = dutyCode;
         if (IOB_CODES.containsKey(dutyCode)) {
           duty.nature = getDutyNatureFromString(IOB_CODES[dutyCode]);
+        } else {
+          duty.nature = DUTY_NATURE.UNKNOWN;
         }
 
         DateTime startTimeLocal = DateFormat('dMMMy H:m').parse(dataLocal[i]['start']);
