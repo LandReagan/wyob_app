@@ -41,7 +41,7 @@ class IobConnectorData {
         return "CONNECTING...";
         break;
       case CONNECTOR_STATUS.CONNECTED:
-        return "CONNECTED!";
+        return "CONNECTED! Please wait...";
         break;
       case CONNECTOR_STATUS.AUTHENTIFIED:
         return "AUTHENTIFIED!";
@@ -52,6 +52,9 @@ class IobConnectorData {
       case CONNECTOR_STATUS.FETCHING_DUTY:
         return "FETCHING DUTY: " +
             dutyNumber.toString() + " / " + totalDutiesNumber.toString();
+        break;
+      case CONNECTOR_STATUS.LOGIN_FAILED:
+        return "IOB LOGIN FAILED!";
         break;
       case CONNECTOR_STATUS.OFFLINE:
         return "DEVICE OFFLINE!";

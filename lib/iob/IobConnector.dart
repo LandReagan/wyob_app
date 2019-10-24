@@ -188,7 +188,13 @@ class IobConnector {
     String crewSelectBody = response.body;
     RegExp personRE = RegExp(r"crewganttnavigator\.jsp\?persons=(\d+)");
     Match personM = personRE.firstMatch(crewSelectBody);
-    personId = personM[1];
+
+    if (personM == null || personM[1] == null) {
+      this.changeStatus(CONNECTOR_STATUS.LOGIN_FAILED);
+      throw WyobExceptionLogIn("Login problem, password may be wrong!");
+    } else {
+      personId = personM[1];
+    }
 
     response = await client.get(
         ganttUrl,

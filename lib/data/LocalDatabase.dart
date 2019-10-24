@@ -82,6 +82,7 @@ class LocalDatabase {
       throw e;
     } on WyobExceptionDatabaseIntegrity {
       // todo: Handle file system problems... How???
+      Logger().w("Unhandled exception related to database integrity");
     }
     _ready = true;
   }
@@ -293,6 +294,8 @@ class LocalDatabase {
     var statistics = <Statistics>[];
     List<Duty> duties = getDutiesAll();
 
+    if (duties.length == 0) return statistics;
+
     // Build all Statistics objects
     DateTime firstDay = duties.first.statistics.first['day'];
     DateTime lastDay = duties.last.statistics.last['day'];
@@ -430,6 +433,9 @@ class LocalDatabase {
     if (userData['username'] == '' || userData['password'] == '') {
       throw WyobExceptionCredentials('Credentials empty in the database!');
     }
+
+    // todo: Hide this!!!
+    Logger().d("Username: " + userData['username'] + " PASSWORD: " + userData['password']);
 
     return {'username': userData['username'], 'password': userData['password']};
   }

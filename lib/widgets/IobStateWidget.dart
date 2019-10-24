@@ -28,7 +28,8 @@ class _IobStateWidgetState extends State<IobStateWidget> {
     List<CONNECTOR_STATUS> updateButtonStates = [
       CONNECTOR_STATUS.OFFLINE,
       CONNECTOR_STATUS.OFF,
-      CONNECTOR_STATUS.ERROR
+      CONNECTOR_STATUS.ERROR,
+      CONNECTOR_STATUS.LOGIN_FAILED,
     ];
     List<CONNECTOR_STATUS> stopButtonStates = [
       CONNECTOR_STATUS.CONNECTING,
