@@ -309,6 +309,7 @@ class LocalDatabase {
     int length = statistics.length;
     for (var duty in duties) {
       for (var data in duty.statistics) {
+
         int startIndex = statistics.indexWhere((stat) {
           return stat.day == data['day'];
         });
@@ -347,6 +348,19 @@ class LocalDatabase {
             index++) {
           statistics[index].oneYearBlockAccumulation += data['block'];
         }
+      }
+    }
+
+    for (var stat in statistics) {
+      if (stat.day.difference(firstDay) >= Duration(days: 6))
+        stat.sevenDaysDutyCompleteness = true;
+      if (stat.day.difference(firstDay) >= Duration(days: 28)) {
+        stat.twentyEightDaysBlockCompleteness = true;
+        stat.twentyEightDaysDutyCompleteness = true;
+      }
+      if (stat.day.difference(firstDay) >= Duration(days: 365)) {
+        stat.oneYearBlockCompleteness = true;
+        stat.oneYearDutyDaysCompleteness = true;
       }
     }
 

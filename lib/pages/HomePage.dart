@@ -129,7 +129,7 @@ class HomePageState extends State<HomePage> {
                     MaterialPageRoute(
                       builder: (context) => DatabasePage(),
                     )
-                  ).then((value) => this.setState(() {}));
+                  ).then((value) => this.readDutiesFromDatabase());
                 },
               ),
               GestureDetector(

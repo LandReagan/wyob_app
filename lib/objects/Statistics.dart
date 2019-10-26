@@ -11,10 +11,14 @@ class Statistics {
   Duration twentyEightDaysBlockAccumulation = Duration.zero;
   Duration oneYearBlockAccumulation = Duration.zero;
 
+  bool sevenDaysDutyCompleteness = false;
+  bool twentyEightDaysDutyCompleteness = false;
+  bool oneYearDutyDaysCompleteness = false;
+
+  bool twentyEightDaysBlockCompleteness = false;
+  bool oneYearBlockCompleteness = false;
+
   Statistics(this._day);
 
   DateTime get day => _day;
-
-  // Setters from LocalDatabase.buildStatistics method
-
 }
