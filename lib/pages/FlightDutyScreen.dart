@@ -54,17 +54,32 @@ class FlightDutyScreen extends StatelessWidget {
       ),
     );
 
-    List<Widget> flightWidgets =  List<Widget>.generate(
-      flightDuty.flights.length,
-      (int index) {
-        return FlightDutyWidget(flightDuty.flights[index]);
-      },
-    );
-
     List<Widget> widgets = [reportingWidget];
 
-    for (Widget flightWidget in flightWidgets) {
-      widgets.add(flightWidget);
+    for (int index = 0; index < flightDuty.flights.length; index++) {
+      widgets.add(FlightDutyWidget(flightDuty.flights[index]));
+      if (index + 1 < flightDuty.flights.length) { // add a ground time widget
+        widgets.add(
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text('Ground time:', textAlign: TextAlign.right,),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(3.0),
+                  child: DurationWidget(
+                    flightDuty.flights[index + 1].startTime.difference(
+                        flightDuty.flights[index].endTime),
+                    textScaleFactor: 1.2,
+                    textColor: Colors.amber,
+                  ),
+                ),
+              ),
+            ],
+          )
+        );
+      }
     }
 
     FTL ftl = FTL.fromDuty(flightDuty, previous: previous);

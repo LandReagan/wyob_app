@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 class DurationWidget extends StatelessWidget {
 
   final Duration _duration;
+  final double textScaleFactor;
+  final Color textColor;
 
-  DurationWidget(this._duration);
+  DurationWidget(
+    this._duration,
+    {this.textScaleFactor = 1.5, this.textColor = Colors.black});
 
   int get hours => _duration.inHours;
   int get minutes => _duration.inMinutes - hours * 60;
@@ -24,10 +28,11 @@ class DurationWidget extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(hoursString, textScaleFactor: 1.5,
-          style: TextStyle(fontWeight: FontWeight.bold),),
-        Text('h' + minutesString, textScaleFactor: 1.2,
-          style: TextStyle(fontWeight: FontWeight.bold),)
+        Text(hoursString, textScaleFactor: textScaleFactor,
+          style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
+        ),
+        Text('h' + minutesString, textScaleFactor: textScaleFactor * 3 / 4,
+          style: TextStyle(fontWeight: FontWeight.bold, color: textColor),)
       ],
     );
   }
