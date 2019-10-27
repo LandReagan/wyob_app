@@ -150,7 +150,7 @@ class HomePageState extends State<HomePage> {
           )
         ),
         appBar: AppBar(
-          title: Text("WYOB v0.3.2 beta"),
+          title: Text("WYOB v0.3.3 beta"),
         ),
         body: LogConsoleOnShake(
           child: HomeWidget(_duties, _statistics),
