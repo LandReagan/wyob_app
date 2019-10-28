@@ -8,6 +8,7 @@ import 'package:wyob/pages/FtlMainPage.dart';
 import 'package:wyob/widgets/AccumulatedWidget.dart';
 import 'package:wyob/widgets/DurationWidget.dart';
 import 'package:wyob/widgets/PeriodWidgets.dart';
+import 'package:wyob/pages/FlightPage.dart';
 
 
 class FlightDutyScreen extends StatelessWidget {
@@ -111,14 +112,12 @@ class FlightDutyScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(5.0)),
               ),
-              onPressed: () {
-                return Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FtlMainPage(flightDuty, previous)
-                  )
-                );
-              },
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FtlMainPage(flightDuty, previous)
+                ),
+              )
             ),
           ),
         ],
@@ -242,6 +241,13 @@ class FlightDutyWidget extends StatelessWidget {
           // Fourth column with block time
           Column(
             children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.chevron_right),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FlightPage(this._flight)),
+                ),
+              ),
               Padding(
                 padding: EdgeInsets.all(5.0),
                 child: Text("BLOCK:"),
