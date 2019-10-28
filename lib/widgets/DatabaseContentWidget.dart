@@ -17,6 +17,7 @@ class DatabaseByMonthWidget extends StatefulWidget {
 }
 
 class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
+
   Widget getMonthWidget(MonthlyAggregation aggregation) {
     List<Map<String, dynamic>> aggregDataList = aggregation.dutiesAndStatistics;
 

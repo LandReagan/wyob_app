@@ -9,7 +9,8 @@ class IobStateWidget extends StatefulWidget {
   final LocalDatabase _database;
   final VoidCallback _refreshDutiesCallback;
 
-  IobStateWidget(this._database, this._refreshDutiesCallback);
+  IobStateWidget(
+      this._database, this._refreshDutiesCallback);
 
   _IobStateWidgetState createState() => _IobStateWidgetState();
 }
@@ -49,7 +50,7 @@ class _IobStateWidgetState extends State<IobStateWidget> {
     } else if (stopButtonStates.contains(onConnectorData.value.status)) {
       return FlatButton(
         child: Text("STOP"),
-        onPressed: () => null,
+        onPressed: () => widget._database.updateOperation.cancel(),
       );
     } else {
       return FlatButton(

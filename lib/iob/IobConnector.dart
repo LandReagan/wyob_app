@@ -209,7 +209,12 @@ class IobConnector {
   Future<String> getFromToGanttDuties(DateTime from, DateTime to) async {
 
     if (this.cookie == null || this.bigCookie == null) {
-      await init();
+      try {
+        await init();
+      } on WyobExceptionOffline {
+        Logger().i("OFFLINE mode");
+        return "";
+      }
     } else {
       changeStatus(CONNECTOR_STATUS.CONNECTED);
     }

@@ -21,6 +21,7 @@ import 'package:wyob/utils/DateTimeUtils.dart';
 
 /// Singleton class for our database.
 class LocalDatabase {
+
   Map<String, dynamic> _root;
   bool _ready = true;
   String _fileName = DEFAULT_FILE_NAME;
@@ -28,6 +29,7 @@ class LocalDatabase {
   List<Statistics> _statistics;
 
   DateTime earliestDutyDate;
+  DateTime latestDutyDate;
 
   IobConnector _connector;
 
@@ -105,6 +107,17 @@ class LocalDatabase {
     _ready = true;
   }
 
+  /// IOB duties update, asynchronous and cancellable.
+  void updateFromGantt({DateTime fromParameter, DateTime toParameter, VoidCallback callback}) {
+    updateOperation = CancelableOperation.fromFuture(
+      _updateFromGantt(
+        fromParameter: fromParameter,
+        toParameter: toParameter,
+        callback: callback
+      )
+    );
+  }
+
   /// LocalDatabase inner method to update duties from the IOB system. Takes 2
   /// DateTimes [fromParameter] and [toParameter] as time interval. It updates
   /// the [_updateTime] field as well
@@ -115,7 +128,7 @@ class LocalDatabase {
   /// Throws:
   /// - [WyobExceptionCredentials] if credentials are missing,
   /// - [WYOBException] if another error occured.
-  Future<void> updateFromGantt(
+  Future<void> _updateFromGantt(
       {DateTime fromParameter, DateTime toParameter, VoidCallback callback}) async {
     DateTime from = (fromParameter != null
         ? fromParameter
@@ -138,6 +151,8 @@ class LocalDatabase {
 
       String referencesString = await connector.getFromToGanttDuties(
           from, from.add(Duration(days: INTERVAL_DAYS)));
+
+      if (referencesString == "") return;
 
       List<Map<String, dynamic>> references =
           parseGanttMainTable(referencesString);
@@ -226,16 +241,24 @@ class LocalDatabase {
     _statistics = buildStatistics();
   }
 
+  /// Returns all duties from the file system if any, empty list else.
   List<Duty> getDutiesAll() {
+
     if (_root['duties'].length > 0) {
+
       List<Map<String, dynamic>> allRawDuties =
           List<Map<String, dynamic>>.from(_root['duties']);
+
       List<Duty> allDuties = allRawDuties.map((rawDuty) {
         return Duty.fromMap(rawDuty);
       }).toList();
-      earliestDutyDate = allDuties[0].startTime.loc;
+
+      earliestDutyDate = allDuties.first.startTime.loc;
+      latestDutyDate = allDuties.last.startTime.loc;
+
       return allDuties;
     }
+
     return [];
   }
 
@@ -270,15 +293,16 @@ class LocalDatabase {
   }
 
   List<MonthlyAggregation> getAllMonthlyAggregations() {
+
     var aggregations = <MonthlyAggregation>[];
 
-    if (earliestDutyDate == null) getDutiesAll();
+    if (earliestDutyDate == null || latestDutyDate == null) getDutiesAll();
 
     DateTime rolling = DateTime(earliestDutyDate.year, earliestDutyDate.month);
     if (rolling == null) return aggregations;
-    DateTime nowMonth = DateTime(DateTime.now().year, DateTime.now().month);
+    DateTime latestMonth = DateTime(latestDutyDate.year, latestDutyDate.month);
 
-    while (rolling.compareTo(nowMonth) <= 0) {
+    while (rolling.compareTo(latestMonth) <= 0) {
       aggregations.add(MonthlyAggregation(rolling, this));
       if (rolling.month == 12) {
         rolling = DateTime(rolling.year + 1, 1);
