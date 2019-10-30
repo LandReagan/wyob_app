@@ -108,7 +108,9 @@ class LocalDatabase {
   }
 
   /// IOB duties update, asynchronous and cancellable.
-  void updateFromGantt({DateTime fromParameter, DateTime toParameter, VoidCallback callback}) {
+  Future<void> updateFromGantt(
+      {DateTime fromParameter, DateTime toParameter, VoidCallback callback}
+  ) async {
     updateOperation = CancelableOperation.fromFuture(
       _updateFromGantt(
         fromParameter: fromParameter,
