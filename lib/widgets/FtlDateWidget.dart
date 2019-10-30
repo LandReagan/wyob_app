@@ -41,9 +41,9 @@ class _FtlDateWidgetState extends State<FtlDateWidget> {
             onTap: () async {
               _date = await showDatePicker(
                 context: context,
-                firstDate: DateTime.now().subtract(Duration(days: 1000)),
+                firstDate: DateTime(1993),
                 initialDate: DateTime.now(),
-                lastDate: DateTime.now().add(Duration(days: 1000))
+                lastDate: DateTime.now().add(Duration(days: 60))
               );
               widget.callback(_date);
             }

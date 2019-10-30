@@ -11,11 +11,6 @@ class LocalDatabaseMock extends Mock implements LocalDatabase {}
 
 void main() {
 
-  test("should return readiness at false on constructor (before connection)", () async {
-    LocalDatabase db = LocalDatabase();
-    expect(db.ready, false);
-  });
-
   test("Example 1 tests", () async {
     LocalDatabase db = LocalDatabase();
     await db.connect();
@@ -43,10 +38,6 @@ void main() {
 
     test('should connect', () {
       expect(database.ready, true);
-    });
-
-    test('empty parameters test', () async {
-      expect(database.updateFromGantt(), throwsA(const TypeMatcher<WyobExceptionCredentials>()));
     });
 
     test('General test', () async {
