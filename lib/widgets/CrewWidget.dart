@@ -19,6 +19,10 @@ class _CrewWidgetState extends State<CrewWidget> {
   Crew _crew;
 
   Future<void> _getInfo() async {
+    await LocalDatabase().connector.getCrew(
+      widget._flight.startTime.loc,
+      widget._flight.flightNumber
+    );
     // _crew = await LocalDatabase().connector.getCrew(widget._flight);
     setState(() {
       // For tests only

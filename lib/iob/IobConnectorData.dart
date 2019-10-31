@@ -9,6 +9,7 @@ enum CONNECTOR_STATUS {
   AUTHENTIFIED,
   FETCHING_GANTT_TABLE,
   FETCHING_DUTY,
+  FETCHING_CREW,
   ERROR,
 }
 
@@ -52,6 +53,9 @@ class IobConnectorData {
       case CONNECTOR_STATUS.FETCHING_DUTY:
         return "FETCHING DUTY: " +
             dutyNumber.toString() + " / " + totalDutiesNumber.toString();
+        break;
+      case CONNECTOR_STATUS.FETCHING_CREW:
+        return "FETCHING CREW...";
         break;
       case CONNECTOR_STATUS.LOGIN_FAILED:
         return "IOB LOGIN FAILED!";

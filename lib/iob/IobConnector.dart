@@ -175,14 +175,16 @@ class IobConnector {
 
     this.changeStatus(CONNECTOR_STATUS.FETCHING_GANTT_TABLE);
 
-    crewSelectForm['org.apache.struts.taglib.html.TOKEN'] = this.token;
-    crewSelectForm['action'] = 'fastcrewonly';
-    crewSelectForm['crewId'] = this.username;
+    Map<String, String> form = Map.from(crewSelectForm);
+
+    form['org.apache.struts.taglib.html.TOKEN'] = this.token;
+    form['action'] = 'fastcrewonly';
+    form['crewId'] = this.username;
 
     http.Response response = await client.post(
         crewSelectUrl,
         headers: {"Cookie": cookie + ";" + bigCookie},
-        body: crewSelectForm
+        body: form
     );
     
     String crewSelectBody = response.body;
@@ -305,6 +307,49 @@ class IobConnector {
     //changeStatus(CONNECTOR_STATUS.OFF);
 
     return response.body;
+  }
+
+  Future<String> getCrew(DateTime day, String flightNumber) async {
+
+    Map<String, String> form = Map.from(crewSelectForm);
+
+    form['org.apache.struts.taglib.html.TOKEN'] = this.token;
+    form['action'] = 'addflight';
+    form['crewId'] = this.username;
+
+    form['addflight'] = 'Add';
+    form['fltDate'] = DateFormat("ddMMMyyyy").format(day);
+    form['fltToDate'] = DateFormat("ddMMMyyyy").format(day.add(Duration(days: 1)));
+    form['tripAcyFromDt'] = DateFormat("ddMMMyyyy").format(day);
+    form['tripAcyToDt'] = DateFormat("ddMMMyyyy").format(day);
+    form['fromDate'] = DateFormat("ddMMMyyyy").format(day);
+    form['toDate'] = DateFormat("ddMMMyyyy").format(day);
+    form['cxCd'] = "WY";
+    form['fltNo'] = flightNumber;
+
+    print(form);
+
+    String crewSelectBody;
+
+    try {
+      this.changeStatus(CONNECTOR_STATUS.FETCHING_CREW);
+      http.Response response = await client.post(
+          crewSelectUrl,
+          headers: {"Cookie": cookie + ";" + bigCookie},
+          body: form
+      );
+      crewSelectBody = response.body;
+    } on WyobExceptionOffline {
+      this.changeStatus(CONNECTOR_STATUS.OFFLINE);
+      Logger().i("Offline attempt to get crew information");
+    } on Exception {
+      this.changeStatus(CONNECTOR_STATUS.ERROR);
+      Logger().w("Unknown exception happened while fetching Crew information...");
+    }
+
+    print(crewSelectBody);
+
+    return crewSelectBody;
   }
 
   void changeStatus(CONNECTOR_STATUS newStatus) {
