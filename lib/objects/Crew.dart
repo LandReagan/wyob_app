@@ -16,9 +16,18 @@ Crew getDummyCrew() {
     "rank": "FO"
   };
 
+  var dummyCD = {
+    "surname": "Al Balushi",
+    "first_name": "Mohamed",
+    "staff_number": "92345",
+    "role": "CD",
+    "rank": "CD"
+  };
+
   Crew crew = Crew();
   crew.addMember(CrewMember.fromMap(dummyCpt));
   crew.addMember(CrewMember.fromMap(dummyFo));
+  crew.addMember(CrewMember.fromMap(dummyCD));
 
   return crew;
 }

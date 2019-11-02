@@ -108,6 +108,7 @@ class IobConnector {
   /// Returns the check-in list in a String to be parsed (see Parsers.dart)
   /// In the case of any failure, throws a WyobException subclass.
   Future<String> init() async {
+
     Logger().i("Connecting to IOB...");
     this.changeStatus(CONNECTOR_STATUS.CONNECTING);
     client = this.getBadClient();
@@ -327,7 +328,20 @@ class IobConnector {
     form['cxCd'] = "WY";
     form['fltNo'] = flightNumber;
 
-    print(form);
+    if (cookie == null || bigCookie == null) {
+      try {
+        await this.init();
+      } on WyobExceptionOffline {
+        Logger().i("OFFLINE request for crew information");
+        return null;
+      } on WyobException {
+        Logger().w("Unhandled internal WYOB Exception");
+        return null;
+      } on Exception {
+        Logger().w("Unhandled Exception, unknown from WYOB!");
+        return null;
+      }
+    }
 
     String crewSelectBody;
 

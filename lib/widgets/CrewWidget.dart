@@ -38,8 +38,13 @@ class _CrewWidgetState extends State<CrewWidget> {
           child: Text(member.rank, textScaleFactor: 1.5,
             style: TextStyle(fontWeight: FontWeight.bold),),
         ),
-        Text(member.firstName + " " + member.surname, textScaleFactor: 1.5,),
-        Spacer(),
+        Expanded(
+          child: Text(
+            member.firstName + " " + member.surname,
+            textScaleFactor: 1.5,
+            textAlign: TextAlign.center,
+          ),
+        ),
         Text(member.staffNumber, textScaleFactor: 1.5,
           style: TextStyle(fontWeight: FontWeight.bold),),
       ],
@@ -68,12 +73,32 @@ class _CrewWidgetState extends State<CrewWidget> {
 
     if (_crew != null) {
       _crew.crewMembers.where((member) => member.role == "CPT").toList().forEach(
-              (captain) => crewMembersWidgets.add(_generateCrewMemberRow(captain))
+              (cpt) => crewMembersWidgets.add(_generateCrewMemberRow(cpt))
       );
       _crew.crewMembers.where((member) => member.role == "FO").toList().forEach(
-              (firstOfficer) => crewMembersWidgets.add(_generateCrewMemberRow(firstOfficer))
+              (fo) => crewMembersWidgets.add(_generateCrewMemberRow(fo))
       );
-      //todo: CD, PGC, CA, supernumerary, etc...
+      _crew.crewMembers.where((member) => member.role == "CD").toList().forEach(
+              (cd) => crewMembersWidgets.add(_generateCrewMemberRow(cd))
+      );
+      _crew.crewMembers.where((member) => member.role == "PGC").toList().forEach(
+              (pgc) => crewMembersWidgets.add(_generateCrewMemberRow(pgc))
+      );
+      _crew.crewMembers.where((member) => member.role == "CA").toList().forEach(
+              (ca) => crewMembersWidgets.add(_generateCrewMemberRow(ca))
+      );
+      //todo: any other? Supernumerary?
+    } else {
+      crewMembersWidgets.add(
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: Text("NO INFORMATION",
+                textScaleFactor: 1.5, textAlign: TextAlign.center,),
+            )
+          ],
+        )
+      );
     }
     
     return Column (
