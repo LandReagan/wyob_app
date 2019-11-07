@@ -511,11 +511,34 @@ class MonthlyStatisticsWidget extends StatelessWidget {
     aggregation.dutiesAndStatistics.forEach((Map<String, dynamic> data) {
       Duty duty = data['duty'];
       if (duty.isFlight) {
-        blockTime += duty.totalBlockTime;
-        nbrOfFlights += duty.flights.length;
+        DateTime flightStartMctTime =
+            duty.firstFlight.startTime.utc.add(Duration(hours: 4));
+        DateTime flightEndMctTime =
+            duty.lastFlight.endTime.utc.add(Duration(hours: 4));
+        if (flightStartMctTime.isAfter(aggregation.monthStart) &&
+            flightEndMctTime.isBefore(aggregation.monthEnd)) {
+          blockTime += duty.totalBlockTime;
+          nbrOfFlights += duty.flights.length;
+        } else if (flightStartMctTime.isBefore(aggregation.monthStart)) {
+          blockTime += flightEndMctTime.difference(aggregation.monthStart);
+        } else { // Means last flight end is after month's end
+          blockTime += aggregation.monthEnd.difference(flightStartMctTime);
+          nbrOfFlights += 1;
+        }
       }
       if (duty.isWorkingDuty) {
-        dutyTime += duty.duration;
+        DateTime dutyStartMctTime =
+          duty.startTime.utc.add(Duration(hours: 4));
+        DateTime dutyEndMctTime =
+          duty.endTime.utc.add(Duration(hours: 4));
+        if (dutyStartMctTime.isAfter(aggregation.monthStart) &&
+            dutyEndMctTime.isBefore(aggregation.monthEnd)) {
+          dutyTime += duty.duration;
+        } else if (dutyStartMctTime.isBefore(aggregation.monthStart)) {
+          dutyTime += dutyEndMctTime.difference(aggregation.monthStart);
+        } else { // Means duty end is after month's end
+          dutyTime += aggregation.monthEnd.difference(dutyStartMctTime);
+        }
       }
     });
   }

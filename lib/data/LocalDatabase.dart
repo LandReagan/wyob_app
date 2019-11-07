@@ -220,14 +220,17 @@ class LocalDatabase {
 
     newDuties.sort(
         (duty1, duty2) => duty1.startTime.utc.compareTo(duty2.startTime.utc));
+
+    /* Previoys logic
     DateTime start = DateTime(newDuties.first.startTime.loc.year,
         newDuties.first.startTime.loc.month, newDuties.first.startTime.loc.day);
     DateTime end = DateTime(newDuties.last.endTime.loc.year,
         newDuties.last.endTime.loc.month, newDuties.last.endTime.loc.day);
+     */
 
     allDuties.removeWhere((duty) {
-      return duty.endTime.loc.isAfter(start) &&
-          duty.startTime.loc.isBefore(end);
+      return duty.endTime.utc.isAfter(newDuties.first.startTime.utc) &&
+          duty.startTime.utc.isBefore(newDuties.last.endTime.utc);
     });
 
     allDuties.addAll(newDuties);
