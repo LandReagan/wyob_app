@@ -189,5 +189,3 @@ class CrewMember {
     return rank + " " + surname + " " + staffNumber + " " + role;
   }
 }
-
-  }
