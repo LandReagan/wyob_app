@@ -320,7 +320,7 @@ class IobConnector {
 
     form['addflight'] = 'Add';
     form['fltDate'] = DateFormat("ddMMMyyyy").format(day);
-    form['fltToDate'] = DateFormat("ddMMMyyyy").format(day.add(Duration(days: 1)));
+    form['fltToDate'] = DateFormat("ddMMMyyyy").format(day);
     form['tripAcyFromDt'] = DateFormat("ddMMMyyyy").format(day);
     form['tripAcyToDt'] = DateFormat("ddMMMyyyy").format(day);
     form['fromDate'] = DateFormat("ddMMMyyyy").format(day);

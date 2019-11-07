@@ -1,40 +1,104 @@
-// For tests only, to be removed
-Crew getDummyCrew() {
-  var dummyCpt = {
-    "surname": "Garraio",
-    "first_name": "Jean-Pierre",
-    "staff_number": "92222",
-    "role": "CPT",
-    "rank": "TCPT"
-  };
+import 'dart:convert' show jsonEncode, jsonDecode;
 
-  var dummyFo = {
-    "surname": "Gagne",
-    "first_name": "Landry",
+var dummyCrew = [
+  {
+    "staff_number": "90693",
+    "name": "MOHAMED ALHARMALI",
+    "role": "330 MCT CAPT",
+    "rank": "CAPT"
+  },
+  {
     "staff_number": "93429",
-    "role": "FO",
+    "name": "LANDRY GAGNE",
+    "role": "330 MCT FO",
     "rank": "FO"
-  };
-
-  var dummyCD = {
-    "surname": "Al Balushi",
-    "first_name": "Mohamed",
-    "staff_number": "92345",
-    "role": "CD",
+  },
+  {
+    "staff_number": "92412",
+    "name": "ADNAN AL BALUSHI",
+    "role": "ALLCC MCT CD",
     "rank": "CD"
-  };
+  },
+  {
+    "staff_number": "92181",
+    "name": "OTHMAN AL SHEHHI",
+    "role": "ALLCC MCT PGC",
+    "rank": "PGC"
+  },
+  {
+    "staff_number": "92260",
+    "name": "ALI ABDULLAH AL ZAKHWANI",
+    "role": "ALLCC MCT PGC",
+    "rank": "PGC"
+  },
+  {
+    "staff_number": "93617",
+    "name": "CHUTIKA NARONGSAKSUKUM",
+    "role": "ALLCC MCT PGC",
+    "rank": "PGC"
+  },
+  {
+    "staff_number": "93618",
+    "name": "NAWAPUN NURAPAK",
+    "role": "ALLCC MCT PGC",
+    "rank": "PGC"
+  },
+  {
+    "staff_number": "95328",
+    "name": "FARHANA MOHD BINTI FAUZAL",
+    "role": "ALLCC MCT CA",
+    "rank": "CA"
+  },
+  {
+    "staff_number": "95347",
+    "name": "SALHA SAID SALUM",
+    "role": "ALLCC MCT CA",
+    "rank": "CA"
+  },
+  {
+    "staff_number": "95359",
+    "name": "HASSAN HAMED AL HARTHI YAHYA",
+    "role": "ALLCC MCT CA",
+    "rank": "CA"
+  },
+  {
+    "staff_number": "95612",
+    "name": "USAMA DAD MOHAMED ALBULUSHI FAQIR",
+    "role": "ALLCC MCT CA",
+    "rank": "CA"
+  },
+  {
+    "staff_number": "95884",
+    "name": "AHLAM AHMED ALRASHDI",
+    "role": "ALLCC MCT CA",
+    "rank": "CA"
+  }
+];
 
-  Crew crew = Crew();
-  crew.addMember(CrewMember.fromMap(dummyCpt));
-  crew.addMember(CrewMember.fromMap(dummyFo));
-  crew.addMember(CrewMember.fromMap(dummyCD));
-
-  return crew;
-}
+Crew getDummyCrew() => Crew.fromParser(dummyCrew);
 
 class Crew {
 
   List<CrewMember> _crewMembers;
+
+  Crew.fromJson(String jsonString) {
+    List<dynamic> dataList = jsonDecode(jsonString);
+    for (var data in dataList) {
+      addMember(CrewMember.fromMap(data));
+    }
+  }
+
+  Crew.fromMap(List<Map<String, dynamic>> dataList) {
+    for (var data in dataList) {
+      addMember(CrewMember.fromMap(data));
+    }
+  }
+
+  Crew.fromParser(List<Map<String, dynamic>> dataList) {
+    for (var data in dataList) {
+      addMember(CrewMember.fromParserMap(data));
+    }
+  }
 
   List<CrewMember> get crewMembers => _crewMembers;
 
@@ -47,7 +111,7 @@ class Crew {
     _crewMembers.add(newMember);
   }
 
-  List<Map<String, String>> get crewMembersMap {
+  List<Map<String, String>> get crewAsMap {
     List<Map<String, String>> map = [];
     for (var member in crewMembers) {
       map.add({
@@ -59,6 +123,15 @@ class Crew {
       });
     }
     return map;
+  }
+
+  String get crewAsJson => jsonEncode(crewAsMap);
+
+  @override
+  String toString() {
+    String result = "";
+    crewMembers.forEach((crewMember) => result += crewMember.toString() + '\n');
+    return result;
   }
 }
 
@@ -82,12 +155,22 @@ class CrewMember {
         _rank = rank,
         _role = role;
 
-  CrewMember.fromMap(Map<String, String> map) {
-    _surname = map['surname'];
-    _firstName = map['first_name'];
-    _staffNumber = map['staff_number'];
-    _rank = map['rank'];
-    _role = map['role'];
+  CrewMember.fromMap(Map<String, dynamic> map) {
+    _surname = map['surname'].toString();
+    _firstName = map['first_name'].toString();
+    _staffNumber = map['staff_number'].toString();
+    _rank = map['rank'].toString();
+    _role = map['role'].toString();
+  }
+
+  CrewMember.fromParserMap(Map<String, dynamic> data) {
+    _surname = data['name'];
+    _staffNumber = data['staff_number'];
+    _rank = data['rank'];
+    _role = data['role'];
+
+    _role = _role.replaceAll("ALLCC MCT ", "");
+    _role = _role.replaceAll(" MCT", "");
   }
 
   String get firstName => _firstName ?? "";
@@ -100,4 +183,11 @@ class CrewMember {
     if (this.staffNumber == other.staffNumber) return true;
     return false;
   }
+
+  @override
+  String toString() {
+    return rank + " " + surname + " " + staffNumber + " " + role;
+  }
 }
+
+  }

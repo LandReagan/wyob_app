@@ -32,5 +32,17 @@ void main() {
       expect(connector.bigCookie, isNotNull);
     });
 
+    test("Crew of today's WY101", () async {
+      String crewString = await connector.getCrew(DateTime.now(), '101');
+    });
+
+    test("Crew of today's WY601", () async {
+      String crewString = await connector.getCrew(DateTime.now(), '601');
+    });
+
+    test("Crew of today's WY824", () async {
+      String crewString = await connector.getCrew(DateTime.now(), '824');
+    });
+
   });
 }

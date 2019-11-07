@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:logger/logger.dart';
+import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/objects/Crew.dart';
 import 'package:wyob/objects/Flight.dart';
+import 'package:wyob/utils/Parsers.dart';
 
 class CrewWidget extends StatefulWidget {
 
@@ -17,16 +20,29 @@ class CrewWidget extends StatefulWidget {
 class _CrewWidgetState extends State<CrewWidget> {
 
   Crew _crew;
+  bool offline = false;
 
   Future<void> _getInfo() async {
-    await LocalDatabase().connector.getCrew(
-      widget._flight.startTime.loc,
-      widget._flight.flightNumber
-    );
-    // _crew = await LocalDatabase().connector.getCrew(widget._flight);
+
+    String crewData;
+    try {
+      crewData = await LocalDatabase().connector.getCrew(
+          widget._flight.startTime.loc,
+          widget._flight.flightNumber
+      );
+    } on WyobExceptionOffline {
+      _crew = null;
+      offline = true;
+      return;
+    }
+      // _crew = await LocalDatabase().connector.getCrew(widget._flight);
     setState(() {
-      // For tests only
       _crew = getDummyCrew();
+      try {
+        _crew = Crew.fromParser(parseCrewPage(crewData));
+      } on WyobExceptionParser catch (e) {
+        Logger().w("Error while parsing crew: " + e.toString());
+      }
     });
   }
 
@@ -72,10 +88,10 @@ class _CrewWidgetState extends State<CrewWidget> {
     );
 
     if (_crew != null) {
-      _crew.crewMembers.where((member) => member.role == "CPT").toList().forEach(
+      _crew.crewMembers.where((member) => member.rank == "CAPT").toList().forEach(
               (cpt) => crewMembersWidgets.add(_generateCrewMemberRow(cpt))
       );
-      _crew.crewMembers.where((member) => member.role == "FO").toList().forEach(
+      _crew.crewMembers.where((member) => member.rank == "FO").toList().forEach(
               (fo) => crewMembersWidgets.add(_generateCrewMemberRow(fo))
       );
       _crew.crewMembers.where((member) => member.role == "CD").toList().forEach(

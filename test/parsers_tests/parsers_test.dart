@@ -1,7 +1,7 @@
-import 'dart:math';
 
 import 'package:test/test.dart';
 import 'dart:io';
+import 'dart:convert' show jsonEncode;
 
 import 'package:wyob/utils/Parsers.dart';
 
@@ -110,6 +110,50 @@ void main() {
           .readAsStringSync();
       List<Map<String, dynamic>> result = parseGanttDuty(content);
       print(result);
+    });
+  });
+
+  group("Crew parsing tests", () {
+
+    String folderPath = "test/HTML files/crew/";
+
+    test("WY101", () {
+      String content = File(folderPath + 'wy101.html').readAsStringSync();
+      var result = parseCrewPage(content);
+      expect(result.length, 14);
+      expect(result[0]['staff_number'], '91763');
+
+      var dataCrewFO = result.firstWhere((data) => data['rank'] == 'FO');
+      expect(dataCrewFO['name'], "IDRIS AL SIYABI");
+
+      expect(
+        result.firstWhere((data) => data['staff_number'] == '91357')['name'],
+        'ADONA SALONGA');
+
+      expect(
+          result.firstWhere((data) => data['name'] == 'NAJI ABDULLAH AL SHUAIBI')['role'],
+          'ALLCC MCT PGC');
+    });
+
+    test("WY601", () {
+      String content = File(folderPath + 'wy601.html').readAsStringSync();
+      var result = parseCrewPage(content);
+
+      expect(result.length, 6);
+      expect(result.firstWhere((data) => data['rank'] == 'CAPT')['name'],
+          "DENIS OKAN");
+    });
+
+    test("WY824", () {
+      String content = File(folderPath + 'wy824.html').readAsStringSync();
+      var result = parseCrewPage(content);
+
+      expect(result.length, 12);
+
+      expect(result.firstWhere((data) => data['rank'] == 'FO')['name'],
+          "LANDRY GAGNE");
+      expect(result.firstWhere((data) => data['rank'] == 'FO')['staff_number'],
+          "93429");
     });
   });
 }

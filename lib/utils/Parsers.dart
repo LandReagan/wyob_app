@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:convert' show json;
 
+import 'package:wyob/WyobException.dart';
+
 List<Map<String, String>> parseCheckinList(String txt) {
 
   List<Map<String, String>> checkinList = new List();
@@ -182,6 +184,56 @@ List<Map<String, dynamic>> parseGanttDuty(String text) {
   }
 
   return data;
+}
+
+List<Map<String, dynamic>> parseCrewPage(String txt) {
+  var result = <Map<String, dynamic>>[];
+
+  var crewRegex = RegExp(r'<tr bgcolor=(?:"#FFFFFF"|"#F0F0F0")>[\S|\s]+?</tr>');
+  List<Match> crewMatches = crewRegex.allMatches(txt).toList();
+
+  if (crewMatches == null || crewMatches.length == 0) {
+    throw WyobExceptionParser("No crew found!");
+  }
+
+  for (Match match in crewMatches) {
+    var data = Map<String, dynamic>();
+
+    String crewString = match.group(0);
+
+    var fieldsRegexp = RegExp(
+      r'<td class="crewlist_0" align="center">\s*'
+      r'([\S|\s]+?)'
+      r'\s*</td>\s*<td class="crewlist_0">\s*'
+      r'([\S|\s]+?)'
+      r'\s*</td>\s*<td class="crewlist_0" align="center">\s*'
+      r'([\S|\s]+?)'
+      r'\s*</td>\s*<td class="crewlist_0" align="center">\s*'
+      r'([\S|\s]+?)'
+      r'\s*</td>'
+    );
+    var crewMatch = fieldsRegexp.firstMatch(crewString);
+
+    if (crewMatch == null) {
+      throw WyobExceptionParser("Parser error parsing crew data");
+    }
+
+    data['staff_number'] = crewMatch[1];
+    data['name'] = crewMatch[2];
+    data['role'] = crewMatch[3];
+    data['rank'] = crewMatch[4];
+
+    // Case when parsing self, staff number enclosed in a link.
+    var staffNumberRegexp = RegExp(r'<a href[\S|\s]+?>\s*(\d+)\s*</a>');
+    var staffNumberMatch = staffNumberRegexp.firstMatch(data['staff_number']);
+    if (staffNumberMatch != null) {
+      data['staff_number'] = staffNumberMatch[1];
+    }
+
+    result.add(data);
+  }
+
+  return result;
 }
 
 void main() {

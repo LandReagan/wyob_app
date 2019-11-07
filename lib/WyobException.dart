@@ -37,3 +37,7 @@ class WyobExceptionDatabaseIntegrity extends WyobException {
 class WyobExceptionFtlIncomplete extends WyobException {
   WyobExceptionFtlIncomplete([String msg]) : super(msg);
 }
+
+class WyobExceptionParser extends WyobException {
+  WyobExceptionParser([String msg]) : super(msg);
+}
