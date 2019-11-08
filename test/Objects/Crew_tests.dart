@@ -171,7 +171,6 @@ void main() {
 
     test("Dummy crew 2", () {
       var crew = Crew.fromParser(dummyCrew2);
-      print(crew);
       expect(crew.crewMembers.length, 6);
       expect(
           crew.crewMembers

@@ -2,6 +2,7 @@ import 'dart:convert' show json;
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
@@ -9,6 +10,7 @@ import 'package:async/async.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/iob/IobConnector.dart';
 import 'package:wyob/iob/IobConnectorData.dart';
+import 'package:wyob/objects/Crew.dart';
 import 'package:wyob/objects/MonthlyAggregation.dart';
 import 'package:wyob/objects/Statistics.dart';
 import 'package:wyob/utils/Parsers.dart';
@@ -412,6 +414,67 @@ class LocalDatabase {
         return null;
     }
   }
+  
+  Crew getCrewInformation(DateTime day, String flightNumber) {
+    List<Map<String, dynamic>> crewRootData;
+    try {
+      crewRootData = List<Map<String, dynamic>>.from(_root['crew']);
+    } catch (error) {
+      Logger().w("No crew information found in the database.");
+      return null;
+    }
+    
+    if (crewRootData.length > 0) {
+      for (var crewEntryData in crewRootData) {
+        String dayString;
+        String flightNumberString;
+        try {
+          dayString = crewEntryData['day'];
+          flightNumberString = crewEntryData['flight_number'];
+        } catch (error) {
+          Logger().w("Error while getting crew information in database: " +
+              error.toString());
+          return null;
+        }
+        if (dayString == DateFormat("ddMMMyyyy").format(day) &&
+            flightNumber == flightNumberString) {
+          var crewData = List<Map<String, dynamic>>.from(crewEntryData['crew']);
+          return Crew.fromMap(crewData);
+        }
+      }
+      return null; // Crew not found
+    } else {
+      Logger().w("Crew information list found empty in the database.");
+      return null;
+    }
+  }
+  
+  Future<void> setCrewInformation(DateTime day, String flightNumber, Crew crew) async {
+    var dayString = DateFormat("ddMMMyyyy").format(day);
+    var data = {
+      'day': dayString, 
+      'flight_number': flightNumber, 
+      'crew': crew.crewAsMap
+    };
+
+    List<Map<String, dynamic>> crewRootData;
+    try {
+      crewRootData = List<Map<String, dynamic>>.from(_root['crew']);
+    } catch (error) {
+      Logger().i("No crew information found in the database. Creating section...");
+      _root['crew'] = [];
+    }
+
+    if (getCrewInformation(day, flightNumber) == null) {
+      _root['crew'].add(data);
+    }
+
+    _writeLocalData();
+  }
+
+  void reset() {
+    _root = Map<String, dynamic>.from(EMPTY_DATABASE_STRUCTURE);
+  }
 
   Future<void> _setUpdateTime(AwareDT time) async {
     _root['last_update'] = time.toString();
@@ -500,5 +563,10 @@ class LocalDatabase {
       throw WyobExceptionCredentials(
           'Database User Data ("user_data") incorrect, with username or password set to null!');
     }
+  }
+
+  @override
+  String toString() {
+    return _root.toString();
   }
 }
