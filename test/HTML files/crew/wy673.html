@@ -1,5 +1,6 @@
 
 
+
 <html lang="en">
 <head>
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -129,24 +130,24 @@ function updateSelectPanel() {
 
             } 
             function openGenDecWindow() {
-                    document.crewlistForm.target='genDec';
-                    document.crewlistForm.action.value='Gen Dec';
-                    window.value = "new";
-                    var cw = window.open("",
-                                "genDec",
-                                "menubar=no,status=no,toolbar=no,titlebar=no,location=no,scrollbars=yes,resizable=yes,width=1100,height=490,left=25,top=25");
-                    cw.moveTo(0,0);
-                    cw.resizeTo(screen.availWidth,screen.availHeight);
-                
+	                document.crewlistForm.target='genDec';
+	    	        document.crewlistForm.action.value='Gen Dec';
+	    	        window.value = "new";
+	    	        var cw = window.open("",
+	    	                    "genDec",
+	    	                    "menubar=no,status=no,toolbar=no,titlebar=no,location=no,scrollbars=yes,resizable=yes,width=1100,height=490,left=25,top=25");
+	    	        cw.moveTo(0,0);
+	    	        cw.resizeTo(screen.availWidth,screen.availHeight);
+	    	    
             } 
 
             function openEmailRostersWindow() {
-                   document.crewlistForm.target='emailRosters';
-                   document.crewlistForm.action.value='Email Rosters';
-                   var cw = window.open("",
-                                    "emailRosters",
-                                "menubar=no,status=no,toolbar=no,titlebar=no,location=no,scrollbars=yes,resizable=yes,width=620,height=450,left=170,top=100");
-                                
+	    	       document.crewlistForm.target='emailRosters';
+	    	       document.crewlistForm.action.value='Email Rosters';
+	    	       var cw = window.open("",
+		       	    	            "emailRosters",
+	    	                    "menubar=no,status=no,toolbar=no,titlebar=no,location=no,scrollbars=yes,resizable=yes,width=620,height=450,left=170,top=100");
+	    	                    
             }
 
         -->
@@ -227,122 +228,122 @@ var openedMenuLevel2 = " ";
 var openedMenuLevel3 = " ";
 var toOpenMenuLevel2 = " ";
 function showMenuLevel1(mItem){
-    if(currentOpenLevel1 != mItem){
-        MM_showHideLayers(currentOpenLevel1,'','hide');
-        currentOpenLevel1=" ";
-    }
-    if(timerObjectLevel1){
-        clearTimeout(timerObjectLevel1);
-    }
-    currentOpenLevel1 = mItem;
-    MM_showHideLayers(mItem,'','show');
-    menuItemLevel1=mItem;
+	if(currentOpenLevel1 != mItem){
+		MM_showHideLayers(currentOpenLevel1,'','hide');
+		currentOpenLevel1=" ";
+	}
+	if(timerObjectLevel1){
+		clearTimeout(timerObjectLevel1);
+	}
+	currentOpenLevel1 = mItem;
+	MM_showHideLayers(mItem,'','show');
+	menuItemLevel1=mItem;
 }
 function hideMenuLevel1(){
-    MM_showHideLayers(menuItemLevel1,'','hide');
-    currentOpenLevel1=" ";
+	MM_showHideLayers(menuItemLevel1,'','hide');
+	currentOpenLevel1=" ";
 }
 function timeoutFunctionLevel1(menuToHide){
-    menuItemLevel1=menuToHide;
-    timerObjectLevel1 = setTimeout("hideMenuLevel1()",1000);
+	menuItemLevel1=menuToHide;
+	timerObjectLevel1 = setTimeout("hideMenuLevel1()",1000);
 }
 function showMenuLevel2(mItem){
-    if(currentOpenLevel2 != mItem){
-        closeAll();
-    }
-    if(timerObjectLevel2){
-        clearTimeout(timerObjectLevel2);
-    }
-    currentOpenLevel2 = mItem;
-    MM_showHideLayers(mItem,'','show');
-    menuItemLevel2=mItem;
+	if(currentOpenLevel2 != mItem){
+		closeAll();
+	}
+	if(timerObjectLevel2){
+		clearTimeout(timerObjectLevel2);
+	}
+	currentOpenLevel2 = mItem;
+	MM_showHideLayers(mItem,'','show');
+	menuItemLevel2=mItem;
 }
 function hideMenuLevel2(){
-    MM_showHideLayers(menuItemLevel2,'','hide');
-    currentOpenLevel2 = " ";
-    checkClose();
+	MM_showHideLayers(menuItemLevel2,'','hide');
+	currentOpenLevel2 = " ";
+	checkClose();
 }
 function timeoutFunctionLevel2(menuToHide){
-    menuItemLevel2=menuToHide;
-    timerObjectLevel2 = setTimeout("hideMenuLevel2()",1000);
-    toOpenMenuLevel2 = " ";
-    parentMenuOfLevel3 = " ";
+	menuItemLevel2=menuToHide;
+	timerObjectLevel2 = setTimeout("hideMenuLevel2()",1000);
+	toOpenMenuLevel2 = " ";
+	parentMenuOfLevel3 = " ";
 }
 function showMenuLevel3(mItem, tabId){
-    if(smOpenTimer){
-        clearTimeout(smOpenTimer);
-    }
-    parentMenuOfLevel3 = menuItemLevel2;
-    toOpenMenuLevel2 = menuItemLevel2;
-    menuItemLevel3=mItem;
-    smTabID = tabId;
-    addToOpenedMenus(mItem);
-    smOpenTimer = setTimeout("smOpenFunction()",500);
+	if(smOpenTimer){
+		clearTimeout(smOpenTimer);
+	}
+	parentMenuOfLevel3 = menuItemLevel2;
+	toOpenMenuLevel2 = menuItemLevel2;
+	menuItemLevel3=mItem;
+	smTabID = tabId;
+	addToOpenedMenus(mItem);
+	smOpenTimer = setTimeout("smOpenFunction()",500);
 }
 function smOpenFunction(){
-    if( toOpenMenuLevel2 == " "){
-        MM_showHideLayers(menuItemLevel3,'','hide');
-    }else{
-        if(smTabID){
-            showTable(smTabID);
-        }
-        currentOpenLevel3=menuItemLevel3;
-        MM_showHideLayers(menuItemLevel3,'','show');
-        menuItemLevel3 = ' ';
-    }
+	if(	toOpenMenuLevel2 == " "){
+		MM_showHideLayers(menuItemLevel3,'','hide');
+	}else{
+		if(smTabID){
+			showTable(smTabID);
+		}
+		currentOpenLevel3=menuItemLevel3;
+		MM_showHideLayers(menuItemLevel3,'','show');
+		menuItemLevel3 = ' ';
+	}
 }
 function hideMenuLevel3(){
-    if(currentOpenLevel3 != menuItemLevel3){
-        checkClose();
-        MM_showHideLayers(smToClose,'','hide');
-        clearTimeout(smCloseTimer);
-    }else{
-        MM_showHideLayers(currentOpenLevel3,'','show');
-        clearTimeout(smCloseTimer);
-    }
+	if(currentOpenLevel3 != menuItemLevel3){
+		checkClose();
+		MM_showHideLayers(smToClose,'','hide');
+		clearTimeout(smCloseTimer);
+	}else{
+		MM_showHideLayers(currentOpenLevel3,'','show');
+		clearTimeout(smCloseTimer);
+	}
 }
 function timeoutFunctionLevel3(menuToHide){
-    toCloseArrayLevel3[toCloseArrayLevel3.length] = menuToHide;
-    smToClose=menuToHide;
-    smCloseTimer = setTimeout("hideMenuLevel3()",500);
-    parentMenuOfLevel3 = " ";
+	toCloseArrayLevel3[toCloseArrayLevel3.length] = menuToHide;
+	smToClose=menuToHide;
+	smCloseTimer = setTimeout("hideMenuLevel3()",500);
+	parentMenuOfLevel3 = " ";
 }
 function checkClose(){
-    if(smCloseTimer){
-        clearTimeout(smCloseTimer);
-    }
-    if(toCloseArrayLevel3){
-        var arrayLength = toCloseArrayLevel3.length;
-        for(i=0; i<arrayLength; i++){
-            MM_showHideLayers(toCloseArrayLevel3[i],'','hide');
-        }
-        toCloseArrayLevel3 = new Array();
-    }
+	if(smCloseTimer){
+		clearTimeout(smCloseTimer);
+	}
+	if(toCloseArrayLevel3){
+		var arrayLength = toCloseArrayLevel3.length;
+		for(i=0; i<arrayLength; i++){
+			MM_showHideLayers(toCloseArrayLevel3[i],'','hide');
+		}
+		toCloseArrayLevel3 = new Array();
+	}
 }
 function addToOpenedMenus(mItem){
-    if(openedMenuLevel3.search(mItem) < 0){
-        openedMenuLevel3 = openedMenuLevel3+","+mItem;
-    }
+	if(openedMenuLevel3.search(mItem) < 0){
+		openedMenuLevel3 = openedMenuLevel3+","+mItem;
+	}
 }
 function closeAll(){
-    clearTimeout(smOpenTimer);
-    clearTimeout(smCloseTimer);
-    var tempArray;
-    menuItemLevel3 = ' ';
-    hideTable(smTabID);
-    checkClose();
+	clearTimeout(smOpenTimer);
+	clearTimeout(smCloseTimer);
+	var tempArray;
+	menuItemLevel3 = ' ';
+	hideTable(smTabID);
+	checkClose();
 
-    tempArray = openedMenuLevel3.split(",");
-    var arrayLength = tempArray.length;
-    for(i=0; i<arrayLength; i++){
-        MM_showHideLayers(tempArray[i],'','hide');
-    }
-    openedMenuLevel3 = " ";
-    
-    MM_showHideLayers(currentOpenLevel2,'','hide');
-    currentOpenLevel2 = " ";
-    toOpenMenuLevel2 = " ";
-    parentMenuOfLevel3 = " ";
+	tempArray = openedMenuLevel3.split(",");
+	var arrayLength = tempArray.length;
+	for(i=0; i<arrayLength; i++){
+		MM_showHideLayers(tempArray[i],'','hide');
+	}
+	openedMenuLevel3 = " ";
+	
+	MM_showHideLayers(currentOpenLevel2,'','hide');
+	currentOpenLevel2 = " ";
+	toOpenMenuLevel2 = " ";
+	parentMenuOfLevel3 = " ";
 }
 
 //-->
@@ -502,11 +503,11 @@ function disableRightClick() {
     </tr>
 
     
-    
+	
     <tr>
       <td onMouseOver="this.className='subRollOver'" onMouseOut="this.className='submenu'" onClick="window.parent.location.href='/mlt/checkinfilterpreaction.do?menucall=TRUE'"><img src="./images/bullet.gif" class="bullet"/> Checkin/Roster</td>
     </tr>
-    
+	
     
     <tr>
       <td onMouseOver="this.className='subRollOver'" onMouseOut="this.className='submenu'" onClick="window.parent.location.href='/mlt/mltcreditmain.jsp'"><img src="./images/bullet.gif" class="bullet"/> My Credit</td>
@@ -529,8 +530,8 @@ function disableRightClick() {
       <td onMouseOver="this.className='subRollOver'" onMouseOut="this.className='submenu'" onClick="window.parent.location.href='/mlt/mltcrewmain.jsp'"><img src="./images/bullet.gif" class="bullet"/> Select Any Crew</td>
     </tr>
     
-    
-        
+	
+      	
 
     
     
@@ -634,8 +635,8 @@ function disableRightClick() {
     
     
     
-    
-            
+	
+    		
     
     
     
@@ -730,11 +731,11 @@ function disableRightClick() {
     
 
    
-    
+  	
 
-    
+   	
 
-    
+	
     
 
      
@@ -747,7 +748,7 @@ function disableRightClick() {
     
 
     
-    
+	
     
 
 
@@ -797,7 +798,7 @@ function disableRightClick() {
     
     
 
-    
+	
 
     
     
@@ -822,18 +823,18 @@ function disableRightClick() {
      <script>
           hideTable('briefroomtab'); 
      </script>
-    
-     
-     </table>
+	
+	 
+	 </table>
  </div>
 <div id="leave" style="position:absolute; width:155px; height:28px; z-index:4; left: 355px; top: 130px;" onMouseOver="showMenuLevel2('leave');showMenuLevel1('crew')" onMouseOut="timeoutFunctionLevel2('leave');timeoutFunctionLevel1('crew')">
    <table id="leavetab" width="100%" border="1" class="submenu">
      <script>
           hideTable('leavetab'); 
      </script>
-    
-     
-     </table>
+	
+	 
+	 </table>
  </div>
 
 
@@ -898,7 +899,7 @@ function disableRightClick() {
     
        
 
-    
+   	
     </table>
   </div>
   
@@ -971,13 +972,13 @@ function disableRightClick() {
 
 <input type="hidden" name="window" value="main">
 
-<form name="crewlistForm" method="POST" action="/mlt/crewlistpostaction.do" target="main"><input type="hidden" name="org.apache.struts.taglib.html.TOKEN" value="3ab5f88c4cdd87a68d2e99448e2caed">
+<form name="crewlistForm" method="POST" action="/mlt/crewlistpostaction.do" target="main"><input type="hidden" name="org.apache.struts.taglib.html.TOKEN" value="44928c6a2aa56478a7482aee208cc429">
 <div class="error_msg"></div>
 
-<input type="hidden" name="noOfRows" value="6">
+<input type="hidden" name="noOfRows" value="12">
 <input type="hidden" name="currentRow" value="0">
 <input type="hidden" name="startOfPageRow" value="0">
-<input type="hidden" name="endOfPageRow" value="6">
+<input type="hidden" name="endOfPageRow" value="12">
 
 
 
@@ -1005,23 +1006,23 @@ function disableRightClick() {
   <td class="crewlist_0">
     
     
-        
-            <input type="checkbox" name="remove0" value="keep" disabled />
-        
+		
+			<input type="checkbox" name="remove0" value="keep" disabled />
+		
     
   </td>
   <td class="crewlist_0" align="center">
 
 
-       95569
+       91243
 
 
   </td>
   <td class="crewlist_0">
-    DENIS OKAN
+    GOBI KRISHNAN MANICKAM
   </td>
   <td class="crewlist_0" align="center">
-     737 MCT CAPT
+     330 MCT CAPT
   </td>
   <td class="crewlist_0" align="center">
     CAPT
@@ -1042,23 +1043,23 @@ function disableRightClick() {
   <td class="crewlist_0">
     
     
-        
-            <input type="checkbox" name="remove1" value="keep" disabled />
-        
+		
+			<input type="checkbox" name="remove1" value="keep" disabled />
+		
     
   </td>
   <td class="crewlist_0" align="center">
 
 
-       95803
+       93427
 
 
   </td>
   <td class="crewlist_0">
-    SAID AL BUSAIDI
+    MARVIN DUANE REYNOLDS
   </td>
   <td class="crewlist_0" align="center">
-     737 MCT FO
+     330 MCT FO
   </td>
   <td class="crewlist_0" align="center">
     FO
@@ -1079,20 +1080,20 @@ function disableRightClick() {
   <td class="crewlist_0">
     
     
-        
-            <input type="checkbox" name="remove2" value="keep" disabled />
-        
+		
+			<input type="checkbox" name="remove2" value="keep" disabled />
+		
     
   </td>
   <td class="crewlist_0" align="center">
 
 
-       91569
+       93163
 
 
   </td>
   <td class="crewlist_0">
-    SU WAI HNIN
+    PETRA. MADERICOVA
   </td>
   <td class="crewlist_0" align="center">
      ALLCC MCT CD
@@ -1116,20 +1117,168 @@ function disableRightClick() {
   <td class="crewlist_0">
     
     
-        
-            <input type="checkbox" name="remove3" value="keep" disabled />
-        
+		
+			<input type="checkbox" name="remove3" value="keep" disabled />
+		
     
   </td>
   <td class="crewlist_0" align="center">
 
 
-       95079
+       93359
 
 
   </td>
   <td class="crewlist_0">
-    ABDUL MAJED AL BALUSHI
+    PANIDA JUNMEEWONG
+  </td>
+  <td class="crewlist_0" align="center">
+     ALLCC MCT PGC
+  </td>
+  <td class="crewlist_0" align="center">
+    PGC
+  </td>
+
+</tr>
+
+
+
+
+
+
+  
+
+
+
+<tr bgcolor="#FFFFFF">
+  <td class="crewlist_0">
+    
+    
+		
+			<input type="checkbox" name="remove4" value="keep" disabled />
+		
+    
+  </td>
+  <td class="crewlist_0" align="center">
+
+
+       93777
+
+
+  </td>
+  <td class="crewlist_0">
+    ARIANE MONIQUE ORTIZ RABACIO
+  </td>
+  <td class="crewlist_0" align="center">
+     ALLCC MCT PGC
+  </td>
+  <td class="crewlist_0" align="center">
+    PGC
+  </td>
+
+</tr>
+
+
+
+
+
+
+  
+
+
+
+<tr bgcolor="#F0F0F0">
+  <td class="crewlist_0">
+    
+    
+		
+			<input type="checkbox" name="remove5" value="keep" disabled />
+		
+    
+  </td>
+  <td class="crewlist_0" align="center">
+
+
+       94144
+
+
+  </td>
+  <td class="crewlist_0">
+    BADAR YAQOOB YOUSUF AL SHAIKHANI
+  </td>
+  <td class="crewlist_0" align="center">
+     ALLCC MCT PGC
+  </td>
+  <td class="crewlist_0" align="center">
+    PGC
+  </td>
+
+</tr>
+
+
+
+
+
+
+  
+
+
+
+<tr bgcolor="#FFFFFF">
+  <td class="crewlist_0">
+    
+    
+		
+			<input type="checkbox" name="remove6" value="keep" disabled />
+		
+    
+  </td>
+  <td class="crewlist_0" align="center">
+
+
+       95024
+
+
+  </td>
+  <td class="crewlist_0">
+    MAHTAB AHMAD
+  </td>
+  <td class="crewlist_0" align="center">
+     ALLCC MCT PGC
+  </td>
+  <td class="crewlist_0" align="center">
+    PGC
+  </td>
+
+</tr>
+
+
+
+
+
+
+  
+
+
+
+<tr bgcolor="#F0F0F0">
+  <td class="crewlist_0">
+    
+    
+		
+			<input type="checkbox" name="remove7" value="keep" disabled />
+		
+    
+  </td>
+  <td class="crewlist_0" align="center">
+
+
+       93882
+
+
+  </td>
+  <td class="crewlist_0">
+    AZHAR SALIM ABDULLAH AL BALUSHI
   </td>
   <td class="crewlist_0" align="center">
      ALLCC MCT CA
@@ -1153,20 +1302,20 @@ function disableRightClick() {
   <td class="crewlist_0">
     
     
-        
-            <input type="checkbox" name="remove4" value="keep" disabled />
-        
+		
+			<input type="checkbox" name="remove8" value="keep" disabled />
+		
     
   </td>
   <td class="crewlist_0" align="center">
 
 
-       95128
+       94751
 
 
   </td>
   <td class="crewlist_0">
-    KANOKWAN SRITAN
+    FAISAL AL BARASHDI
   </td>
   <td class="crewlist_0" align="center">
      ALLCC MCT CA
@@ -1190,20 +1339,94 @@ function disableRightClick() {
   <td class="crewlist_0">
     
     
-        
-            <input type="checkbox" name="remove5" value="keep" disabled />
-        
+		
+			<input type="checkbox" name="remove9" value="keep" disabled />
+		
     
   </td>
   <td class="crewlist_0" align="center">
 
 
-       96387
+       95261
 
 
   </td>
   <td class="crewlist_0">
-    JOSELLE MABAL ESPALDON
+    CELINA NAIR PARAM
+  </td>
+  <td class="crewlist_0" align="center">
+     ALLCC MCT CA
+  </td>
+  <td class="crewlist_0" align="center">
+    CA
+  </td>
+
+</tr>
+
+
+
+
+
+
+  
+
+
+
+<tr bgcolor="#FFFFFF">
+  <td class="crewlist_0">
+    
+    
+		
+			<input type="checkbox" name="remove10" value="keep" disabled />
+		
+    
+  </td>
+  <td class="crewlist_0" align="center">
+
+
+       95410
+
+
+  </td>
+  <td class="crewlist_0">
+    NASSER HAMED ALMAMARI HAMOOD
+  </td>
+  <td class="crewlist_0" align="center">
+     ALLCC MCT CA
+  </td>
+  <td class="crewlist_0" align="center">
+    CA
+  </td>
+
+</tr>
+
+
+
+
+
+
+  
+
+
+
+<tr bgcolor="#F0F0F0">
+  <td class="crewlist_0">
+    
+    
+		
+			<input type="checkbox" name="remove11" value="keep" disabled />
+		
+    
+  </td>
+  <td class="crewlist_0" align="center">
+
+
+       95899
+
+
+  </td>
+  <td class="crewlist_0">
+    CHATHURIKA RANEPURA DEWAGE NILANGANI WIJAYARATHNA
   </td>
   <td class="crewlist_0" align="center">
      ALLCC MCT CA
@@ -1250,10 +1473,10 @@ function disableRightClick() {
 <option value="This Month">This Month</option>
 <option value="Specified Dates" selected="selected">Specified Dates</option></select>
       From
-      <input type="text" name="ganttStartDate" maxlength="9" size="9" value="07Nov2019" class="txt70">
+      <input type="text" name="ganttStartDate" maxlength="9" size="9" value="09Nov2019" class="txt70">
       <img src="./images/cal.gif" class="cal" onclick="javascript:show_calpos('forms[0].ganttStartDate',event.screenY,event.screenX)" onMouseOver="this.style.cursor='hand';" onMouseOut="this.style.cursor='default'" onDragStart="event.returnValue=false;"/>
       To
-      <input type="text" name="ganttEndDate" maxlength="9" size="9" value="07Nov2019" class="txt70">
+      <input type="text" name="ganttEndDate" maxlength="9" size="9" value="09Nov2019" class="txt70">
       <img src="./images/cal.gif" class="cal" onclick="javascript:show_calpos('forms[0].ganttEndDate',event.screenY,event.screenX)" onMouseOver="this.style.cursor='hand';" onMouseOut="this.style.cursor='default'" onDragStart="event.returnValue=false;"/>
 
 
@@ -1306,7 +1529,7 @@ function disableRightClick() {
   </td>
     <td height="25">
 
-    Crew 1 - 6 of 6 |
+    Crew 1 - 12 of 12 |
 
     This page : 1 of
 
@@ -1329,9 +1552,9 @@ function disableRightClick() {
     <input type="hidden" name="mlt.utcLocal" value="Local">
     <input type="hidden" name="mlt.baseAction" value="addflight">
     <input type="hidden" name="baseFormAction" value="addflight">
-    <input type="hidden" name="crwSelectToDate" value="07Nov2019">
-    <input type="hidden" name="crwFltToDate" value="07Nov2019">
-    <input type="hidden" name="crwStnToDate" value="07Nov2019">
+    <input type="hidden" name="crwSelectToDate" value="09Nov2019">
+    <input type="hidden" name="crwFltToDate" value="09Nov2019">
+    <input type="hidden" name="crwStnToDate" value="09Nov2019">
     <input type="hidden" name="crwStnToTime" value="23:59">
     
 </form>

@@ -187,6 +187,10 @@ List<Map<String, dynamic>> parseGanttDuty(String text) {
 }
 
 List<Map<String, dynamic>> parseCrewPage(String txt) {
+
+  if (txt == null || txt == "")
+    throw WyobExceptionParser("Empty or NULL string passed to parseCrewPage");
+
   var result = <Map<String, dynamic>>[];
 
   var crewRegex = RegExp(r'<tr bgcolor=(?:"#FFFFFF"|"#F0F0F0")>[\S|\s]+?</tr>');

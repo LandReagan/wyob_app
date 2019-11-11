@@ -21,8 +21,13 @@ class _CrewWidgetState extends State<CrewWidget> {
 
   Crew _crew;
   bool offline = false;
+  bool fetching = false;
 
   Future<void> _getInfo() async {
+
+    setState(() {
+      fetching = true;
+    });
 
     String crewData;
     try {
@@ -34,10 +39,15 @@ class _CrewWidgetState extends State<CrewWidget> {
       _crew = null;
       offline = true;
       return;
+    } on WyobExceptionParser {
+      _crew = null;
+      Logger().w("Crew parsing problem!");
+    } on WyobException catch (e) {
+      Logger().w("Unexpected exception thrown: " + e.toString());
     }
-      // _crew = await LocalDatabase().connector.getCrew(widget._flight);
+
     setState(() {
-      _crew = getDummyCrew();
+      fetching = false;
       try {
         _crew = Crew.fromParser(parseCrewPage(crewData));
       } on WyobExceptionParser catch (e) {
@@ -105,16 +115,29 @@ class _CrewWidgetState extends State<CrewWidget> {
       );
       //todo: any other? Supernumerary?
     } else {
-      crewMembersWidgets.add(
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Text("NO INFORMATION",
-                textScaleFactor: 1.5, textAlign: TextAlign.center,),
+      if (fetching) {
+        crewMembersWidgets.add(
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text("FETCHING...",
+                    textScaleFactor: 1.5, textAlign: TextAlign.center,),
+                )
+              ],
             )
-          ],
-        )
-      );
+        );
+      } else {
+        crewMembersWidgets.add(
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text("NO INFORMATION",
+                    textScaleFactor: 1.5, textAlign: TextAlign.center,),
+                )
+              ],
+            )
+        );
+      }
     }
     
     return Column (

@@ -155,5 +155,14 @@ void main() {
       expect(result.firstWhere((data) => data['rank'] == 'FO')['staff_number'],
           "93429");
     });
+
+    test("WY673", () {
+      String content = File(folderPath + 'wy673.html').readAsStringSync();
+      var result = parseCrewPage(content);
+
+      print(result);
+
+      expect(result.length, 12);
+    });
   });
 }

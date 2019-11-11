@@ -44,5 +44,10 @@ void main() {
       String crewString = await connector.getCrew(DateTime.now(), '824');
     });
 
+    test("Crew of WY673 on Nov 9, 2019", () async {
+      String crewString = await connector.getCrew(DateTime(2019, 11, 9), '673');
+      print(crewString);
+    });
+
   });
 }

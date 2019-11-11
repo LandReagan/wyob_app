@@ -312,6 +312,9 @@ class IobConnector {
 
   Future<String> getCrew(DateTime day, String flightNumber) async {
 
+    var flightNumberRegexp = RegExp(r'\d+');
+    flightNumber = flightNumberRegexp.firstMatch(flightNumber)[0];
+
     Map<String, String> form = Map.from(crewSelectForm);
 
     form['org.apache.struts.taglib.html.TOKEN'] = this.token;
@@ -360,8 +363,6 @@ class IobConnector {
       this.changeStatus(CONNECTOR_STATUS.ERROR);
       Logger().w("Unknown exception happened while fetching Crew information...");
     }
-
-    print(crewSelectBody);
 
     return crewSelectBody;
   }
