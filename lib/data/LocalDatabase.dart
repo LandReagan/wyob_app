@@ -474,8 +474,9 @@ class LocalDatabase {
     _writeLocalData();
   }
 
-  void reset() {
+  Future<void> reset() async {
     _root = Map<String, dynamic>.from(EMPTY_DATABASE_STRUCTURE);
+    await _writeLocalData();
   }
 
   Future<void> _setUpdateTime(AwareDT time) async {

@@ -17,7 +17,6 @@ String landingUrl =
     'https://fltops.omanair.com/mlt/filter.jsp?window=filter&loggedin=false';
 String loginFormUrl = 'https://fltops.omanair.com/mlt/loginpostaction.do';
 String checkinListUrl = 'https://fltops.omanair.com/mlt/checkinlist.jsp';
-String mltCrewMainUrl = 'https://fltops.omanair.com/mlt/mltcrewmain.jsp';
 String crewSelectUrl = "https://fltops.omanair.com/mlt/crewselectpostaction.do";
 String crewGanttUrl = "https://fltops.omanair.com/mlt/crewganttnavigator.jsp?persons=";
 String ganttUrl = "https://fltops.omanair.com/mlt/ganttsvg.jsp";
