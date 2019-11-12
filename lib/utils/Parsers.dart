@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert' show json;
 
+import 'package:logger/logger.dart';
 import 'package:wyob/WyobException.dart';
 
 List<Map<String, String>> parseCheckinList(String txt) {
@@ -200,32 +201,45 @@ List<Map<String, dynamic>> parseCrewPage(String txt) {
     throw WyobExceptionParser("No crew found!");
   }
 
-  for (Match match in crewMatches) {
+  for (int i = 0; i < crewMatches.length; i++) {
     var data = Map<String, dynamic>();
 
-    String crewString = match.group(0);
+    String crewString = crewMatches[i].group(0);
 
     var fieldsRegexp = RegExp(
-      r'<td class="crewlist_0" align="center">\s*'
+      r'<td class="crewlist_(\d*)" align="center">\s*'
       r'([\S|\s]+?)'
-      r'\s*</td>\s*<td class="crewlist_0">\s*'
+      r'\s*</td>\s*<td class="crewlist_\d*">\s*'
       r'([\S|\s]+?)'
-      r'\s*</td>\s*<td class="crewlist_0" align="center">\s*'
+      r'\s*</td>\s*<td class="crewlist_\d*" align="center">\s*'
       r'([\S|\s]+?)'
-      r'\s*</td>\s*<td class="crewlist_0" align="center">\s*'
+      r'\s*</td>\s*<td class="crewlist_\d*" align="center">\s*'
       r'([\S|\s]+?)'
       r'\s*</td>'
     );
     var crewMatch = fieldsRegexp.firstMatch(crewString);
 
     if (crewMatch == null) {
+      Logger().d("Debug crewMatch string: \n" + crewString);
       throw WyobExceptionParser("Parser error parsing crew data");
     }
 
-    data['staff_number'] = crewMatch[1];
-    data['name'] = crewMatch[2];
-    data['role'] = crewMatch[3];
-    data['rank'] = crewMatch[4];
+    int index;
+    if (i == 0) {
+      index = int.tryParse(crewMatch[1]);
+      if (index == null) throw WyobExceptionParser(
+          "Parser error parsing crew index");
+    } else {
+      if (index != int.tryParse(crewMatch[1])) {
+        break;  // <= next is return result.
+                // It avoids parsing crew from previous requests.
+      }
+    }
+
+    data['staff_number'] = crewMatch[2];
+    data['name'] = crewMatch[3];
+    data['role'] = crewMatch[4];
+    data['rank'] = crewMatch[5];
 
     // Case when parsing self, staff number enclosed in a link.
     var staffNumberRegexp = RegExp(r'<a href[\S|\s]+?>\s*(\d+)\s*</a>');

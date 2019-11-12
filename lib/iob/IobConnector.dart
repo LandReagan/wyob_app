@@ -17,6 +17,7 @@ String landingUrl =
     'https://fltops.omanair.com/mlt/filter.jsp?window=filter&loggedin=false';
 String loginFormUrl = 'https://fltops.omanair.com/mlt/loginpostaction.do';
 String checkinListUrl = 'https://fltops.omanair.com/mlt/checkinlist.jsp';
+String mltCrewMainUrl = 'https://fltops.omanair.com/mlt/mltcrewmain.jsp';
 String crewSelectUrl = "https://fltops.omanair.com/mlt/crewselectpostaction.do";
 String crewGanttUrl = "https://fltops.omanair.com/mlt/crewganttnavigator.jsp?persons=";
 String ganttUrl = "https://fltops.omanair.com/mlt/ganttsvg.jsp";
@@ -52,6 +53,7 @@ class IobConnector {
   String username;
   String password;
 
+  DateTime sessionStart;
   String token;
   String cookie;
   String bigCookie;
@@ -102,6 +104,12 @@ class IobConnector {
   IobConnector() : status = CONNECTOR_STATUS.OFF {
     onDataChange =
         ValueNotifier<IobConnectorData>(IobConnectorData(CONNECTOR_STATUS.OFF));
+  }
+
+  /// Boolean to check if reinitialization of connection is required
+  bool get resetRequired {
+    if (sessionStart == null) return false;
+    return DateTime.now().difference(sessionStart) > Duration(minutes: 10);
   }
   
   /// Used for initial connection, set token and cookie for the session.
@@ -159,6 +167,8 @@ class IobConnector {
 
     Logger().d('Big Cookie: ' + this.bigCookie);
 
+    sessionStart = DateTime.now();
+
     String checkinList = checkinListResponse.body;
 
     this.acknowledgeDutyIds = IobDutyFactory.getAcknowledgeDutyIds(checkinList);
@@ -172,6 +182,9 @@ class IobConnector {
   }
 
   Future<String> getGanttMainTable() async {
+
+
+
     /// gets the GANTT  main table data and change it into a String to be parsed.
 
     this.changeStatus(CONNECTOR_STATUS.FETCHING_GANTT_TABLE);
@@ -187,7 +200,7 @@ class IobConnector {
         headers: {"Cookie": cookie + ";" + bigCookie},
         body: form
     );
-    
+
     String crewSelectBody = response.body;
     RegExp personRE = RegExp(r"crewganttnavigator\.jsp\?persons=(\d+)");
     Match personM = personRE.firstMatch(crewSelectBody);
@@ -211,15 +224,22 @@ class IobConnector {
   // MAX 30 DAYS !!!
   Future<String> getFromToGanttDuties(DateTime from, DateTime to) async {
 
-    if (this.cookie == null || this.bigCookie == null) {
+    if (resetRequired || cookie == null || bigCookie == null) {
       try {
-        await init();
+        await this.init();
       } on WyobExceptionOffline {
-        Logger().i("OFFLINE mode");
-        return "";
+        Logger().i("OFFLINE request for crew information");
+        this.changeStatus(CONNECTOR_STATUS.OFFLINE);
+        return null;
+      } on WyobException {
+        Logger().w("Unhandled internal WYOB Exception");
+        this.changeStatus(CONNECTOR_STATUS.ERROR);
+        return null;
+      } on Exception {
+        this.changeStatus(CONNECTOR_STATUS.ERROR);
+        Logger().w("Unhandled Exception, unknown from WYOB!");
+        return null;
       }
-    } else {
-      changeStatus(CONNECTOR_STATUS.CONNECTED);
     }
 
     if (this.personId == null) {
@@ -312,6 +332,24 @@ class IobConnector {
 
   Future<String> getCrew(DateTime day, String flightNumber) async {
 
+    if (resetRequired || cookie == null || bigCookie == null) {
+      try {
+        await this.init();
+      } on WyobExceptionOffline {
+        Logger().i("OFFLINE request for crew information");
+        this.changeStatus(CONNECTOR_STATUS.OFFLINE);
+        return null;
+      } on WyobException {
+        Logger().w("Unhandled internal WYOB Exception");
+        this.changeStatus(CONNECTOR_STATUS.ERROR);
+        return null;
+      } on Exception {
+        this.changeStatus(CONNECTOR_STATUS.ERROR);
+        Logger().w("Unhandled Exception, unknown from WYOB!");
+        return null;
+      }
+    }
+
     var flightNumberRegexp = RegExp(r'\d+');
     flightNumber = flightNumberRegexp.firstMatch(flightNumber)[0];
 
@@ -331,26 +369,11 @@ class IobConnector {
     form['cxCd'] = "WY";
     form['fltNo'] = flightNumber;
 
-    if (cookie == null || bigCookie == null) {
-      try {
-        await this.init();
-      } on WyobExceptionOffline {
-        Logger().i("OFFLINE request for crew information");
-        return null;
-      } on WyobException {
-        Logger().w("Unhandled internal WYOB Exception");
-        return null;
-      } on Exception {
-        Logger().w("Unhandled Exception, unknown from WYOB!");
-        return null;
-      }
-    }
-
     String crewSelectBody;
-
+    http.Response response;
     try {
       this.changeStatus(CONNECTOR_STATUS.FETCHING_CREW);
-      http.Response response = await client.post(
+      response = await client.post(
           crewSelectUrl,
           headers: {"Cookie": cookie + ";" + bigCookie},
           body: form
@@ -363,6 +386,41 @@ class IobConnector {
       this.changeStatus(CONNECTOR_STATUS.ERROR);
       Logger().w("Unknown exception happened while fetching Crew information...");
     }
+
+    // Clear the page
+    form['noOfRows'] = '12';
+    form['currentRow'] = '0';
+    form['startOfPageRow'] = '0';
+    form['endOfPageRow'] = '12';
+    form['remove1'] = 'keep';
+    form['action'] = 'Clear';
+    form['ganttSelectionType'] = 'Specified Dates';
+    form['ganttStartDate'] = DateFormat("ddMMMyyyy").format(day);
+    form['ganttEndDate'] = DateFormat("ddMMMyyyy").format(day);
+    form['mlt.baseStation'] = 'MCT';
+    form['mlt.utcLocal'] = 'Local';
+    form['mlt.baseAction'] = 'addflight';
+    form['baseFormAction'] = 'addflight';
+    form['crwSelectToDate'] = DateFormat("ddMMMyyyy").format(day);
+    form['crwFltToDate'] = DateFormat("ddMMMyyyy").format(day);
+    form['crwStnToDate'] = DateFormat("ddMMMyyyy").format(day);
+    form['crwStnToTime'] = '23:59';
+
+    try {
+      response = await client.post(
+          crewSelectUrl,
+          headers: {"Cookie": cookie + ";" + bigCookie},
+          body: form
+      );
+    } on WyobExceptionOffline {
+      this.changeStatus(CONNECTOR_STATUS.OFFLINE);
+      Logger().i("Offline attempt to get crew information");
+    } on Exception {
+      this.changeStatus(CONNECTOR_STATUS.ERROR);
+      Logger().w("Unknown exception happened while fetching Crew information...");
+    }
+
+    this.changeStatus(CONNECTOR_STATUS.OFF);
 
     return crewSelectBody;
   }

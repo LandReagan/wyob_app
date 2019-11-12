@@ -416,7 +416,9 @@ class LocalDatabase {
   }
   
   Crew getCrewInformation(DateTime day, String flightNumber) {
+
     List<Map<String, dynamic>> crewRootData;
+
     try {
       crewRootData = List<Map<String, dynamic>>.from(_root['crew']);
     } catch (error) {
