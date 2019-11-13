@@ -139,10 +139,11 @@ void main() {
         await database.connect();
         await database.reset();
         await database.setCredentials("Dummy", "Dummy", "FO");
-        expect(database.getCrewInformation(DateTime.now(), "WY824"), null);
+        Crew crew = await database.getCrewInformation(DateTime.now(), "WY824");
+        expect(crew, null);
         await database.setCrewInformation(
             DateTime.now(), 'WY824', Crew.fromMap(dummyCrew));
-        Crew crew = database.getCrewInformation(DateTime.now(), "WY824");
+        crew = await database.getCrewInformation(DateTime.now(), "WY824");
         expect(crew, isNotNull);
         expect(crew.crewMembers.where((member) => member.rank == 'FO').first.surname, "LANDRY GAGNE");
       });

@@ -43,7 +43,8 @@ class LocalDatabase {
     "user_data": {"username": null, "password": null},
     "app_settings": {},
     "last_update": null,
-    "duties": []
+    "duties": [],
+    "crew": []
   };
 
   static final LocalDatabase _instance = LocalDatabase._private();
@@ -415,15 +416,21 @@ class LocalDatabase {
     }
   }
   
-  Crew getCrewInformation(DateTime day, String flightNumber) {
+  Future<Crew> getCrewInformation(
+      DateTime day,
+      String flightNumber,
+      {bool iobConnection = true}) async
+  {
 
     List<Map<String, dynamic>> crewRootData;
 
     try {
       crewRootData = List<Map<String, dynamic>>.from(_root['crew']);
     } catch (error) {
-      Logger().w("No crew information found in the database.");
-      return null;
+      Logger().i("No crew information found in the database.");
+      _root['crew'] = [];
+      crewRootData = List<Map<String, dynamic>>.from(_root['crew']);
+      if (!iobConnection) return null;
     }
     
     if (crewRootData.length > 0) {
@@ -444,11 +451,27 @@ class LocalDatabase {
           return Crew.fromMap(crewData);
         }
       }
-      return null; // Crew not found
+      if (!iobConnection) return null; // Crew not found
     } else {
       Logger().w("Crew information list found empty in the database.");
+      if (!iobConnection) return null;
+    }
+
+    // We reached here if crew has not been found AND iobConnect is true!
+    String crewString;
+    Crew resultCrew;
+    try {
+      crewString = await connector.getCrew(day, flightNumber);
+      resultCrew = Crew.fromParser(parseCrewPage(crewString));
+    } on WyobExceptionParser {
+      Logger().w("Crew parser error");
+      return null;
+    } on WyobExceptionOffline {
+      Logger().i("Offline attempt to gather Crew information");
       return null;
     }
+
+    return resultCrew;
   }
   
   Future<void> setCrewInformation(DateTime day, String flightNumber, Crew crew) async {
