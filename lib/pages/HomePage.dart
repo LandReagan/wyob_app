@@ -43,6 +43,8 @@ class HomePageState extends State<HomePage> {
       await updateFromIob();
     } on WyobExceptionCredentials {
       await showDialog(context: context, builder: (context) => LoginPopUp(context));
+    } on Exception {
+      Logger().e("Unexpected error on accessing File System!");
     }
   }
 
