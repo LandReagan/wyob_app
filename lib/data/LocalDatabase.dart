@@ -18,6 +18,7 @@ import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT;
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Rank.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
+import 'package:wyob/widgets/DurationWidget.dart';
 
 /// Singleton class for our database.
 class LocalDatabase {
@@ -134,7 +135,7 @@ class LocalDatabase {
       {DateTime fromParameter, DateTime toParameter, VoidCallback callback}) async {
     DateTime from = (fromParameter != null
         ? fromParameter
-        : DateTime.now().subtract(Duration(days: 3)));
+        : updateTimeLoc.subtract(Duration(days: 1)));
     DateTime to = (toParameter != null
         ? toParameter
         : DateTime.now().add(Duration(days: 30)));
