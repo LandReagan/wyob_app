@@ -6,7 +6,6 @@ import 'package:wyob/objects/Airport.dart' show Airport;
 import 'package:wyob/objects/FTL.dart';
 import 'package:wyob/objects/Flight.dart' show Flight;
 import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT, durationToString;
-import 'package:wyob/widgets/DurationWidget.dart';
 
 enum DUTY_NATURE {
   LEAVE,
@@ -33,6 +32,7 @@ enum DUTY_STATUS { PLANNED, ON_GOING, DONE }
 
 /// Representing a duty.
 class Duty {
+
   DUTY_NATURE nature;
   String code;
   AwareDT startTime;
@@ -61,6 +61,8 @@ class Duty {
     for (dynamic jsonFlight in jsonFlights) {
       _flights.add(new Flight.fromJson(json.encode(jsonFlight)));
     }
+
+    this._setStatus();
   }
 
   Duty.fromMap(Map<String, dynamic> mapObject) {
@@ -70,7 +72,7 @@ class Duty {
     endTime = new AwareDT.fromString(mapObject['endTime']);
     startPlace = new Airport.fromIata(mapObject['startPlace']);
     endPlace = new Airport.fromIata(mapObject['endPlace']);
-    statusFromString = mapObject['status'];
+    this._setStatus();
 
     for (var flightMap in mapObject['flights']) {
       flights.add(new Flight.fromMap(flightMap));
@@ -116,6 +118,8 @@ class Duty {
     /// Start and end places
     startPlace = new Airport.fromIata(iobMap['From']);
     endPlace = new Airport.fromIata(iobMap['To']);
+
+    this._setStatus();
   }
 
   Duty.layover(
@@ -127,6 +131,8 @@ class Duty {
     this.startTime = startTime;
     this.endTime = endTime;
     startPlace = endPlace = airport;
+
+    this._setStatus();
   }
 
   String get id => nature.toString() + '_' + startTime.localDayString;
@@ -224,10 +230,15 @@ class Duty {
     return false;
   }
 
-  set statusFromString(String text) {
-    if (text == 'PLANNED') status = DUTY_STATUS.PLANNED;
-    if (text == 'ON_GOING') status = DUTY_STATUS.ON_GOING;
-    if (text == 'DONE') status = DUTY_STATUS.DONE;
+  void _setStatus() {
+    DateTime now = DateTime.now().toUtc();
+    if (now.isBefore(startTime.utc)) {
+      status = DUTY_STATUS.PLANNED;
+    } else if (now.isAfter(endTime.utc)) {
+      status = DUTY_STATUS.DONE;
+    } else {
+      status = DUTY_STATUS.ON_GOING;
+    }
   }
 
   addFlight(Flight flight) {
