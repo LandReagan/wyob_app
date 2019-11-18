@@ -475,6 +475,7 @@ class LocalDatabase {
   }
   
   Future<void> setCrewInformation(DateTime day, String flightNumber, Crew crew) async {
+
     var dayString = DateFormat("ddMMMyyyy").format(day);
     var data = {
       'day': dayString, 
