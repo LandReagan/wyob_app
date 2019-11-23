@@ -428,6 +428,24 @@ class LocalDatabase {
     }
   }
 
+  bool getAutoFetchOnStartUp() {
+
+    Map<String, dynamic> appSettings = _getAppSettings();
+
+    if (appSettings == null) return true;
+
+    if (appSettings.containsKey("auto_fetch_on_start_up")) {
+      return appSettings["auto_fetch_on_start_up"];
+    } else {
+      return true;
+    }
+  }
+
+  Future<void> setAutoFetchOnStartUp(bool value) async {
+    _root["app_settings"]["auto_fetch_on_start_up"] = value;
+    await _writeLocalData();
+  }
+
   Future<void> _setUpdateTime(AwareDT time) async {
     _root['last_update'] = time.toString();
     await _writeLocalData();
@@ -497,6 +515,17 @@ class LocalDatabase {
     Logger().d("Username: " + userData['username'] + " PASSWORD: " + userData['password']);
 
     return {'username': userData['username'], 'password': userData['password']};
+  }
+
+  /// Getter for app settings as Map. Returns null on any error.
+  Map<String, dynamic> _getAppSettings() {
+    try {
+      Map<String, dynamic> appSettings = _root['app_settings'];
+      return appSettings;
+    } catch (e) {
+      Logger().e("LocalDatabase _getAppSettings failed. Error: " + e.toString());
+      return null;
+    }
   }
 
   /// Checks database integrity in terms of available fields, lists, sets...
