@@ -9,6 +9,7 @@ import 'package:wyob/objects/Statistics.dart';
 
 import 'package:wyob/pages/DatabasePage.dart';
 import 'package:wyob/pages/FtlMainPage.dart';
+import 'package:wyob/pages/DebugPage.dart';
 
 // Widgets
 import 'package:wyob/widgets/DutiesWidget.dart';
@@ -40,9 +41,13 @@ class HomePageState extends State<HomePage> {
     try {
       await widget.database.connect();
       readDutiesFromDatabase();
-      await updateFromIob();
+      if (widget.database.getAutoFetchOnStartUp()) {
+        await updateFromIob();
+      }
     } on WyobExceptionCredentials {
       await showDialog(context: context, builder: (context) => LoginPopUp(context));
+    } on Exception {
+      Logger().e("Unexpected error on accessing File System!");
     }
   }
 
@@ -143,6 +148,20 @@ class HomePageState extends State<HomePage> {
                     MaterialPageRoute(
                       builder: (context) => FtlMainPage(null, null),
                     )
+                  );
+                },
+              ),
+              GestureDetector(
+                child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    leading: Icon(Icons.build),
+                    title: Text("Debugging tools")),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DebugPage(),
+                      )
                   );
                 },
               ),

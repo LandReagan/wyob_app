@@ -8,19 +8,27 @@ import 'package:wyob/widgets/IobStateWidget.dart';
 
 class DatabasePage extends StatefulWidget {
 
-  final LocalDatabase database = LocalDatabase();
-
   @override
   _DatabasePageState createState() => _DatabasePageState();
 }
 
 class _DatabasePageState extends State<DatabasePage> {
 
+  LocalDatabase database;
+
+  @override
+  void initState() {
+    super.initState();
+    database = LocalDatabase();
+  }
+
   void _processData(Map<String, dynamic> data) async {
     try {
-      await widget.database.updateFromGantt(
+      await database.updateFromGantt(
           fromParameter: data['from'], toParameter: data['to']);
-      setState(() {}); // Just to rebuild the page and get the new duties
+      setState(() {
+        database = LocalDatabase();
+      }); // Just to rebuild the page and get the new duties
     } on WyobException {
       // We are probably Offline or IOB is down. Shall we do something?
     }
@@ -53,8 +61,8 @@ class _DatabasePageState extends State<DatabasePage> {
           ),
         ],
       ),
-      body: DatabaseByMonthWidget(widget.database),
-      bottomNavigationBar: IobStateWidget(widget.database, null),
+      body: DatabaseByMonthWidget(database),
+      bottomNavigationBar: IobStateWidget(database, null),
     );
   }
 }

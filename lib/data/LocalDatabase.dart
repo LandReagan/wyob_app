@@ -20,6 +20,7 @@ import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT;
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Rank.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
+import 'package:wyob/widgets/DurationWidget.dart';
 
 /// Singleton class for our database.
 class LocalDatabase {
@@ -94,6 +95,7 @@ class LocalDatabase {
 
   Future<void> setCredentials(
       String username, String password, String rank) async {
+    Logger().i("Setting credentials...");
     _ready = false;
     try {
       _root = await _readLocalData();
@@ -137,20 +139,32 @@ class LocalDatabase {
       {DateTime fromParameter, DateTime toParameter, VoidCallback callback}) async {
     DateTime from = (fromParameter != null
         ? fromParameter
-        : DateTime.now().subtract(Duration(days: 3)));
+        : updateTimeLoc?.subtract(Duration(days: 1)));
     DateTime to = (toParameter != null
         ? toParameter
         : DateTime.now().add(Duration(days: 30)));
 
+    if (from == null) from = DateTime.now().subtract(Duration(days: 3));
+
     from = DateTime(from.year, from.month, from.day);
     to = DateTime(to.year, to.month, to.day, 23, 59);
 
+    Logger().i(
+        "Fetching period from: " +
+        dateTimeToString(from) +
+        " to: "
+        + dateTimeToString(to)
+    );
+
     const int INTERVAL_DAYS = 25;
     while (from.isBefore(to)) {
-      Logger().i('Fetching from: ' +
-          from.toString() +
-          ' to: ' +
-          from.add(Duration(days: INTERVAL_DAYS)).toString());
+
+      Logger().i(
+        'Fetching interval from: ' +
+        dateTimeToString(from) +
+        ' to: ' +
+        dateTimeToString(from.add(Duration(days: INTERVAL_DAYS)))
+      );
       // get Gantt duties from 'from' to 'to'
       // Get the references...
 
@@ -204,7 +218,6 @@ class LocalDatabase {
         }
       }
 
-      // set duties
       if (duties.isNotEmpty) await setDuties(duties);
 
       from = from.add(Duration(days: INTERVAL_DAYS));
@@ -224,18 +237,20 @@ class LocalDatabase {
     newDuties.sort(
         (duty1, duty2) => duty1.startTime.utc.compareTo(duty2.startTime.utc));
 
-    /* Previoys logic
+    /* Previous logic
     DateTime start = DateTime(newDuties.first.startTime.loc.year,
         newDuties.first.startTime.loc.month, newDuties.first.startTime.loc.day);
     DateTime end = DateTime(newDuties.last.endTime.loc.year,
         newDuties.last.endTime.loc.month, newDuties.last.endTime.loc.day);
      */
 
+    Logger().d("Removing old duties...");
     allDuties.removeWhere((duty) {
       return duty.endTime.utc.isAfter(newDuties.first.startTime.utc) &&
           duty.startTime.utc.isBefore(newDuties.last.endTime.utc);
     });
 
+    Logger().d("Adding new duties...");
     allDuties.addAll(newDuties);
 
     allDuties.sort(
@@ -245,7 +260,7 @@ class LocalDatabase {
         allDuties.map((duty) => duty.toMap()).toList();
 
     _root['duties'] = newRawDuties;
-    _writeLocalData();
+    await _writeLocalData();
     _statistics = buildStatistics();
   }
 
@@ -503,6 +518,24 @@ class LocalDatabase {
     await _writeLocalData();
   }
 
+  bool getAutoFetchOnStartUp() {
+
+    Map<String, dynamic> appSettings = _getAppSettings();
+
+    if (appSettings == null) return true;
+
+    if (appSettings.containsKey("auto_fetch_on_start_up")) {
+      return appSettings["auto_fetch_on_start_up"];
+    } else {
+      return true;
+    }
+  }
+
+  Future<void> setAutoFetchOnStartUp(bool value) async {
+    _root["app_settings"]["auto_fetch_on_start_up"] = value;
+    await _writeLocalData();
+  }
+
   Future<void> _setUpdateTime(AwareDT time) async {
     _root['last_update'] = time.toString();
     await _writeLocalData();
@@ -545,6 +578,7 @@ class LocalDatabase {
     String rootPath = "";
     try {
       rootPath = (await getApplicationDocumentsDirectory()).path;
+      Logger().i("Path: " + rootPath);
     } on Exception {
       // probable cause is we are testing...
       rootPath = "test";
@@ -571,6 +605,17 @@ class LocalDatabase {
     Logger().d("Username: " + userData['username'] + " PASSWORD: " + userData['password']);
 
     return {'username': userData['username'], 'password': userData['password']};
+  }
+
+  /// Getter for app settings as Map. Returns null on any error.
+  Map<String, dynamic> _getAppSettings() {
+    try {
+      Map<String, dynamic> appSettings = _root['app_settings'];
+      return appSettings;
+    } catch (e) {
+      Logger().e("LocalDatabase _getAppSettings failed. Error: " + e.toString());
+      return null;
+    }
   }
 
   /// Checks database integrity in terms of available fields, lists, sets...
