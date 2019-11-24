@@ -201,6 +201,8 @@ List<Map<String, dynamic>> parseCrewPage(String txt) {
     throw WyobExceptionParser("No crew found!");
   }
 
+  int index;
+
   for (int i = 0; i < crewMatches.length; i++) {
     var data = Map<String, dynamic>();
 
@@ -224,7 +226,6 @@ List<Map<String, dynamic>> parseCrewPage(String txt) {
       throw WyobExceptionParser("Parser error parsing crew data");
     }
 
-    int index;
     if (i == 0) {
       index = int.tryParse(crewMatch[1]);
       if (index == null) throw WyobExceptionParser(

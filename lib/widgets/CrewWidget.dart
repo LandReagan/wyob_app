@@ -6,7 +6,11 @@ import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/objects/Crew.dart';
 import 'package:wyob/objects/Flight.dart';
+import 'package:wyob/utils/DateTimeUtils.dart';
 import 'package:wyob/utils/Parsers.dart';
+import 'package:wyob/widgets/FltNumberWidget.dart';
+
+import 'FtlDateWidget.dart';
 
 class CrewWidget extends StatefulWidget {
 
@@ -23,6 +27,17 @@ class _CrewWidgetState extends State<CrewWidget> {
   bool offline = false;
   bool fetching = false;
 
+  DateTime date;
+  String flightNumber;
+
+  void initState() {
+    super.initState();
+    if (widget._flight != null) {
+      date = widget._flight.startTime.loc;
+      flightNumber = widget._flight.flightNumber;
+    }
+  }
+
   Future<void> _getInfo() async {
 
     setState(() {
@@ -32,8 +47,8 @@ class _CrewWidgetState extends State<CrewWidget> {
     String crewData;
     try {
       crewData = await LocalDatabase().connector.getCrew(
-          widget._flight.startTime.loc,
-          widget._flight.flightNumber
+          date,
+          flightNumber
       );
     } on WyobExceptionOffline {
       _crew = null;
@@ -81,7 +96,20 @@ class _CrewWidgetState extends State<CrewWidget> {
     
     var crewMembersWidgets = <Widget>[];
 
-    crewMembersWidgets.add( // Upper Row
+    crewMembersWidgets.add(
+      Row(
+        children: <Widget>[
+          Expanded(
+            child: FtlDateWidget("Date", date, null),
+          ),
+          Expanded(
+            child: FltNumberWidget("Flt Num", flightNumber, null)
+          )
+        ],
+      ),
+    );
+
+    crewMembersWidgets.add( // Middle Row
       Row(
         children: <Widget>[
           Expanded(
@@ -150,3 +178,4 @@ class _CrewWidgetState extends State<CrewWidget> {
     return _generate();
   }
 }
+
