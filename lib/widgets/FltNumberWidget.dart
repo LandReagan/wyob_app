@@ -6,7 +6,7 @@ class FltNumberWidget extends StatefulWidget {
 
   final String title;
   final String initialFlightNumber;
-  final ValueChanged<DateTime> callback;
+  final ValueChanged<String> callback;
 
   FltNumberWidget(this.title, this.initialFlightNumber, this.callback);
 
@@ -34,6 +34,13 @@ class _FltNumberWidgetState extends State<FltNumberWidget> {
     }
   }
 
+  void _changeNumber(String value) {
+    setState(() {
+      _number = value;
+    });
+    widget.callback(_number);
+  }
+
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(5.0),
@@ -43,8 +50,15 @@ class _FltNumberWidgetState extends State<FltNumberWidget> {
           TextField(
             decoration: InputDecoration(
               border: OutlineInputBorder(),
-              prefixText: "WY"
-            )
+              prefixText: "WY",
+            ),
+            onChanged: (String value) {
+              RegExp flightNumberRE = RegExp(r'^[0-9]*$');
+              Match flightNumberMatch = flightNumberRE.firstMatch(value);
+              if (flightNumberMatch != null) {
+                _changeNumber(value);
+              }
+            },
           )
         ],
       ),

@@ -6,7 +6,6 @@ import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/objects/Crew.dart';
 import 'package:wyob/objects/Flight.dart';
-import 'package:wyob/utils/DateTimeUtils.dart';
 import 'package:wyob/utils/Parsers.dart';
 import 'package:wyob/widgets/FltNumberWidget.dart';
 
@@ -36,6 +35,16 @@ class _CrewWidgetState extends State<CrewWidget> {
       date = widget._flight.startTime.loc;
       flightNumber = widget._flight.flightNumber;
     }
+  }
+
+  void changeFlightNumber(String newValue) {
+    flightNumber = newValue;
+  }
+
+  void changeDate(DateTime newDate) {
+    setState(() {
+      date = newDate;
+    });
   }
 
   Future<void> _getInfo() async {
@@ -100,10 +109,10 @@ class _CrewWidgetState extends State<CrewWidget> {
       Row(
         children: <Widget>[
           Expanded(
-            child: FtlDateWidget("Date", date, null),
+            child: FtlDateWidget("Date", date, this.changeDate),
           ),
           Expanded(
-            child: FltNumberWidget("Flt Num", flightNumber, null)
+            child: FltNumberWidget("Flt Num", flightNumber, this.changeFlightNumber),
           )
         ],
       ),
