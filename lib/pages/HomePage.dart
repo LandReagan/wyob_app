@@ -10,6 +10,7 @@ import 'package:wyob/objects/Statistics.dart';
 import 'package:wyob/pages/DatabasePage.dart';
 import 'package:wyob/pages/FtlMainPage.dart';
 import 'package:wyob/pages/DebugPage.dart';
+import 'package:wyob/widgets/CrewWidget.dart';
 
 // Widgets
 import 'package:wyob/widgets/DutiesWidget.dart';
@@ -18,6 +19,8 @@ import 'package:wyob/widgets/LoginPopUp.dart';
 
 // Objects
 import 'package:wyob/objects/Duty.dart';
+
+import 'CrewPage.dart';
 
 class HomePage extends StatefulWidget {
   final LocalDatabase database = LocalDatabase();
@@ -148,6 +151,20 @@ class HomePageState extends State<HomePage> {
                     MaterialPageRoute(
                       builder: (context) => FtlMainPage(null, null),
                     )
+                  );
+                },
+              ),
+              GestureDetector(
+                child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    leading: Icon(Icons.face),
+                    title: Text("Crew checker")),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CrewPage(),
+                      )
                   );
                 },
               ),

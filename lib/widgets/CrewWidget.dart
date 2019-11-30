@@ -4,6 +4,7 @@ import 'package:flutter/painting.dart';
 import 'package:logger/logger.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
+import 'package:wyob/iob/IobConnectorData.dart';
 import 'package:wyob/objects/Crew.dart';
 import 'package:wyob/objects/Flight.dart';
 import 'package:wyob/utils/Parsers.dart';
@@ -51,6 +52,7 @@ class _CrewWidgetState extends State<CrewWidget> {
 
     setState(() {
       fetching = true;
+      offline = false;
     });
 
     String crewData;
@@ -59,23 +61,22 @@ class _CrewWidgetState extends State<CrewWidget> {
           date,
           flightNumber
       );
-    } on WyobExceptionOffline {
-      _crew = null;
-      offline = true;
-      return;
-    } on WyobExceptionParser {
-      _crew = null;
-      Logger().w("Crew parsing problem!");
     } on WyobException catch (e) {
       Logger().w("Unexpected exception thrown: " + e.toString());
     }
 
+    if (LocalDatabase().connector.status == CONNECTOR_STATUS.OFFLINE) {
+      offline = true;
+    }
+
     setState(() {
       fetching = false;
-      try {
-        _crew = Crew.fromParser(parseCrewPage(crewData));
-      } on WyobExceptionParser catch (e) {
-        Logger().w("Error while parsing crew: " + e.toString());
+      if (crewData != null) {
+        try {
+          _crew = Crew.fromParser(parseCrewPage(crewData));
+        } on WyobExceptionParser catch (e) {
+          Logger().w("Error while parsing crew: " + e.toString());
+        }
       }
     });
   }
@@ -158,6 +159,17 @@ class _CrewWidgetState extends State<CrewWidget> {
               children: <Widget>[
                 Expanded(
                   child: Text("FETCHING...",
+                    textScaleFactor: 1.5, textAlign: TextAlign.center,),
+                )
+              ],
+            )
+        );
+      } else if (offline) {
+        crewMembersWidgets.add(
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text("OFFLINE!",
                     textScaleFactor: 1.5, textAlign: TextAlign.center,),
                 )
               ],

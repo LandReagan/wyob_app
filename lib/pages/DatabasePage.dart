@@ -14,24 +14,21 @@ class DatabasePage extends StatefulWidget {
 
 class _DatabasePageState extends State<DatabasePage> {
 
-  LocalDatabase database;
-
   @override
   void initState() {
     super.initState();
-    database = LocalDatabase();
   }
 
   void _processData(Map<String, dynamic> data) async {
     try {
-      await database.updateFromGantt(
+      await LocalDatabase().updateFromGantt(
           fromParameter: data['from'], toParameter: data['to']);
-      setState(() {
-        database = LocalDatabase();
-      }); // Just to rebuild the page and get the new duties
     } on WyobException {
       // We are probably Offline or IOB is down. Shall we do something?
     }
+    setState(() {
+
+    });
   }
 
   Widget build(BuildContext context) {
@@ -61,8 +58,8 @@ class _DatabasePageState extends State<DatabasePage> {
           ),
         ],
       ),
-      body: DatabaseByMonthWidget(database),
-      bottomNavigationBar: IobStateWidget(database, null),
+      body: DatabaseByMonthWidget(LocalDatabase()),
+      bottomNavigationBar: IobStateWidget(LocalDatabase(), null),
     );
   }
 }

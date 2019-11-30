@@ -47,7 +47,7 @@ class _ToggleAutoFetchState extends State<_ToggleAutoFetch> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return ListTile(
-      title: Text("Toggle auto-fetching current duties on start-up"),
+      title: Text("Fetch current duties on start-up"),
       trailing: Switch(
         value: this.value,
         onChanged: (newValue) => _toggleValue(newValue),
