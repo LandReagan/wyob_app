@@ -52,6 +52,7 @@ class _CrewWidgetState extends State<CrewWidget> {
 
     setState(() {
       fetching = true;
+      _crew = null;
       offline = false;
     });
 
@@ -79,6 +80,14 @@ class _CrewWidgetState extends State<CrewWidget> {
         }
       }
     });
+
+    if (_crew != null) {
+      try {
+        LocalDatabase().setCrewInformation(date, flightNumber, _crew);
+      } on Exception {
+        Logger().e("Error while calling Localdatabase::setCrewInformation");
+      }
+    }
   }
 
   Row _generateCrewMemberRow(CrewMember member) {
