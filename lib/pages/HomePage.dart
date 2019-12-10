@@ -52,6 +52,7 @@ class HomePageState extends State<HomePage> {
     } on Exception {
       Logger().e("Unexpected error on accessing File System!");
     }
+    LocalDatabase().notifier.addListener(this.refresh);
   }
 
   @override
@@ -193,7 +194,7 @@ class HomePageState extends State<HomePage> {
         ),
         bottomNavigationBar: BottomAppBar(
           color: Colors.orange,
-          child: IobStateWidget(widget.database, refresh),
+          child: IobStateWidget(refresh),
         ),
       ),
     );

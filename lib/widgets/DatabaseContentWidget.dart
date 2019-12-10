@@ -9,14 +9,21 @@ import 'package:wyob/objects/Rank.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
 
 class DatabaseByMonthWidget extends StatefulWidget {
-  final LocalDatabase database;
-
-  DatabaseByMonthWidget(this.database);
 
   _DatabaseByMonthWidgetState createState() => _DatabaseByMonthWidgetState();
 }
 
 class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
+
+  @override
+  void initState() {
+    super.initState();
+    LocalDatabase().notifier.addListener(this.refresh);
+  }
+
+  void refresh() {
+    setState(() {});
+  }
 
   Widget getMonthWidget(MonthlyAggregation aggregation) {
     List<Map<String, dynamic>> aggregDataList = aggregation.dutiesAndStatistics;
@@ -71,9 +78,9 @@ class _DatabaseByMonthWidgetState extends State<DatabaseByMonthWidget> {
 
   List<Widget> _getMonthTiles() {
     var widgets = <Widget>[];
-    widget.database.getAllMonthlyAggregations().forEach((aggregation) {
+    LocalDatabase().getAllMonthlyAggregations().forEach((aggregation) {
       widgets
-          .add(MonthlyStatisticsWidget(aggregation, widget.database.getRank()));
+          .add(MonthlyStatisticsWidget(aggregation, LocalDatabase().getRank()));
       widgets.add(getMonthWidget(aggregation));
     });
     return widgets.reversed.toList();

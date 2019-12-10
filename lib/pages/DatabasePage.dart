@@ -58,8 +58,8 @@ class _DatabasePageState extends State<DatabasePage> {
           ),
         ],
       ),
-      body: DatabaseByMonthWidget(LocalDatabase()),
-      bottomNavigationBar: IobStateWidget(LocalDatabase(), null),
+      body: DatabaseByMonthWidget(),
+      bottomNavigationBar: IobStateWidget(null),
     );
   }
 }

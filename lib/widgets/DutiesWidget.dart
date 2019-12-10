@@ -199,7 +199,7 @@ class ReportingTimeWidget extends StatelessWidget {
         Icon(Icons.timer, color: Colors.redAccent,),
         Text(
           reportingTimeString,
-          style: TextStyle(color: Colors.redAccent, backgroundColor: Colors.white),
+          style: TextStyle(color: Colors.redAccent),
           textScaleFactor: 0.9,
         )
       ],
@@ -219,7 +219,7 @@ class StandbyTimesWidget extends StatelessWidget {
     return Text(
       'from ' + startTime + ' to ' + endTime,
       textScaleFactor: 0.9,
-      style: TextStyle(color: Colors.redAccent, backgroundColor: Colors.white),
+      style: TextStyle(color: Colors.redAccent),
     );
   }
 }

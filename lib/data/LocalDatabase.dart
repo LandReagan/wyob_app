@@ -20,7 +20,6 @@ import 'package:wyob/utils/DateTimeUtils.dart' show AwareDT;
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Rank.dart';
 import 'package:wyob/utils/DateTimeUtils.dart';
-import 'package:wyob/widgets/DurationWidget.dart';
 
 /// Singleton class for our database.
 class LocalDatabase {
@@ -37,6 +36,8 @@ class LocalDatabase {
   IobConnector _connector;
 
   CancelableOperation updateOperation;
+
+  ChangeNotifier notifier;
 
   static const String DEFAULT_FILE_NAME = 'database.json';
 
@@ -56,6 +57,7 @@ class LocalDatabase {
 
   LocalDatabase._private() {
     _connector = IobConnector();
+    notifier = ChangeNotifier();
   }
 
   Map<String, dynamic> get rootData => _root;
@@ -171,7 +173,7 @@ class LocalDatabase {
       String referencesString = await connector.getFromToGanttDuties(
           from, from.add(Duration(days: INTERVAL_DAYS)));
 
-      if (referencesString == "") return;
+      if (referencesString == "" || referencesString == null) return;
 
       List<Map<String, dynamic>> references =
           parseGanttMainTable(referencesString);
@@ -262,6 +264,7 @@ class LocalDatabase {
     _root['duties'] = newRawDuties;
     await _writeLocalData();
     _statistics = buildStatistics();
+    notifier.notifyListeners();
   }
 
   /// Returns all duties from the file system if any, empty list else.
@@ -510,7 +513,7 @@ class LocalDatabase {
       _root['crew'].add(data);
     }
 
-    _writeLocalData();
+    await _writeLocalData();
   }
 
   Future<void> reset() async {
@@ -547,19 +550,36 @@ class LocalDatabase {
   }
 
   Future<Map<String, dynamic>> _readLocalData() async {
-    String rootPath = await _getRootPath();
-    String databasePath = rootPath + '/' + _fileName;
-    String rawData = await _readDatabaseFile(databasePath);
-    return json.decode(rawData);
+    if (_ready == false) {
+      throw WyobException('File not ready for reading');
+    }
+
+    _ready = false;
+    String jsonData;
+    try {
+      Directory rootDirectory = await _getRootDirectory();
+      String databasePath = rootDirectory.path + '/' + _fileName;
+      Logger().d('Accessing database file at: ' + databasePath);
+      File databaseFile = File(databasePath);
+      jsonData = await _readDatabaseFile(databasePath);
+      _ready = true;
+    } on Exception catch (e){
+      _ready = true;
+      Logger().e('Error accessing filesystem: ' + e.toString());
+    }
+
+    return json.decode(jsonData);
   }
 
   Future<void> _writeLocalData() async {
-    _ready = false;
-    String rootPath = await _getRootPath();
-    String databasePath = rootPath + '/' + _fileName;
-    String encodedData = json.encode(_root);
-    await File(databasePath).writeAsString(encodedData, mode: FileMode.write);
-    _ready = true;
+    if (_ready = true) {
+      _ready = false;
+      String rootPath = await _getRootPath();
+      String databasePath = rootPath + '/' + _fileName;
+      String encodedData = json.encode(_root);
+      File(databasePath).writeAsStringSync(encodedData, mode: FileMode.write);
+      _ready = true;
+    }
   }
 
   Future<String> _readDatabaseFile(String filePath) async {
@@ -569,21 +589,27 @@ class LocalDatabase {
     } on FileSystemException {
       // File is not existing, create it...
       data = json.encode(EMPTY_DATABASE_STRUCTURE);
-      await File(filePath).writeAsString(data);
+      File(filePath).writeAsStringSync(data);
     }
     return data;
   }
 
   static Future<String> _getRootPath() async {
-    String rootPath = "";
+    String rootPath;
     try {
       rootPath = (await getApplicationDocumentsDirectory()).path;
       Logger().i("Path: " + rootPath);
     } on Exception {
-      // probable cause is we are testing...
-      rootPath = "test";
+      Logger().e("Unrecoverable filesystem exception!");
     }
     return rootPath;
+  }
+
+  /// Depending on path_provider plugin
+  static Future<Directory> _getRootDirectory() async {
+    Directory documents = await getApplicationDocumentsDirectory();
+    Logger().d('Accessing documents directory at: ' + documents.path);
+    return documents;
   }
 
   /// Gets credentials from the database. Throws [WYOBException] if database is
