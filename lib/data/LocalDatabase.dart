@@ -25,7 +25,6 @@ import 'package:wyob/utils/DateTimeUtils.dart';
 class LocalDatabase {
 
   Map<String, dynamic> _root;
-  bool _ready = true;
   String _fileName = DEFAULT_FILE_NAME;
 
   List<Statistics> _statistics;
@@ -62,8 +61,6 @@ class LocalDatabase {
 
   Map<String, dynamic> get rootData => _root;
 
-  bool get ready => _ready;
-
   DateTime get updateTimeLoc => _getUpdateTime()?.loc;
 
   DateTime get updateTimeUtc => _getUpdateTime()?.utc;
@@ -86,32 +83,26 @@ class LocalDatabase {
           _getCredentials()['username'], _getCredentials()['password']);
     } on WyobExceptionCredentials catch (e) {
       Logger().w('No credentials...');
-      _ready = true;
       throw e;
     } on WyobExceptionDatabaseIntegrity {
       // todo: Handle file system problems... How???
       Logger().w("Unhandled exception related to database integrity");
     }
-    _ready = true;
   }
 
   Future<void> setCredentials(
       String username, String password, String rank) async {
     Logger().i("Setting credentials...");
-    _ready = false;
     try {
       _root = await _readLocalData();
       _root['user_data']['username'] = username;
       _root['user_data']['password'] = password;
       _root['user_data']['rank'] = rank;
       await _writeLocalData();
-      _ready = true;
     } on Exception catch (e) {
-      _ready = true;
       throw WyobException(
           'File system problem, most likely... Error thrown: ' + e.toString());
     }
-    _ready = true;
   }
 
   /// IOB duties update, asynchronous and cancellable.
@@ -550,11 +541,6 @@ class LocalDatabase {
   }
 
   Future<Map<String, dynamic>> _readLocalData() async {
-    if (_ready == false) {
-      throw WyobException('File not ready for reading');
-    }
-
-    _ready = false;
     String jsonData;
     try {
       Directory rootDirectory = await _getRootDirectory();
@@ -562,9 +548,7 @@ class LocalDatabase {
       Logger().d('Accessing database file at: ' + databasePath);
       File databaseFile = File(databasePath);
       jsonData = await _readDatabaseFile(databasePath);
-      _ready = true;
     } on Exception catch (e){
-      _ready = true;
       Logger().e('Error accessing filesystem: ' + e.toString());
     }
 
@@ -572,14 +556,10 @@ class LocalDatabase {
   }
 
   Future<void> _writeLocalData() async {
-    if (_ready = true) {
-      _ready = false;
-      String rootPath = await _getRootPath();
-      String databasePath = rootPath + '/' + _fileName;
-      String encodedData = json.encode(_root);
-      File(databasePath).writeAsStringSync(encodedData, mode: FileMode.write);
-      _ready = true;
-    }
+    String rootPath = await _getRootPath();
+    String databasePath = rootPath + '/' + _fileName;
+    String encodedData = json.encode(_root);
+    File(databasePath).writeAsStringSync(encodedData, mode: FileMode.write);
   }
 
   Future<String> _readDatabaseFile(String filePath) async {
@@ -616,11 +596,6 @@ class LocalDatabase {
   /// not ready, or [WyobExceptionCredentials] if 'username' or 'password' are
   /// set to empty string.
   Map<String, dynamic> _getCredentials() {
-    if (!ready) {
-      throw WyobException('In LocalDatabase object, _getCredentials was called'
-          'with database not ready!');
-    }
-
     Map<String, dynamic> userData = _root['user_data'];
 
     if (userData['username'] == '' || userData['password'] == '') {
