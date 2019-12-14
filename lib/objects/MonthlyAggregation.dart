@@ -7,10 +7,9 @@ import 'package:wyob/utils/DateTimeUtils.dart';
 class MonthlyAggregation {
 
   final DateTime _monthStart;
-  final LocalDatabase _database;
 
   /// This DateTime shall be local
-  MonthlyAggregation(this._monthStart, this._database);
+  MonthlyAggregation(this._monthStart);
 
   /// Getter to force monthStart being the first minute of the month.
   DateTime get monthStart => DateTime(_monthStart.year, _monthStart.month);
@@ -20,7 +19,7 @@ class MonthlyAggregation {
   /// Getter to gather duties and statistics, as a List of
   /// Map {'duty': ..., 'stat': ...}
   List<Map<String, dynamic>> get dutiesAndStatistics =>
-      _database.getDutiesAndStatistics(this.monthStart, this.monthEnd);
+      LocalDatabase().getDutiesAndStatistics(this.monthStart, this.monthEnd);
 
   String get titleString =>
       getMonthFullString(monthStart.month) + ' ' + monthStart.year.toString();

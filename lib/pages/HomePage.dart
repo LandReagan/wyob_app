@@ -14,6 +14,7 @@ import 'package:wyob/widgets/CrewWidget.dart';
 
 // Widgets
 import 'package:wyob/widgets/DutiesWidget.dart';
+import 'package:wyob/widgets/HistoryWidget.dart';
 import 'package:wyob/widgets/IobStateWidget.dart';
 import 'package:wyob/widgets/LoginPopUp.dart';
 
@@ -201,19 +202,56 @@ class HomePageState extends State<HomePage> {
   }
 }
 
-class HomeWidget extends StatelessWidget {
+class HomeWidget extends StatefulWidget {
   final List<Duty> duties;
   final List<Statistics> statistics;
 
   HomeWidget(this.duties, this.statistics);
 
+  _HomeWidgetState createState() => _HomeWidgetState();
+
+}
+
+class _HomeWidgetState extends State<HomeWidget> {
+
+  bool _history;
+
+  @override
+  void initState() {
+    super.initState();
+    _history = false;
+  }
+
+  void _toggleHistory() {
+    setState(() {
+      _history = !_history;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        DutiesWidget(duties, statistics),
-      ],
-    );
+    if (_history) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          FlatButton(
+            child: Text('>> TAP HERE FOR CURRENT DUTIES <<', textScaleFactor: 1.2,),
+            onPressed: () => _toggleHistory(),
+          ),
+          HistoryWidget(),
+        ],
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          FlatButton(
+            child: Text('>> TAP HERE FOR HISTORY <<', textScaleFactor: 1.2,),
+            onPressed: () => _toggleHistory(),
+          ),
+          DutiesWidget(widget.duties, widget.statistics),
+        ],
+      );
+    }
   }
 }

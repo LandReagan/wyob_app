@@ -320,7 +320,7 @@ class LocalDatabase {
     DateTime latestMonth = DateTime(latestDutyDate.year, latestDutyDate.month);
 
     while (rolling.compareTo(latestMonth) <= 0) {
-      aggregations.add(MonthlyAggregation(rolling, this));
+      aggregations.add(MonthlyAggregation(rolling));
       if (rolling.month == 12) {
         rolling = DateTime(rolling.year + 1, 1);
       } else {
