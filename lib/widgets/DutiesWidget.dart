@@ -24,7 +24,6 @@ class DutiesWidget extends StatelessWidget {
         Container() :
         ListView.builder(
           itemCount: duties.length,
-          //itemExtent: 100.0,
           itemBuilder: (context, index) {
             Duty current = duties[index];
             Duty previous;
@@ -41,7 +40,7 @@ class DutiesWidget extends StatelessWidget {
             });
             return DutyWidget(current, previous, stat);
           },
-      )
+        ),
     );
   }
 }

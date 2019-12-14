@@ -35,6 +35,7 @@ class _CrewWidgetState extends State<CrewWidget> {
     if (widget._flight != null) {
       date = widget._flight.startTime.loc;
       flightNumber = widget._flight.flightNumber;
+      fetchCrewFromDatabase();
     }
   }
 
@@ -46,6 +47,11 @@ class _CrewWidgetState extends State<CrewWidget> {
     setState(() {
       date = newDate;
     });
+  }
+
+  Future<void> fetchCrewFromDatabase() async {
+    _crew = await LocalDatabase().getCrewInformation(date, flightNumber);
+    setState(() { });
   }
 
   Future<void> _getInfo() async {
@@ -135,7 +141,7 @@ class _CrewWidgetState extends State<CrewWidget> {
             child: Text("Crew:", textScaleFactor: 1.5, textAlign: TextAlign.center,),
           ),
           FlatButton(
-            child: Text("Get info", textScaleFactor: 1.5 ,),
+            child: Text("Refesh from IOB", textScaleFactor: 1.5 ,),
             padding: EdgeInsets.all(5.0),
             color: Colors.blueGrey,
             onPressed: () => _getInfo(),

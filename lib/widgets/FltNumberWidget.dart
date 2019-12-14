@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:intl/intl.dart';
 
 class FltNumberWidget extends StatefulWidget {
 
@@ -34,6 +33,10 @@ class _FltNumberWidgetState extends State<FltNumberWidget> {
     }
   }
 
+  String get _numberWithoutWY {
+    return _number.replaceAll('WY', '');
+  }
+
   void _changeNumber(String value) {
     setState(() {
       _number = value;
@@ -52,7 +55,10 @@ class _FltNumberWidgetState extends State<FltNumberWidget> {
               border: OutlineInputBorder(),
               prefixText: "WY",
             ),
-            onChanged: (String value) {
+            controller: TextEditingController(
+              text: _numberWithoutWY,
+            ),
+            onSubmitted: (String value) {
               RegExp flightNumberRE = RegExp(r'^[0-9]*$');
               Match flightNumberMatch = flightNumberRE.firstMatch(value);
               if (flightNumberMatch != null) {
