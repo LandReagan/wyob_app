@@ -1,4 +1,5 @@
 import 'package:wyob/objects/Duty.dart';
+import 'package:wyob/utils/DateTimeUtils.dart';
 
 class Statistics {
 
@@ -21,4 +22,13 @@ class Statistics {
   Statistics(this._day);
 
   DateTime get day => _day;
+
+  @override
+  String toString() {
+    return 'STAT: 7 DUTY ' + durationToString(sevenDaysDutyAccumulation) +
+            '| 28 DUTY ' + durationToString(twentyEightDaysDutyAccumulation) +
+            '| 365 DUTY ' + durationToString(oneYearDutyDaysAccumulation) +
+            '| 28 BLOCK ' + durationToString(twentyEightDaysBlockAccumulation) +
+            '| 365 BLOCK ' + durationToString(oneYearBlockAccumulation);
+  }
 }
