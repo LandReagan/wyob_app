@@ -20,7 +20,6 @@ void main() {
 
     test("Initial tests", () async {
       await database.connect();
-      expect(database.ready, true);
       expect(database.rootData.keys.contains("user_data"), true);
     });
 
@@ -28,11 +27,6 @@ void main() {
       setUp(() async {
         database = LocalDatabase();
         await database.setCredentials("Dummy", "Dummy", 'FO');
-      });
-
-      test('should connect', () async {
-        await database.connect();
-        expect(database.ready, true);
       });
 
       test('General test', () async {

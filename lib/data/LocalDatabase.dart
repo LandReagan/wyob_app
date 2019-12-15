@@ -301,9 +301,11 @@ class LocalDatabase {
       DateTime correspondingDay = duty.endTime.utc.add(Duration(hours: 4));
       correspondingDay = DateTime(
           correspondingDay.year, correspondingDay.month, correspondingDay.day);
+
       result.add({
         'duty': duty,
-        'stat': statistics.firstWhere((stat) => stat.day == correspondingDay),
+        'stat': statistics.firstWhere(
+            (stat) => stat.day.difference(correspondingDay) < Duration(hours: 3)),
       });
     });
     return result;
@@ -332,6 +334,7 @@ class LocalDatabase {
   }
 
   List<Statistics> buildStatistics() {
+
     var statistics = <Statistics>[];
     List<Duty> duties = getDutiesAll();
 
@@ -340,9 +343,13 @@ class LocalDatabase {
     // Build all Statistics objects
     DateTime firstDay = duties.first.statistics.first['day'];
     DateTime lastDay = duties.last.statistics.last['day'];
+
+    Logger().d('Building Statistics from ' + firstDay.toIso8601String() + ' to ' + lastDay.toIso8601String());
+
     for (var day = firstDay;
-        day != lastDay.add(Duration(days: 1));
-        day = day.add(Duration(days: 1))) {
+        day.isBefore(lastDay.add(Duration(days: 1)));
+        day = day.add(Duration(hours: 24))) {
+      Logger().d(day.toIso8601String());
       statistics.add(Statistics(day));
     }
 
@@ -354,6 +361,8 @@ class LocalDatabase {
         int startIndex = statistics.indexWhere((stat) {
           return stat.day == data['day'];
         });
+
+        if (startIndex == -1) break;
 
         // 7 days duty
         for (int index = startIndex;
@@ -404,6 +413,8 @@ class LocalDatabase {
         stat.oneYearDutyDaysCompleteness = true;
       }
     }
+
+    Logger().d('Statistics built!');
 
     return statistics;
   }
@@ -556,10 +567,12 @@ class LocalDatabase {
   }
 
   Future<void> _writeLocalData() async {
+    Logger().d('Writing local data...');
     String rootPath = await _getRootPath();
     String databasePath = rootPath + '/' + _fileName;
     String encodedData = json.encode(_root);
     File(databasePath).writeAsStringSync(encodedData, mode: FileMode.write);
+    Logger().d('Local data wrote.');
   }
 
   Future<String> _readDatabaseFile(String filePath) async {
@@ -578,7 +591,6 @@ class LocalDatabase {
     String rootPath;
     try {
       rootPath = (await getApplicationDocumentsDirectory()).path;
-      Logger().i("Path: " + rootPath);
     } on Exception {
       Logger().e("Unrecoverable filesystem exception!");
     }

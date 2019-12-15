@@ -34,7 +34,7 @@ class _FltNumberWidgetState extends State<FltNumberWidget> {
   }
 
   String get _numberWithoutWY {
-    return _number.replaceAll('WY', '');
+    return _number == null ? '' : _number.replaceAll('WY', '');
   }
 
   void _changeNumber(String value) {
