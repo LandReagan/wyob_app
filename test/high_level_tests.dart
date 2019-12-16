@@ -1,6 +1,8 @@
 import 'dart:io' show File;
 import 'dart:convert';
 
+@Timeout(const Duration(seconds: 45))
+
 import 'package:test/test.dart';
 import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/iob/GanttDutyFactory.dart';
@@ -91,4 +93,34 @@ void main() {
         DateTime.now(), DateTime.now().add(Duration(days: 5)));
     expect(duties.length, 0);
   });
+
+  test('Statistics of my September 2019 duties', () async {
+    IobConnector connector = IobConnector();
+    connector.setCredentials('93429', '93429iob!');
+    String txt = await connector.getFromToGanttDuties(
+        DateTime(2019, 09, 01), DateTime(2019, 09, 20));
+    var dataList = parseGanttMainTable(txt);
+    var rawDutyLocList = <Map<String, dynamic>>[];
+    var rawDutyUtcList = <Map<String, dynamic>>[];
+    for (var data in dataList) {
+      var personId = data['personId'];
+      var persAllocId = data['persAllocId'];
+      String rawDutyDataLoc;
+      String rawDutyDataUtc;
+      if (data['type'] == 'Trip') {
+        rawDutyDataLoc = await connector.getGanttDutyTripLocal(0, 0, personId, persAllocId);
+        rawDutyDataUtc = await connector.getGanttDutyTripUtc(personId, persAllocId);
+      } else {
+        rawDutyDataLoc = await connector.getGanttDutyAcyLocal(0, 0, personId, persAllocId);
+        rawDutyDataUtc = await connector.getGanttDutyAcyUtc(personId, persAllocId);
+      }
+      rawDutyLocList.addAll(parseGanttDuty(rawDutyDataLoc));
+      rawDutyUtcList.addAll(parseGanttDuty(rawDutyDataUtc));
+    }
+    var duties = GanttDutyFactory.run(rawDutyLocList, rawDutyUtcList);
+    for (var duty in duties) print(duty);
+    var statistics = LocalDatabase().buildStatistics(dutyList: duties);
+    for (var statistic in statistics) print(statistic);
+  });
+
 }
