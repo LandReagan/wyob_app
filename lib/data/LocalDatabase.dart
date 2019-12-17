@@ -342,7 +342,7 @@ class LocalDatabase {
     DateTime lastDay = duties.last.statistics.last['day'];
     Logger().d('STAT ' + dateTimeToString(firstDay) + ' to ' + dateTimeToString(lastDay));
     for (var day = firstDay;
-        day.isAtSameMomentAs(lastDay.add(Duration(days: 1)));
+        !day.isAtSameMomentAs(lastDay.add(Duration(days: 1)));
         day = day.add(Duration(days: 1))) {
       statistics.add(Statistics(day));
     }
