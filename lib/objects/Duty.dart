@@ -248,7 +248,7 @@ class Duty {
   }
 
   /// Used for statistics building, splits duty and block times into 2 durations
-  /// in case of Muscat day overlap. First value is before midninght, second is
+  /// in case of Muscat day overlap. First value is before midnight, second is
   /// after. Result sent as a list of 1 or 2 items;
   List<Map<String, dynamic>> get statistics {
     var statisticsData = List<Map<String, dynamic>>();
