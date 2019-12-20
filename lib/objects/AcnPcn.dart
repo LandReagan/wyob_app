@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 class AcnPcn {
 
 }
@@ -83,7 +81,11 @@ class Aircraft {
 
   // High-level getters
   int getACN({int weight, PAVEMENT_TYPE pavementType, SUBGRADE_STRENGTH subgradeStrength}) {
-    
+    int acnMax;
+    int acnEmpty;
+    String pavementTypeString;
+    String subgradeStrengthString;
+
   }
 
   @override
@@ -115,9 +117,70 @@ class Aircraft {
 }
 
 enum PAVEMENT_TYPE {R, F}
+String getPavementTypeLetter(PAVEMENT_TYPE type) {
+  switch (type) {
+    case PAVEMENT_TYPE.F:
+      return 'F';
+      break;
+    case PAVEMENT_TYPE.R:
+      return 'R';
+      break;
+    default:
+      return null;
+  }
+}
+
 enum SUBGRADE_STRENGTH {A, B, C, D}
+String getSubgradeStrengthLetter(SUBGRADE_STRENGTH sub) {
+  switch (sub) {
+    case SUBGRADE_STRENGTH.A:
+      return 'A';
+      break;
+    case SUBGRADE_STRENGTH.B:
+      return 'B';
+      break;
+    case SUBGRADE_STRENGTH.C:
+      return 'C';
+      break;
+    case SUBGRADE_STRENGTH.D:
+      return 'D';
+      break;
+    default:
+      return null;
+  }
+}
 enum TIRE_PRESSURE_CATEGORY {W, X, Y, Z}
+String getTirePressureCategoryLetter(TIRE_PRESSURE_CATEGORY cat) {
+  switch (cat) {
+    case TIRE_PRESSURE_CATEGORY.X:
+      return 'X';
+      break;
+    case TIRE_PRESSURE_CATEGORY.Y:
+      return 'Y';
+      break;
+    case TIRE_PRESSURE_CATEGORY.W:
+      return 'W';
+      break;
+    case TIRE_PRESSURE_CATEGORY.Z:
+      return 'Z';
+      break;
+    default:
+      return null;
+  }
+}
 enum PAVEMENT_CALCULATION_METHOD {T, U}
+String getPavementCalculationMethodLetter(PAVEMENT_CALCULATION_METHOD method) {
+  switch (method) {
+    case PAVEMENT_CALCULATION_METHOD.T:
+      return 'T';
+      break;
+    case PAVEMENT_CALCULATION_METHOD.U:
+      return 'U';
+      break;
+    default:
+      return null;
+  }
+}
 
 class Runway {
   int _pcn;
@@ -183,42 +246,10 @@ class Runway {
   @override
   String toString() {
     String result = _pcn.toString() + '/';
-    if (_pavement_type == PAVEMENT_TYPE.R) {
-      result += 'R/';
-    } else if (_pavement_type == PAVEMENT_TYPE.F) {
-      result += 'F/';
-    } else {
-      result += '?/';
-    }
-    if (_subgrade_strength == SUBGRADE_STRENGTH.A) {
-      result += 'A/';
-    } else if (_subgrade_strength == SUBGRADE_STRENGTH.B) {
-      result += 'B/';
-    } else if (_subgrade_strength == SUBGRADE_STRENGTH.C) {
-      result += 'C/';
-    } else if (_subgrade_strength == SUBGRADE_STRENGTH.D) {
-      result += 'D/';
-    } else {
-      result += '?/';
-    }
-    if (_tire_pressure_category == TIRE_PRESSURE_CATEGORY.W) {
-      result += 'W/';
-    } else if (_tire_pressure_category == TIRE_PRESSURE_CATEGORY.X) {
-      result += 'X/';
-    } else if (_tire_pressure_category == TIRE_PRESSURE_CATEGORY.Y) {
-      result += 'Y/';
-    } else if (_tire_pressure_category == TIRE_PRESSURE_CATEGORY.Z) {
-      result += 'Z/';
-    } else {
-      result += '?/';
-    }
-    if (_pavement_calculation_method == PAVEMENT_CALCULATION_METHOD.T) {
-      result += 'T';
-    } else if (_pavement_calculation_method == PAVEMENT_CALCULATION_METHOD.U) {
-      result += 'U';
-    } else {
-      result += '?';
-    }
+    result += getPavementTypeLetter(_pavement_type) + '/';
+    result += getSubgradeStrengthLetter(_subgrade_strength) + '/';
+    result += getTirePressureCategoryLetter(_tire_pressure_category) + '/';
+    result += getPavementCalculationMethodLetter(_pavement_calculation_method);
     return result;
   }
 }
