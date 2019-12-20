@@ -6,11 +6,11 @@ import 'package:logger_flutter/logger_flutter.dart';
 import 'package:wyob/WyobException.dart';
 import 'package:wyob/data/LocalDatabase.dart';
 import 'package:wyob/objects/Statistics.dart';
+import 'package:wyob/pages/AcnPcnPage.dart';
 
 import 'package:wyob/pages/DatabasePage.dart';
 import 'package:wyob/pages/FtlMainPage.dart';
 import 'package:wyob/pages/DebugPage.dart';
-import 'package:wyob/widgets/CrewWidget.dart';
 
 // Widgets
 import 'package:wyob/widgets/DutiesWidget.dart';
@@ -153,6 +153,20 @@ class HomePageState extends State<HomePage> {
                     MaterialPageRoute(
                       builder: (context) => FtlMainPage(null, null),
                     )
+                  );
+                },
+              ),
+              GestureDetector(
+                child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    leading: Icon(Icons.av_timer),
+                    title: Text("ACN PCN Calculator")),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AcnPcnPage(),
+                      )
                   );
                 },
               ),
