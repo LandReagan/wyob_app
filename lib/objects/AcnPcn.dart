@@ -1,3 +1,143 @@
+List<Aircraft> getAircrafts() {
+  var aircrafts = <Aircraft>[];
+
+  // Page 1534
+  Aircraft a333BED = Aircraft('A333 BED');
+  a333BED.maximumApronMass = 233900;
+  a333BED.operatingMassEmpty = 125000;
+  a333BED.standardTirePressurePsi = 210;
+  a333BED.pavementSubgrades = {
+    'rigid': {
+      'A': {
+        'max': 55,
+        'min': 29
+      },
+      'B': {
+        'max': 63,
+        'min': 29
+      },
+      'C': {
+        'max': 75,
+        'min': 33
+      },
+      'D': {
+        'max': 87,
+        'min': 38
+      },
+    },
+    'flexible': {
+      'A': {
+        'max': 59,
+        'min': 28
+      },
+      'B': {
+        'max': 63,
+        'min': 29
+      },
+      'C': {
+        'max': 74,
+        'min': 32
+      },
+      'D': {
+        'max': 100,
+        'min': 39
+      },
+    }
+  };
+
+  // Page 1534
+  Aircraft a333HIJ = Aircraft('A333 HIJ');
+  a333HIJ.maximumApronMass = 235900;
+  a333HIJ.operatingMassEmpty = 125000;
+  a333HIJ.standardTirePressurePsi = 210;
+  a333HIJ.pavementSubgrades = {
+    'rigid': {
+      'A': {
+        'max': 55,
+        'min': 29
+      },
+      'B': {
+        'max': 63,
+        'min': 28
+      },
+      'C': {
+        'max': 75,
+        'min': 32
+      },
+      'D': {
+        'max': 87,
+        'min': 37
+      },
+    },
+    'flexible': {
+      'A': {
+        'max': 59,
+        'min': 27
+      },
+      'B': {
+        'max': 63,
+        'min': 29
+      },
+      'C': {
+        'max': 74,
+        'min': 31
+      },
+      'D': {
+        'max': 100,
+        'min': 39
+      },
+    }
+  };
+
+  // Page 1534
+  Aircraft a332 = Aircraft('A332');
+  a333BED.maximumApronMass = 233900;
+  a333BED.operatingMassEmpty = 120000;
+  a333BED.standardTirePressurePsi = 206;
+  a333BED.pavementSubgrades = {
+    'rigid': {
+      'A': {
+        'max': 54,
+        'min': 28
+      },
+      'B': {
+        'max': 62,
+        'min': 27
+      },
+      'C': {
+        'max': 74,
+        'min': 30
+      },
+      'D': {
+        'max': 86,
+        'min': 35
+      },
+    },
+    'flexible': {
+      'A': {
+        'max': 58,
+        'min': 26
+      },
+      'B': {
+        'max': 63,
+        'min': 27
+      },
+      'C': {
+        'max': 73,
+        'min': 30
+      },
+      'D': {
+        'max': 98,
+        'min': 36
+      },
+    }
+  };
+
+  aircrafts.addAll([a333BED, a333HIJ, a332]);
+  return aircrafts;
+}
+
+
 class AcnPcn {
 
 }
@@ -87,6 +227,8 @@ class Aircraft {
     String subgradeStrengthString;
 
   }
+
+  String get name => _name;
 
   @override
   String toString() {
