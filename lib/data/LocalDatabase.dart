@@ -353,7 +353,7 @@ class LocalDatabase {
       for (var data in duty.statistics) {
 
         int startIndex = statistics.indexWhere((stat) {
-          return stat.day == data['day'];
+          return stat.day.isAtSameMomentAs(data['day']);
         });
 
         // 7 days duty

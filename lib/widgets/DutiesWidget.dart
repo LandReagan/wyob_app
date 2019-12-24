@@ -33,7 +33,7 @@ class DutiesWidget extends StatelessWidget {
             DateTime endDayMuscatTime = current.endTime.utc.add(Duration(hours: 4));
             endDayMuscatTime = DateTime(endDayMuscatTime.year, endDayMuscatTime.month, endDayMuscatTime.day);
             Statistics stat = statistics.firstWhere((stat) {
-              return stat.day.difference(endDayMuscatTime) < Duration(hours: 3);
+              return stat.day.isAtSameMomentAs(endDayMuscatTime);
             });
             return DutyWidget(current, previous, stat);
           },
