@@ -156,6 +156,7 @@ class HomePageState extends State<HomePage> {
                   );
                 },
               ),
+              /*
               GestureDetector(
                 child: ListTile(
                     contentPadding: EdgeInsets.all(10.0),
@@ -170,6 +171,7 @@ class HomePageState extends State<HomePage> {
                   );
                 },
               ),
+              */
               GestureDetector(
                 child: ListTile(
                     contentPadding: EdgeInsets.all(10.0),
