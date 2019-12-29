@@ -109,12 +109,12 @@ class _AcnPcnWidgetState extends State<AcnPcnWidget> {
 
     widgets.addAll([
       Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Expanded(
+          Padding(
+            padding: EdgeInsets.only(right: 10.0),
             child: Text(
-              'AIRCRAFT:',
-              textScaleFactor: 1.5,
-            ),
+              'AIRCRAFT:', textScaleFactor: 1.5, textAlign: TextAlign.right,),
           ),
           DropdownButton(
             value: _aircraftName,
@@ -345,37 +345,33 @@ class _AcnPcnWidgetState extends State<AcnPcnWidget> {
             Text(_acnMax.toString(), textScaleFactor: 1.5, style: TextStyle(color: Colors.blue),),
             Spacer(),
             Text('ACN EMPTY: ', textScaleFactor: 1.5,),
-            Text(_acnEmpty.toString(), textScaleFactor: 1.5, style: TextStyle(color: Colors.blue),),
+            Text(_acnEmpty.toString(), textScaleFactor: 1.5, style: TextStyle(color: Colors.blue),)
           ],
         )
       );
     }
 
     if (_maxAircraftWeight != null && _maxAircraftWeight < _aircraft.maximumApronMass) {
-      widgets.add(
-          Row(
-            children: <Widget>[
-              Text('MAX AIRCRAFT WEIGHT: ', textScaleFactor: 1.5,),
-              Text(_maxAircraftWeight.toString(), textScaleFactor: 1.5,
-                style: TextStyle(color: Colors.amber),)
-            ],
-          )
-      );
+      widgets.addAll(<Widget>[
+        Divider(),
+        Text('MAX A/C WEIGHT: ', textScaleFactor: 1.5,),
+        Text(_maxAircraftWeight.toString(), textScaleFactor: 1.5,
+          style: TextStyle(color: Colors.amber),)
+      ]);
     } else if (_maxAircraftWeight != null && _maxAircraftWeight >= _aircraft.maximumApronMass) {
-      widgets.add(
-          Row(
-            children: <Widget>[
-              Text('MAX AIRCRAFT WEIGHT: ', textScaleFactor: 1.5,),
-              Text('UNRESTRICTED', textScaleFactor: 1.5,
-                style: TextStyle(color: Colors.green),)
-            ],
-          )
-      );
+      widgets.addAll(<Widget>[
+        Divider(),
+        Text('MAX A/C WEIGHT: ', textScaleFactor: 1.5,),
+        Text('UNRESTRICTED', textScaleFactor: 1.5,
+          style: TextStyle(color: Colors.green),)
+      ],);
     }
 
     if (_tirePressureOK != null) {
-      widgets.add(
+      widgets.addAll([
+        Divider(),
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text('TIRE PRESSURE: ', textScaleFactor: 1.5,),
             _tirePressureOK ?
@@ -383,7 +379,7 @@ class _AcnPcnWidgetState extends State<AcnPcnWidget> {
               Text('NOK', textScaleFactor: 1.5, style: TextStyle(color: Colors.red),),
           ],
         )
-      );
+      ]);
     }
 
     return widgets;
