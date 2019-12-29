@@ -158,6 +158,18 @@ class StandardAircraftTirePressure {
     return 'PSI:' + psi.toString() + ' kg/cm2:' + (_kpcm2.toString() ?? '') +
         ' MPa:' + (_MPa.toString() ?? '');
   }
+
+  bool checkPermissible(String tirePressureCategoryLetter) {
+    Map<String, int> maxPsi = {
+      'W': 1000,
+      'X': 254,
+      'Y': 181,
+      'Z': 73
+    };
+    assert (maxPsi.keys.contains(tirePressureCategoryLetter));
+    if (_psi < maxPsi[tirePressureCategoryLetter]) return true;
+    return false;
+  }
 }
 
 class Aircraft {
@@ -388,10 +400,10 @@ class Runway {
   @override
   String toString() {
     String result = _pcn.toString() + '/';
-    result += getPavementTypeLetter(_pavement_type) + '/';
-    result += getSubgradeStrengthLetter(_subgrade_strength) + '/';
-    result += getTirePressureCategoryLetter(_tire_pressure_category) + '/';
-    result += getPavementCalculationMethodLetter(_pavement_calculation_method);
+    result += (getPavementTypeLetter(_pavement_type) ?? '') + '/';
+    result += (getSubgradeStrengthLetter(_subgrade_strength) ?? '') + '/';
+    result += (getTirePressureCategoryLetter(_tire_pressure_category) ?? '') + '/';
+    result += (getPavementCalculationMethodLetter(_pavement_calculation_method) ?? '');
     return result;
   }
 }

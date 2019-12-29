@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:wyob/objects/AcnPcn.dart';
 
 class AcnPcnWidget extends StatefulWidget {
@@ -25,7 +24,9 @@ class _AcnPcnWidgetState extends State<AcnPcnWidget> {
   int _acnEmpty;
 
   final _pcnController = TextEditingController();
-  bool _processed = false;
+
+  bool _tirePressureOK;
+  int _maxAircraftWeight;
 
   @override
   void initState() {
@@ -78,9 +79,29 @@ class _AcnPcnWidgetState extends State<AcnPcnWidget> {
           '?';
       _runway = Runway.fromString(runwayCode);
       print(_runway);
+    } else {
+      _runway = null;
     }
 
-    // todo: process calculation and change _processed to true when possible
+    if (_runway != null && _acnMax != null && _acnEmpty != null) {
+      _maxAircraftWeight = (_aircraft.maximumApronMass -
+          (_acnMax - _pcn) / (_acnMax - _acnEmpty) *
+          (_aircraft.maximumApronMass - _aircraft.operatingMassEmpty)).floor();
+    } else {
+      _maxAircraftWeight = null;
+    }
+
+    if (_aircraft != null && _tirePressure != '?') {
+        if(_aircraft
+            .standardAircraftTirePressure
+            .checkPermissible(_tirePressure)) {
+          _tirePressureOK = true;
+        } else {
+          _tirePressureOK = false;
+        }
+    } else {
+      _tirePressureOK = null;
+    }
   }
 
   List<Widget> getWidgets() {
@@ -316,7 +337,54 @@ class _AcnPcnWidgetState extends State<AcnPcnWidget> {
       )
     ]);
 
-    //todo: if _processed, add result widgets
+    if (_acnMax != null && _acnEmpty != null) {
+      widgets.add(
+        Row(
+          children: <Widget>[
+            Text('ACN MAX: ', textScaleFactor: 1.5,),
+            Text(_acnMax.toString(), textScaleFactor: 1.5, style: TextStyle(color: Colors.blue),),
+            Spacer(),
+            Text('ACN EMPTY: ', textScaleFactor: 1.5,),
+            Text(_acnEmpty.toString(), textScaleFactor: 1.5, style: TextStyle(color: Colors.blue),),
+          ],
+        )
+      );
+    }
+
+    if (_maxAircraftWeight != null && _maxAircraftWeight < _aircraft.maximumApronMass) {
+      widgets.add(
+          Row(
+            children: <Widget>[
+              Text('MAX AIRCRAFT WEIGHT: ', textScaleFactor: 1.5,),
+              Text(_maxAircraftWeight.toString(), textScaleFactor: 1.5,
+                style: TextStyle(color: Colors.amber),)
+            ],
+          )
+      );
+    } else if (_maxAircraftWeight != null && _maxAircraftWeight >= _aircraft.maximumApronMass) {
+      widgets.add(
+          Row(
+            children: <Widget>[
+              Text('MAX AIRCRAFT WEIGHT: ', textScaleFactor: 1.5,),
+              Text('UNRESTRICTED', textScaleFactor: 1.5,
+                style: TextStyle(color: Colors.green),)
+            ],
+          )
+      );
+    }
+
+    if (_tirePressureOK != null) {
+      widgets.add(
+        Row(
+          children: <Widget>[
+            Text('TIRE PRESSURE: ', textScaleFactor: 1.5,),
+            _tirePressureOK ?
+              Text('OK', textScaleFactor: 1.5, style: TextStyle(color: Colors.green),) :
+              Text('NOK', textScaleFactor: 1.5, style: TextStyle(color: Colors.red),),
+          ],
+        )
+      );
+    }
 
     return widgets;
   }
