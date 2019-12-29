@@ -91,10 +91,10 @@ List<Aircraft> getAircrafts() {
 
   // Page 1534
   Aircraft a332 = Aircraft('A332');
-  a333BED.maximumApronMass = 233900;
-  a333BED.operatingMassEmpty = 120000;
-  a333BED.standardTirePressurePsi = 206;
-  a333BED.pavementSubgrades = {
+  a332.maximumApronMass = 233900;
+  a332.operatingMassEmpty = 120000;
+  a332.standardTirePressurePsi = 206;
+  a332.pavementSubgrades = {
     'rigid': {
       'A': {
         'max': 54,

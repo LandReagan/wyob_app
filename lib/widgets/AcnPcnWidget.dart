@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:wyob/objects/AcnPcn.dart';
 
 class AcnPcnWidget extends StatefulWidget {
-
   final List<String> _aircraftNames =
       getAircrafts().map((aircraft) => aircraft.name).toList();
 
@@ -12,8 +11,9 @@ class AcnPcnWidget extends StatefulWidget {
 }
 
 class _AcnPcnWidgetState extends State<AcnPcnWidget> {
-
-  String _aircraft = 'A332';
+  String _aircraftName = 'A332';
+  Aircraft _aircraft;
+  Runway _runway;
 
   int _pcn;
   String _pavementType = '?';
@@ -21,166 +21,311 @@ class _AcnPcnWidgetState extends State<AcnPcnWidget> {
   String _tirePressure = '?';
   String _calculationMethod = '?';
 
+  int _acnMax;
+  int _acnEmpty;
+
+  final _pcnController = TextEditingController();
+  bool _processed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _aircraft =
+        getAircrafts().firstWhere((aircraft) => aircraft.name == _aircraftName);
+    _pcnController.addListener(() {
+      final txt = _pcnController.text;
+      if (txt != null) _pcn = int.tryParse(txt);
+    });
+  }
+
+  @override
+  void dispose() {
+    _pcnController.dispose();
+    super.dispose();
+  }
+
+  void _process() {
+    if (_aircraft == null) return;
+    if (_pavementType != '?' && _subgradeStrength != '?') {
+      // We can get ACN max and ACN empty
+      String type = _pavementType == 'R' ? 'rigid' : 'flexible';
+      _acnMax = _aircraft.pavementSubgrades[type][_subgradeStrength]['max'];
+      _acnEmpty = _aircraft.pavementSubgrades[type][_subgradeStrength]['min'];
+    } else {
+      _acnMax = null;
+      _acnEmpty = null;
+    }
+    print(_aircraft.toString() +
+        '\n' +
+        'ACN MAX:' +
+        _acnMax.toString() +
+        ' - ACN EMPTY:' +
+        _acnEmpty.toString());
+
+    if (_pcn != null &&
+        _pavementType != '?' &&
+        _subgradeStrength != '?' &&
+        _tirePressure != '?') {
+      String runwayCode = _pcn.toString() +
+              '/' +
+              _pavementType +
+              '/' +
+              _subgradeStrength +
+              '/' +
+              _tirePressure +
+              '/' +
+              _calculationMethod ??
+          '?';
+      _runway = Runway.fromString(runwayCode);
+      print(_runway);
+    }
+
+    // todo: process calculation and change _processed to true when possible
+  }
+
+  List<Widget> getWidgets() {
+    var widgets = <Widget>[];
+
+    widgets.addAll([
+      Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(
+              'AIRCRAFT:',
+              textScaleFactor: 1.5,
+            ),
+          ),
+          DropdownButton(
+            value: _aircraftName,
+            icon: Icon(Icons.arrow_downward),
+            onChanged: (String newValue) {
+              setState(() {
+                _aircraftName = newValue;
+                _aircraft = getAircrafts()
+                    .firstWhere((aircraft) => aircraft.name == _aircraftName);
+              });
+            },
+            items: widget._aircraftNames.map((String name) {
+              return DropdownMenuItem(
+                value: name,
+                child: Text(
+                  name,
+                  textScaleFactor: 1.5,
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+      Divider(
+        height: 5.0,
+      ),
+      Text(
+        'RUNWAY:',
+        textScaleFactor: 1.5,
+      ),
+      Row(
+        children: <Widget>[
+          Expanded(
+            child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'PCN',
+                ),
+                controller: _pcnController),
+          ),
+          Text(
+            '/',
+            textScaleFactor: 1.5,
+          ),
+          Expanded(
+            child: DropdownButton(
+              value: _pavementType,
+              onChanged: (String newType) {
+                setState(() {
+                  _pavementType = newType;
+                });
+              },
+              items: [
+                DropdownMenuItem(
+                  value: '?',
+                  child: Text(
+                    '?',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'R',
+                  child: Text(
+                    'R',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'F',
+                  child: Text(
+                    'F',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '/',
+            textScaleFactor: 1.5,
+          ),
+          Expanded(
+            child: DropdownButton(
+              value: _subgradeStrength,
+              onChanged: (String newSubgrade) {
+                setState(() {
+                  _subgradeStrength = newSubgrade;
+                });
+              },
+              items: [
+                DropdownMenuItem(
+                  value: '?',
+                  child: Text(
+                    '?',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'A',
+                  child: Text(
+                    'A',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'B',
+                  child: Text(
+                    'B',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'C',
+                  child: Text(
+                    'C',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'D',
+                  child: Text(
+                    'D',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '/',
+            textScaleFactor: 1.5,
+          ),
+          Expanded(
+            child: DropdownButton(
+              value: _tirePressure,
+              onChanged: (String newTire) {
+                setState(() {
+                  _tirePressure = newTire;
+                });
+              },
+              items: [
+                DropdownMenuItem(
+                  value: '?',
+                  child: Text(
+                    '?',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'W',
+                  child: Text(
+                    'W',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'X',
+                  child: Text(
+                    'X',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'Y',
+                  child: Text(
+                    'Y',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'Z',
+                  child: Text(
+                    'Z',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '/',
+            textScaleFactor: 1.5,
+          ),
+          Expanded(
+            child: DropdownButton(
+              value: _calculationMethod,
+              onChanged: (String newMethod) {
+                setState(() {
+                  _calculationMethod = newMethod;
+                });
+              },
+              items: [
+                DropdownMenuItem(
+                  value: '?',
+                  child: Text(
+                    '?',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'T',
+                  child: Text(
+                    'T',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'U',
+                  child: Text(
+                    'U',
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      Divider(
+        height: 15.0,
+      )
+    ]);
+
+    //todo: if _processed, add result widgets
+
+    return widgets;
+  }
+
   @override
   Widget build(BuildContext context) {
+    _process();
     return Column(
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                'AIRCRAFT:',
-                textScaleFactor: 1.5,
-              ),
-            ),
-            DropdownButton(
-                value: _aircraft,
-                icon: Icon(Icons.arrow_downward),
-                onChanged: (String newValue) {
-                  setState(() {
-                    _aircraft = newValue;
-                  });
-                },
-                items: widget._aircraftNames.map((String name) {
-                  return DropdownMenuItem (
-                    value: name,
-                    child: Text(name, textScaleFactor: 1.5,),
-                  );
-                }).toList(),
-              ),
-          ],
-        ),
-        Divider(height: 5.0,),
-        Text(
-          'RUNWAY:',
-          textScaleFactor: 1.5,
-        ),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(hintText: 'PCN', ),
-              ),
-            ),
-            Text('/', textScaleFactor: 1.5,),
-            Expanded(
-              child: DropdownButton(
-                value: _pavementType,
-                onChanged: (String newType) {
-                  setState(() {
-                    _pavementType = newType;
-                  });
-                },
-                items: [
-                  DropdownMenuItem(
-                    value: '?',
-                    child: Text('?', textScaleFactor: 1.5,),
-                  ),
-                  DropdownMenuItem(
-                    value: 'R',
-                    child: Text('R', textScaleFactor: 1.5,),
-                  ),
-                  DropdownMenuItem(
-                    value: 'F',
-                    child: Text('F', textScaleFactor: 1.5,),
-                  ),
-                ],
-              ),
-            ),
-            Text('/', textScaleFactor: 1.5,),
-            Expanded(
-              child: DropdownButton(
-                value: _subgradeStrength,
-                onChanged: (String newSubgrade) {
-                  setState(() {
-                    _subgradeStrength = newSubgrade;
-                  });
-                },
-                items: [
-                  DropdownMenuItem(
-                    value: '?',
-                    child: Text('?', textScaleFactor: 1.5,),
-                  ),
-                  DropdownMenuItem(
-                    value: 'A',
-                    child: Text('A', textScaleFactor: 1.5,),
-                  ),
-                  DropdownMenuItem(
-                    value: 'B',
-                    child: Text('B', textScaleFactor: 1.5,),
-                  ),
-                  DropdownMenuItem(
-                    value: 'C',
-                    child: Text('C', textScaleFactor: 1.5,),
-                  ),
-                  DropdownMenuItem(
-                    value: 'D',
-                    child: Text('D', textScaleFactor: 1.5,),
-                  ),
-                ],
-              ),
-            ),
-            Text('/', textScaleFactor: 1.5,),
-            Expanded(
-              child: DropdownButton(
-                value: _tirePressure,
-                onChanged: (String newTire) {
-                  setState(() {
-                    _tirePressure = newTire;
-                  });
-                },
-                items: [
-                  DropdownMenuItem(
-                    value: '?',
-                    child: Text('?', textScaleFactor: 1.5,),
-                  ),
-                  DropdownMenuItem(
-                    value: 'W',
-                    child: Text('W', textScaleFactor: 1.5,),
-                  ),
-                  DropdownMenuItem(
-                    value: 'X',
-                    child: Text('X', textScaleFactor: 1.5,),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Y',
-                    child: Text('Y', textScaleFactor: 1.5,),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Z',
-                    child: Text('Z', textScaleFactor: 1.5,),
-                  ),
-                ],
-              ),
-            ),
-            Text('/', textScaleFactor: 1.5,),
-            Expanded(
-              child: DropdownButton(
-                value: _pavementType,
-                onChanged: (String newType) {
-                  setState(() {
-                    _pavementType = newType;
-                  });
-                },
-                items: [
-                  DropdownMenuItem(
-                    value: '?',
-                    child: Text('?', textScaleFactor: 1.5,),
-                  ),
-                  DropdownMenuItem(
-                    value: 'R',
-                    child: Text('R', textScaleFactor: 1.5,),
-                  ),
-                  DropdownMenuItem(
-                    value: 'F',
-                    child: Text('F', textScaleFactor: 1.5,),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        )
-      ],
+      children: getWidgets(),
     );
   }
 }
