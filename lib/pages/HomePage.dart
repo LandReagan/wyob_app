@@ -11,6 +11,7 @@ import 'package:wyob/pages/AcnPcnPage.dart';
 import 'package:wyob/pages/DatabasePage.dart';
 import 'package:wyob/pages/FtlMainPage.dart';
 import 'package:wyob/pages/DebugPage.dart';
+import 'package:wyob/pages/HistoryPage.dart';
 
 // Widgets
 import 'package:wyob/widgets/DutiesWidget.dart';
@@ -203,6 +204,25 @@ class HomePageState extends State<HomePage> {
         ),
         appBar: AppBar(
           title: Text("WYOB v0.3.3 beta"),
+          actions: <Widget>[
+            FlatButton(
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: Colors.white),
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              ),
+              child: Text('History', textScaleFactor: 1.2, style: TextStyle(color: Colors.white),),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return HistoryPage();
+                    }
+                  )
+                );
+              },
+            )
+          ],
         ),
         body: LogConsoleOnShake(
           child: HomeWidget(_duties, _statistics),
@@ -216,56 +236,14 @@ class HomePageState extends State<HomePage> {
   }
 }
 
-class HomeWidget extends StatefulWidget {
+class HomeWidget extends StatelessWidget {
   final List<Duty> duties;
   final List<Statistics> statistics;
 
   HomeWidget(this.duties, this.statistics);
 
-  _HomeWidgetState createState() => _HomeWidgetState();
-
-}
-
-class _HomeWidgetState extends State<HomeWidget> {
-
-  bool _history;
-
-  @override
-  void initState() {
-    super.initState();
-    _history = false;
-  }
-
-  void _toggleHistory() {
-    setState(() {
-      _history = !_history;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_history) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          FlatButton(
-            child: Text('>> TAP HERE FOR CURRENT DUTIES <<', textScaleFactor: 1.2,),
-            onPressed: () => _toggleHistory(),
-          ),
-          HistoryWidget(),
-        ],
-      );
-    } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          FlatButton(
-            child: Text('>> TAP HERE FOR HISTORY <<', textScaleFactor: 1.2,),
-            onPressed: () => _toggleHistory(),
-          ),
-          DutiesWidget(widget.duties, widget.statistics),
-        ],
-      );
-    }
+    return DutiesWidget(duties, statistics);
   }
 }

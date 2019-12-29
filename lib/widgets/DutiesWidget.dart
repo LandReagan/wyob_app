@@ -16,8 +16,7 @@ class DutiesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: duties == null ?
+    return duties == null ?
         Container() :
         ListView.builder(
           itemCount: duties.length,
@@ -37,8 +36,7 @@ class DutiesWidget extends StatelessWidget {
             });
             return DutyWidget(current, previous, stat);
           },
-        ),
-    );
+        );
   }
 }
 
