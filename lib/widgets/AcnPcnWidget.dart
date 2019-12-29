@@ -35,7 +35,10 @@ class _AcnPcnWidgetState extends State<AcnPcnWidget> {
         getAircrafts().firstWhere((aircraft) => aircraft.name == _aircraftName);
     _pcnController.addListener(() {
       final txt = _pcnController.text;
-      if (txt != null) _pcn = int.tryParse(txt);
+      if (txt != null && txt != '') _pcn = int.tryParse(txt);
+      setState(() {
+
+      });
     });
   }
 
@@ -152,6 +155,8 @@ class _AcnPcnWidgetState extends State<AcnPcnWidget> {
                 decoration: InputDecoration(
                   hintText: 'PCN',
                 ),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 22.0),
                 controller: _pcnController),
           ),
           Text(
