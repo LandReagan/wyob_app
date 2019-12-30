@@ -18,6 +18,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
   }
 
   void refresh() {
+    _widgets.clear();
     LocalDatabase().getAllMonthlyAggregations().forEach((aggregation) {
       _widgets.add(HistoryMonthWidget(aggregation));
     });
