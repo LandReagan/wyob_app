@@ -17,6 +17,12 @@ class _HistoryWidgetState extends State<HistoryWidget> {
     refresh();
   }
 
+  @override
+  void dispose() {
+    LocalDatabase().notifier.removeListener(this.refresh);
+    super.dispose();
+  }
+
   void refresh() {
     _widgets.clear();
     LocalDatabase().getAllMonthlyAggregations().forEach((aggregation) {
