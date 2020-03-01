@@ -15,7 +15,6 @@ import 'package:wyob/pages/HistoryPage.dart';
 
 // Widgets
 import 'package:wyob/widgets/DutiesWidget.dart';
-import 'package:wyob/widgets/HistoryWidget.dart';
 import 'package:wyob/widgets/IobStateWidget.dart';
 import 'package:wyob/widgets/LoginPopUp.dart';
 
