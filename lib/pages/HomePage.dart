@@ -12,6 +12,7 @@ import 'package:wyob/pages/DatabasePage.dart';
 import 'package:wyob/pages/FtlMainPage.dart';
 import 'package:wyob/pages/DebugPage.dart';
 import 'package:wyob/pages/HistoryPage.dart';
+import 'package:wyob/pages/ValiditiesPage.dart';
 
 // Widgets
 import 'package:wyob/widgets/DutiesWidget.dart';
@@ -131,15 +132,15 @@ class HomePageState extends State<HomePage> {
               GestureDetector(
                 child: ListTile(
                     contentPadding: EdgeInsets.all(10.0),
-                    leading: Icon(Icons.keyboard),
-                    title: Text("Database")),
+                    leading: Icon(Icons.alarm),
+                    title: Text("Validities")),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DatabasePage(),
-                    )
-                  ).then((value) => this.readDutiesFromDatabase());
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ValiditiesPage();
+                      }
+                  );
                 },
               ),
               GestureDetector(
@@ -159,7 +160,7 @@ class HomePageState extends State<HomePage> {
               GestureDetector(
                 child: ListTile(
                     contentPadding: EdgeInsets.all(10.0),
-                    leading: Icon(Icons.av_timer),
+                    leading: Icon(Icons.vertical_align_bottom),
                     title: Text("ACN PCN Calculator")),
                 onTap: () {
                   Navigator.push(
@@ -182,6 +183,20 @@ class HomePageState extends State<HomePage> {
                         builder: (context) => CrewPage(),
                       )
                   );
+                },
+              ),
+              GestureDetector(
+                child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    leading: Icon(Icons.keyboard),
+                    title: Text("Database")),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DatabasePage(),
+                      )
+                  ).then((value) => this.readDutiesFromDatabase());
                 },
               ),
               GestureDetector(
