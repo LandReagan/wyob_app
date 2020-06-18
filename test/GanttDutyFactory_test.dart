@@ -1,6 +1,5 @@
 import 'dart:io' show File;
-import 'package:test/test.dart';
-
+import 'package:flutter_test/flutter_test.dart';
 import 'package:wyob/iob/GanttDutyFactory.dart' show GanttDutyFactory;
 import 'package:wyob/objects/Duty.dart';
 import 'package:wyob/objects/Flight.dart';

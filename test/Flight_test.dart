@@ -1,5 +1,4 @@
-import 'package:test/test.dart';
-
+import 'package:flutter_test/flutter_test.dart';
 import 'package:wyob/objects/Flight.dart' show Flight;
 
 void main() {

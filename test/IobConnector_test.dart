@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:wyob/WyobException.dart';
 
 import 'package:wyob/iob/IobConnector.dart';

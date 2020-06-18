@@ -1,5 +1,5 @@
 
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'dart:io';
 import 'dart:convert' show jsonEncode;
 

@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class Validity {
   String name;
   DateTime deadline;
